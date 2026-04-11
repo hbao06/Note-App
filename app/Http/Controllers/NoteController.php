@@ -16,6 +16,7 @@ class NoteController extends Controller
     {
         $notes = Note::where('user_id', Auth::id())
             ->orderByDesc('is_pinned')
+            ->orderByDesc('pinned_at')
             ->orderByDesc('updated_at')
             ->get();
 
@@ -130,5 +131,24 @@ class NoteController extends Controller
         $image->delete();
 
         return response()->json(['status' => 'deleted']);
+    }
+
+
+    // PIN NOTE
+    public function togglePin(Note $note)
+    {
+        if ($note->is_pinned) {
+            $note->update([
+                'is_pinned' => false,
+                'pinned_at' => null
+            ]);
+        } else {
+            $note->update([
+                'is_pinned' => true,
+                'pinned_at' => now()
+            ]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 }

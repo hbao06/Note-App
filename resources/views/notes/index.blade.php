@@ -20,7 +20,7 @@
                     <div x-on:click="window.location='{{ route('notes.editor.edit', $note->id) }}'"
 
                         class="cursor-pointer relative group p-4 rounded-xl shadow-md border bg-yellow-50 hover:shadow-lg hover:-translate-y-1 transition transform duration-150">
-
+                        
                         <!-- TITLE -->
                         <h2 class="text-xl font-semibold mb-2 text-gray-800">
                             {{ $note->title }}
@@ -33,6 +33,12 @@
 
                         <!-- ACTION BUTTONS -->
                         <div class="absolute top-3 right-3 hidden group-hover:flex space-x-3">
+
+                            <!-- Pin -->
+                            <button onclick="event.stopPropagation(); togglePin('{{ $note->id }}')"
+                                    class="text-gray-600 hover:text-yellow-500">
+                                {{ $note->is_pinned ? '📌' : '📍' }}
+                            </button>
 
                             <!-- EDIT -->
                             <a href="{{ route('notes.editor.edit', $note->id) }}"
@@ -61,4 +67,22 @@
         @endif
 
     </div>
+
+    <script>
+        // PIN
+        function togglePin(id) {
+            console.log("CLICK PIN:", id);
+
+            fetch(`/notes/${id}/pin`, {
+                method: "POST",
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+            })
+            .then(res => res.json())
+            .then(() => location.reload());
+        }
+    </script>
+     
 </x-app-layout>
+
+
+

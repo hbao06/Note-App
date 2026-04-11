@@ -37,6 +37,11 @@ Route::middleware('auth')->group(function () {
     // Xoá ảnh
     Route::delete('/notes/images/{image}', [NoteController::class, 'deleteImage'])
         ->name('notes.images.delete');
+    
+    // PIN NOTE
+    Route::post('/notes/{note}/pin', [NoteController::class, 'togglePin'])
+        ->name('notes.pin');
+
 });
 
 require __DIR__.'/auth.php';

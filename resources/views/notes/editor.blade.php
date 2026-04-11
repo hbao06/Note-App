@@ -169,6 +169,9 @@
             })
             .then(() => location.reload());
         }
+
+       
+
     </script>
 
 </x-app-layout>
