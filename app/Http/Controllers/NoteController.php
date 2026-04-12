@@ -151,4 +151,40 @@ class NoteController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
+
+    // SEARCH
+    public function search(Request $request)
+    {
+        $q = $request->q;
+
+        $notes = Note::where('user_id', Auth::id())
+            ->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%$q%")
+                    ->orWhere('content', 'like', "%$q%");
+            })
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return response()->json($notes);
+    }   
+
+    // FILTER LABEL
+    public function filter(Request $request)
+    {
+        $query = Note::where('user_id', Auth::id());
+
+        if ($request->labels) {
+            $query->whereHas('labels', function ($q) use ($request) {
+                $q->whereIn('labels.id', $request->labels);
+            });
+        }
+
+        $notes = $query
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return response()->json($notes);
+    }
 }

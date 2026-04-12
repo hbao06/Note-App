@@ -5,6 +5,13 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\NoteController;
 
+use App\Models\Label;
+use Illuminate\Http\Request;
+use App\Models\Note;
+
+use App\Http\Controllers\LabelController;
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,12 +45,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notes/images/{image}', [NoteController::class, 'deleteImage'])
         ->name('notes.images.delete');
     
-    // PIN NOTE
+            // PIN NOTE
     Route::post('/notes/{note}/pin', [NoteController::class, 'togglePin'])
         ->name('notes.pin');
 
-});
+    // SEARCH
+    Route::get('/notes/search', [NoteController::class, 'search'])->name('notes.search');
 
+    // LABEL
+    Route::post('/notes/{note}/labels', [NoteController::class, 'syncLabels']);
+    Route::get('/labels', [LabelController::class, 'index']);
+    Route::post('/labels', [LabelController::class, 'store']);
+    Route::put('/labels/{label}', [LabelController::class, 'update']);
+    Route::delete('/labels/{label}', [LabelController::class, 'destroy']);
+
+    // FILTER LABEL
+    Route::get('/notes/filter', [NoteController::class, 'filter']);
+
+
+});
 require __DIR__.'/auth.php';
 
 

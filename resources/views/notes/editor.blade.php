@@ -39,20 +39,42 @@
             </div>
 
             <!-- IMAGE PREVIEW -->
-            <div id="imagePreview" class="mt-4 grid grid-cols-2 gap-4">
+            <div id="imagePreview" class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-16">
                 @if(isset($note))
                     @foreach($note->images as $img)
-                        <div class="relative group">
+                        <div id="img-{{ $img->id }}" class="relative group">
                             <img src="{{ asset('storage/' . $img->image_path) }}"
-                                 class="rounded-lg shadow">
+                                class="w-full h-32 object-cover rounded-lg shadow">
 
-                            <button x-on:onclick="deleteImage({{ $img->id }})"
-                                    class="absolute top-1 right-1 bg-red-600 text-white p-1 rounded hidden group-hover:block">
+                            <!-- DELETE BUTTON -->
+                            <button onclick="event.stopPropagation(); deleteImage('{{ $img->id }}')"
+                                    class="absolute top-1 right-1 bg-black/60 text-white text-sm px-2 py-1 rounded hidden group-hover:block">
                                 ✕
                             </button>
                         </div>
                     @endforeach
                 @endif
+            </div>
+
+            <!-- LABEL -->
+            <div class="mt-4">
+                <label class="font-semibold">Labels</label>
+
+                <div class="flex gap-2 mt-2">
+                    <!-- input -->
+                    <input type="text" id="newLabel"
+                        placeholder="Add label..."
+                        class="border px-3 py-1 rounded w-full">
+
+                    <!-- 🔥 NÚT ADD -->
+                    <button onclick="event.stopPropagation(); createLabel()"
+                        class="px-4 bg-blue-500 text-white rounded">
+                        Add
+                    </button>
+                </div>
+
+                <!-- danh sách label -->
+                <div id="labelList" class="flex flex-wrap gap-2 mt-3"></div>
             </div>
 
             <!-- HIDDEN NOTE ID -->
@@ -123,9 +145,29 @@
         const uploadBtn  = document.getElementById('uploadBtn');
 
         imageInput.addEventListener('change', function () {
-            if (this.files.length > 0) {
-                uploadBtn.classList.remove('hidden');
+
+            // preview trước khi upload
+            const preview = document.getElementById('imagePreview');
+
+            for (let file of this.files) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const div = document.createElement('div');
+                    div.classList.add('relative', 'group');
+
+                    div.innerHTML = `
+                        <img src="${e.target.result}"
+                            class="w-full h-32 object-cover rounded-lg shadow opacity-70">
+                    `;
+
+                    preview.prepend(div);
+                }
+
+                reader.readAsDataURL(file);
             }
+
+            uploadBtn.classList.remove('hidden');
         });
 
         // UPLOAD IMAGES WHEN CLICK
@@ -161,17 +203,110 @@
             });
         });
 
+        
+
         // DELETE IMAGE
         function deleteImage(id) {
             fetch(`/notes/images/${id}`, {
                 method: "DELETE",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Accept": "application/json"
+                }
             })
-            .then(() => location.reload());
+            .then(res => res.json())
+            .then(() => {
+                // ❗ XÓA LUÔN TRÊN UI (KHÔNG CẦN RELOAD)
+                document.getElementById('img-' + id).remove();
+            })
+            .catch(err => console.log(err));
         }
 
-       
+        // LABEL
+        let selectedLabels = [];
+        
+
+        // load labels
+        function loadLabels() {
+            fetch('/labels')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('labelList');
+                container.innerHTML = "";
+
+                data.forEach(label => {
+                    container.innerHTML += `
+                        <span onclick="toggleLabel(${label.id})"
+                            class="px-3 py-1 rounded-full border cursor-pointer"
+                            id="label-${label.id}">
+                            ${label.name}
+                        </span>
+                    `;
+                });
+            });
+        }
+
+        // toggle chọn label
+        function toggleLabel(id) {
+            const el = document.getElementById(`label-${id}`);
+
+            if (selectedLabels.includes(id)) {
+                selectedLabels = selectedLabels.filter(l => l !== id);
+                el.classList.remove('bg-blue-500','text-white');
+            } else {
+                selectedLabels.push(id);
+                el.classList.add('bg-blue-500','text-white');
+            }
+
+            saveLabels();
+        }
+
+        // save labels to note
+        function saveLabels() {
+            if (!noteIdInput.value) return;
+
+            fetch(`/notes/${noteIdInput.value}/labels`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ label_ids: selectedLabels })
+            });
+        }
+
+        // create new label
+        function createLabel() {
+
+            console.log("CLICK ADD"); // debug
+
+            const input = document.getElementById('newLabel');
+            const name = input.value.trim();
+
+            if (!name) {
+                alert("Please enter label name");
+                return;
+            }
+
+            fetch('/labels', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ name: name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("CREATED:", data);
+
+                input.value = "";
+                loadLabels(); // reload list
+            });
+        }
+
+        // load khi mở trang
+        loadLabels();
 
     </script>
-
 </x-app-layout>
