@@ -71,19 +71,21 @@
                     @endif
                 </div>
 
-                <div class="relative group">
-                    <div class="flex items-center text-gray-500 focus-within:text-gray-800">
+                <div class="relative group flex items-center gap-2">
+                    <div class="flex flex-1 items-center text-gray-500 focus-within:text-gray-800 border-b border-transparent focus-within:border-gray-200 transition">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                         <input type="text" id="newLabel" 
                             placeholder="Add label..." 
-                            class="w-full text-sm outline-none border-none focus:ring-0 bg-transparent"
-                            onkeypress="if(event.key === 'Enter') createLabel()">
+                            class="w-full text-sm outline-none border-none focus:ring-0 bg-transparent py-2"
+                            oninput="showSuggestions(this.value)">
                     </div>
+                    <button onclick="createLabel()" class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded hover:bg-blue-100 transition">
+                        ADD
+                    </button>
                     
-                    <div id="labelSuggestions" class="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
-                        </div>
+                    <div id="labelSuggestions" class="absolute z-10 w-full mt-1 top-full bg-white border rounded-lg shadow-lg hidden max-h-48 overflow-y-auto"></div>
                 </div>
-            </div>
+
 
             <!-- HIDDEN NOTE ID -->
             <input type="hidden" id="noteId" value="{{ $note->id ?? '' }}">
@@ -230,91 +232,6 @@
             .catch(err => console.log(err));
         }
 
-        // LABEL
-        // let selectedLabels = [];
-        
-
-        // // load labels
-        // function loadLabels() {
-        //     fetch('/labels')
-        //     .then(res => res.json())
-        //     .then(data => {
-        //         const container = document.getElementById('labelList');
-        //         container.innerHTML = "";
-
-        //         data.forEach(label => {
-        //             container.innerHTML += `
-        //                 <span onclick="toggleLabel(${label.id})"
-        //                     class="px-3 py-1 rounded-full border cursor-pointer"
-        //                     id="label-${label.id}">
-        //                     ${label.name}
-        //                 </span>
-        //             `;
-        //         });
-        //     });
-        // }
-
-        // // toggle chọn label
-        // function toggleLabel(id) {
-        //     const el = document.getElementById(`label-${id}`);
-
-        //     if (selectedLabels.includes(id)) {
-        //         selectedLabels = selectedLabels.filter(l => l !== id);
-        //         el.classList.remove('bg-blue-500','text-white');
-        //     } else {
-        //         selectedLabels.push(id);
-        //         el.classList.add('bg-blue-500','text-white');
-        //     }
-
-        //     saveLabels();
-        // }
-
-        // // save labels to note
-        // function saveLabels() {
-        //     if (!noteIdInput.value) return;
-
-        //     fetch(`/notes/${noteIdInput.value}/labels`, {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        //         },
-        //         body: JSON.stringify({ label_ids: selectedLabels })
-        //     });
-        // }
-
-        // // create new label
-        // function createLabel() {
-
-        //     console.log("CLICK ADD"); // debug
-
-        //     const input = document.getElementById('newLabel');
-        //     const name = input.value.trim();
-
-        //     if (!name) {
-        //         alert("Please enter label name");
-        //         return;
-        //     }
-
-        //     fetch('/labels', {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        //         },
-        //         body: JSON.stringify({ name: name })
-        //     })
-        //     .then(res => res.json())
-        //     .then(data => {
-        //         console.log("CREATED:", data);
-
-        //         input.value = "";
-        //         loadLabels(); // reload list
-        //     });
-        // }
-
-        // // load khi mở trang
-        // loadLabels();
 
         // --- LABEL LOGIC (GOOGLE KEEP STYLE) ---
         const labelInput = document.getElementById('newLabel');
@@ -376,20 +293,36 @@
                 attachLabelToNote(data.id, data.name);
                 labelInput.value = "";
                 suggestions.classList.add('hidden');
+
+                // ✅ reload để cập nhật filter bar
+                setTimeout(() => location.reload(), 300);
             });
         }
 
         function attachLabelToNote(id, name) {
-            if (!noteIdInput.value) return;
-            fetch(`/notes/${noteIdInput.value}/labels`, {
+            const noteId = document.getElementById('noteId').value;
+            if (!noteId) {
+                alert("Vui lòng chờ Note lưu nháp xong trước khi thêm nhãn.");
+                return;
+            }
+
+            fetch(`/notes/${noteId}/labels`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
-                body: JSON.stringify({ label_ids: [id] })
+                body: JSON.stringify({ label_ids: [id] }) // Gửi ID lên Controller
             })
-            .then(() => renderLabelBadge(id, name));
+            .then(res => res.json())
+            .then(data => {
+                console.log("ATTACH RESPONSE:", data); // 🔥 DEBUG
+
+                if (data.status === 'attached') {
+                    renderLabelBadge(id, name);
+                }
+            })
+            .catch(err => console.error("ATTACH ERROR:", err));
         }
 
         function renderLabelBadge(id, name) {
@@ -411,6 +344,8 @@
              // Tạm thời xóa trên UI:
              document.getElementById(`badge-${labelId}`).remove();
         }
+
+        loadLabels();
 
     </script>
 </x-app-layout>

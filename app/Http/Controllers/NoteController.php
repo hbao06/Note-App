@@ -8,19 +8,27 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Storage;
 use App\Models\NoteImage;   
+use App\Models\Label;   
+use Illuminate\Support\Facades\Log;
 
 class NoteController extends Controller
 {
-    // DANH SÁCH NOTE
     public function index()
     {
-        $notes = Note::where('user_id', Auth::id())
+        $notes = Note::with('labels')
+            ->where('user_id', Auth::id())
             ->orderByDesc('is_pinned')
             ->orderByDesc('pinned_at')
             ->orderByDesc('updated_at')
             ->get();
 
-        return view('notes.index', compact('notes'));
+        // CHỈ lấy những nhãn mà chính User này đã tạo hoặc đang sử dụng
+        $allLabels = Label::where('user_id', Auth::id())
+            ->select('id', 'name')
+            ->distinct()
+            ->get();
+
+        return view('notes.index', compact('notes', 'allLabels'));
     }
 
     // GIAO DIỆN EDITOR CHUNG (CREATE + EDIT)
@@ -157,7 +165,8 @@ class NoteController extends Controller
     {
         $q = $request->q;
 
-        $notes = Note::where('user_id', Auth::id())
+        $notes = Note::with('labels') // PHẢI CÓ thêm cái này
+            ->where('user_id', Auth::id())
             ->where(function ($query) use ($q) {
                 $query->where('title', 'like', "%$q%")
                     ->orWhere('content', 'like', "%$q%");
@@ -167,8 +176,7 @@ class NoteController extends Controller
             ->get();
 
         return response()->json($notes);
-    }   
-
+    }
     // FILTER LABEL
     public function filter(Request $request)
     {
@@ -186,5 +194,21 @@ class NoteController extends Controller
             ->get();
 
         return response()->json($notes);
+    }
+
+    public function attachLabels(Request $request, Note $note)
+    {
+        Log::info('Attach labels', [
+            'note_id' => $note->id,
+            'labels' => $request->label_ids
+        ]);
+
+        $note->labels()->syncWithoutDetaching($request->label_ids);
+
+        return response()->json([
+            'status' => 'attached',
+            'note_id' => $note->id,
+            'labels' => $note->labels
+        ]);
     }
 }

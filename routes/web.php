@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
     // FILTER LABEL
     Route::get('/notes/filter', [NoteController::class, 'filter']);
 
+    Route::post('/notes/{note}/labels', [NoteController::class, 'attachLabels']);
+
 
 });
 require __DIR__.'/auth.php';
