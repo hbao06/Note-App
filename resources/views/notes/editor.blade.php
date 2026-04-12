@@ -57,24 +57,32 @@
             </div>
 
             <!-- LABEL -->
-            <div class="mt-4">
-                <label class="font-semibold">Labels</label>
-
-                <div class="flex gap-2 mt-2">
-                    <!-- input -->
-                    <input type="text" id="newLabel"
-                        placeholder="Add label..."
-                        class="border px-3 py-1 rounded w-full">
-
-                    <!-- 🔥 NÚT ADD -->
-                    <button onclick="event.stopPropagation(); createLabel()"
-                        class="px-4 bg-blue-500 text-white rounded">
-                        Add
-                    </button>
+            <div class="mt-6 border-t pt-4">
+                <div class="flex flex-wrap gap-2 mb-3" id="selectedLabelsContainer">
+                    @if(isset($note))
+                        @foreach($note->labels as $label)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 group">
+                                {{ $label->name }}
+                                <button onclick="detachLabel('{{ $label->id }}')" class="ml-2 text-gray-400 hover:text-red-500">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </span>
+                        @endforeach
+                    @endif
                 </div>
 
-                <!-- danh sách label -->
-                <div id="labelList" class="flex flex-wrap gap-2 mt-3"></div>
+                <div class="relative group">
+                    <div class="flex items-center text-gray-500 focus-within:text-gray-800">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        <input type="text" id="newLabel" 
+                            placeholder="Add label..." 
+                            class="w-full text-sm outline-none border-none focus:ring-0 bg-transparent"
+                            onkeypress="if(event.key === 'Enter') createLabel()">
+                    </div>
+                    
+                    <div id="labelSuggestions" class="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
+                        </div>
+                </div>
             </div>
 
             <!-- HIDDEN NOTE ID -->
@@ -223,70 +231,137 @@
         }
 
         // LABEL
-        let selectedLabels = [];
+        // let selectedLabels = [];
         
 
-        // load labels
+        // // load labels
+        // function loadLabels() {
+        //     fetch('/labels')
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         const container = document.getElementById('labelList');
+        //         container.innerHTML = "";
+
+        //         data.forEach(label => {
+        //             container.innerHTML += `
+        //                 <span onclick="toggleLabel(${label.id})"
+        //                     class="px-3 py-1 rounded-full border cursor-pointer"
+        //                     id="label-${label.id}">
+        //                     ${label.name}
+        //                 </span>
+        //             `;
+        //         });
+        //     });
+        // }
+
+        // // toggle chọn label
+        // function toggleLabel(id) {
+        //     const el = document.getElementById(`label-${id}`);
+
+        //     if (selectedLabels.includes(id)) {
+        //         selectedLabels = selectedLabels.filter(l => l !== id);
+        //         el.classList.remove('bg-blue-500','text-white');
+        //     } else {
+        //         selectedLabels.push(id);
+        //         el.classList.add('bg-blue-500','text-white');
+        //     }
+
+        //     saveLabels();
+        // }
+
+        // // save labels to note
+        // function saveLabels() {
+        //     if (!noteIdInput.value) return;
+
+        //     fetch(`/notes/${noteIdInput.value}/labels`, {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        //         },
+        //         body: JSON.stringify({ label_ids: selectedLabels })
+        //     });
+        // }
+
+        // // create new label
+        // function createLabel() {
+
+        //     console.log("CLICK ADD"); // debug
+
+        //     const input = document.getElementById('newLabel');
+        //     const name = input.value.trim();
+
+        //     if (!name) {
+        //         alert("Please enter label name");
+        //         return;
+        //     }
+
+        //     fetch('/labels', {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        //         },
+        //         body: JSON.stringify({ name: name })
+        //     })
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         console.log("CREATED:", data);
+
+        //         input.value = "";
+        //         loadLabels(); // reload list
+        //     });
+        // }
+
+        // // load khi mở trang
+        // loadLabels();
+
+        // --- LABEL LOGIC (GOOGLE KEEP STYLE) ---
+        const labelInput = document.getElementById('newLabel');
+        const suggestions = document.getElementById('labelSuggestions');
+
+        // Hiện danh sách khi focus
+        labelInput.addEventListener('focus', () => {
+            loadLabels();
+            suggestions.classList.remove('hidden');
+        });
+
+        // Tạo nhãn mới khi nhấn Enter
+        labelInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                createLabel();
+            }
+        });
+
+        // Đóng gợi ý khi click ngoài
+        document.addEventListener('click', (e) => {
+            if (!labelInput.contains(e.target) && !suggestions.contains(e.target)) {
+                suggestions.classList.add('hidden');
+            }
+        });
+
         function loadLabels() {
             fetch('/labels')
             .then(res => res.json())
             .then(data => {
-                const container = document.getElementById('labelList');
-                container.innerHTML = "";
-
+                suggestions.innerHTML = "";
                 data.forEach(label => {
-                    container.innerHTML += `
-                        <span onclick="toggleLabel(${label.id})"
-                            class="px-3 py-1 rounded-full border cursor-pointer"
-                            id="label-${label.id}">
-                            ${label.name}
-                        </span>
-                    `;
+                    const div = document.createElement('div');
+                    div.className = "px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm flex justify-between items-center border-b last:border-0";
+                    div.innerHTML = `<span>${label.name}</span> <span class="text-gray-300 text-xs">Apply</span>`;
+                    div.onclick = () => {
+                        attachLabelToNote(label.id, label.name);
+                        suggestions.classList.add('hidden');
+                        labelInput.value = "";
+                    };
+                    suggestions.appendChild(div);
                 });
             });
         }
 
-        // toggle chọn label
-        function toggleLabel(id) {
-            const el = document.getElementById(`label-${id}`);
-
-            if (selectedLabels.includes(id)) {
-                selectedLabels = selectedLabels.filter(l => l !== id);
-                el.classList.remove('bg-blue-500','text-white');
-            } else {
-                selectedLabels.push(id);
-                el.classList.add('bg-blue-500','text-white');
-            }
-
-            saveLabels();
-        }
-
-        // save labels to note
-        function saveLabels() {
-            if (!noteIdInput.value) return;
-
-            fetch(`/notes/${noteIdInput.value}/labels`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ label_ids: selectedLabels })
-            });
-        }
-
-        // create new label
         function createLabel() {
-
-            console.log("CLICK ADD"); // debug
-
-            const input = document.getElementById('newLabel');
-            const name = input.value.trim();
-
-            if (!name) {
-                alert("Please enter label name");
-                return;
-            }
+            const name = labelInput.value.trim();
+            if (!name) return;
 
             fetch('/labels', {
                 method: "POST",
@@ -298,15 +373,44 @@
             })
             .then(res => res.json())
             .then(data => {
-                console.log("CREATED:", data);
-
-                input.value = "";
-                loadLabels(); // reload list
+                attachLabelToNote(data.id, data.name);
+                labelInput.value = "";
+                suggestions.classList.add('hidden');
             });
         }
 
-        // load khi mở trang
-        loadLabels();
+        function attachLabelToNote(id, name) {
+            if (!noteIdInput.value) return;
+            fetch(`/notes/${noteIdInput.value}/labels`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ label_ids: [id] })
+            })
+            .then(() => renderLabelBadge(id, name));
+        }
+
+        function renderLabelBadge(id, name) {
+            if (document.getElementById(`badge-${id}`)) return;
+            const container = document.getElementById('selectedLabelsContainer');
+            const span = document.createElement('span');
+            span.id = `badge-${id}`;
+            span.className = "inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-xs font-medium text-gray-700 border border-gray-200";
+            span.innerHTML = `${name} 
+                <button onclick="detachLabel('${id}')" class="ml-2 text-gray-400 hover:text-red-500">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>`;
+            container.appendChild(span);
+        }
+
+        // Logic gỡ nhãn (Bạn cần viết API route xóa pivot note_label này)
+        function detachLabel(labelId) {
+             // Gọi API xóa label khỏi note ở đây (tùy thuộc route của bạn)
+             // Tạm thời xóa trên UI:
+             document.getElementById(`badge-${labelId}`).remove();
+        }
 
     </script>
 </x-app-layout>
