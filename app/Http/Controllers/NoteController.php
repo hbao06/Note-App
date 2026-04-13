@@ -211,4 +211,15 @@ class NoteController extends Controller
             'labels' => $note->labels
         ]);
     }
+
+    public function detachLabel($noteId, $labelId)
+    {
+        $note = Note::findOrFail($noteId);
+
+        $note->labels()->detach($labelId);
+
+        return response()->json([
+            'status' => 'detached'
+        ]);
+    }
 }

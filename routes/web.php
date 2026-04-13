@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notes/filter', [NoteController::class, 'filter']);
 
     Route::post('/notes/{note}/labels', [NoteController::class, 'attachLabels']);
+    Route::delete('/notes/{note}/labels/{label}', [NoteController::class, 'detachLabel']);
 
 
 });

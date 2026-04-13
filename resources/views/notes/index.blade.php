@@ -20,12 +20,14 @@
                 <span class="text-xs font-bold text-gray-400 uppercase mr-2 tracking-widest">Filters Label:</span>
 
                 <button onclick="filterByLabel('all')" 
+                    data-id="all"
                     class="filter-chip active px-4 py-1.5 rounded-full border bg-blue-600 text-white text-sm font-medium shadow-sm transition">
                     All
                 </button>
 
                 @foreach($allLabels as $label)
                     <button onclick="filterByLabel('{{ $label->id }}')"
+                        data-id = "{{ $label->id }}"
                         class="filter-chip px-4 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:border-blue-400 transition shadow-sm">
                         {{ $label->name }}
                     </button>
@@ -36,6 +38,7 @@
         <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($notes as $note)
                 @php $uniqueLabels = $note->labels->unique('name'); @endphp
+
                 
                 <div onclick="window.location='{{ route('notes.editor.edit', $note->id) }}'"
                     data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
@@ -55,6 +58,19 @@
                         <p class="text-gray-600 text-sm leading-relaxed line-clamp-6">
                             {{ $note->content }}
                         </p>
+                        <!-- 🆕 ADD TIME HERE -->
+                        <div class="mt-2 relative group/time inline-flex items-center gap-1 text-[11px] text-gray-400 
+                                    hover:text-gray-700 transition-all duration-200 cursor-default">
+                            <i class="fa-regular fa-clock"></i>
+
+                            <span class="note-time" data-time="{{ $note->updated_at->format('c') }}"></span>
+
+                            <!-- Tooltip -->
+                            <div class="absolute bottom-full mb-2 hidden group-hover/time:block 
+                                bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-50">
+                                <span class="note-full-time" data-time="{{ $note->updated_at->format('c') }}"></span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2 mt-auto">
@@ -65,10 +81,10 @@
                         @endforeach
                     </div>
 
-                    <div class="flex items-center gap-4 mt-3 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500">
+                    <div class="absolute bottom-3 right-3 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500">
                         <form action="{{ route('notes.destroy', $note) }}" method="POST">
                             @csrf @method('DELETE')
-                            <button type="submit" onclick="event.stopPropagation()" class="hover:text-red-600">🗑️</button>
+                            <button type="submit" onclick="event.stopPropagation()" class="hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
                         </form>
                     </div>
                 </div>
@@ -95,21 +111,52 @@
 
             // UI active button
             document.querySelectorAll('.filter-chip').forEach(btn => {
-                const isMatch = (labelId === 'all' && btn.innerText.includes('All')) 
-                    || btn.getAttribute('data-id') === labelId;
+                const isMatch = btn.getAttribute('data-id') === labelId;
 
                 btn.className = isMatch 
                     ? "filter-chip px-4 py-1.5 rounded-full border bg-blue-600 text-white text-sm font-medium shadow-sm transition"
-                    : "filter-chip px-4 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:border-blue-400 transition shadow-sm";
+                    : "filter-chip px-4 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition-all duration-200 shadow-sm";
             });
         }
 
         const searchInput = document.getElementById('searchInput');
+
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
+
             document.querySelectorAll('.note-card').forEach(card => {
-                const content = card.innerText.toLowerCase();
-                card.style.display = content.includes(query) ? "" : "none";
+                const titleEl = card.querySelector('h2');
+                const contentEl = card.querySelector('p');
+
+                // lưu text gốc (tránh bị lồng mark nhiều lần)
+                if (!titleEl.dataset.original) {
+                    titleEl.dataset.original = titleEl.innerText;
+                }
+                if (!contentEl.dataset.original) {
+                    contentEl.dataset.original = contentEl.innerText;
+                }
+
+                const titleText = titleEl.dataset.original;
+                const contentText = contentEl.dataset.original;
+
+                if (!query) {
+                    titleEl.innerHTML = titleText;
+                    contentEl.innerHTML = contentText;
+                    card.style.display = "";
+                    return;
+                }
+
+                const regex = new RegExp(`(${query})`, 'gi');
+
+                const newTitle = titleText.replace(regex, `<mark class="bg-blue-200 text-blue-900 px-1 rounded">$1</mark>`);
+                const newContent = contentText.replace(regex, `<mark class="bg-blue-200 text-blue-900 px-1 rounded">$1</mark>`);
+
+                const isMatch = titleText.toLowerCase().includes(query) || contentText.toLowerCase().includes(query);
+
+                titleEl.innerHTML = newTitle;
+                contentEl.innerHTML = newContent;
+
+                card.style.display = isMatch ? "" : "none";
             });
         });
 
@@ -125,7 +172,10 @@
             } else {
                 notesContainer.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
             }
-            document.getElementById('viewToggleBtn').textContent = (mode === 'grid') ? '📋' : '🔳';
+            document.getElementById('viewToggleBtn').innerHTML =
+                (mode === 'grid')
+                    ? '<i class="fa-solid fa-list"></i>'
+                    : '<i class="fa-solid fa-table-cells"></i>';
         }
         function toggleView() {
             currentView = (currentView === 'grid') ? 'list' : 'grid';
@@ -133,5 +183,61 @@
             applyView(currentView);
         }
         applyView(currentView);
+
+        // DATE - TIME
+        function timeAgo(dateString) {
+            const now = new Date();
+            const past = new Date(dateString);
+            const diff = Math.floor((now - past) / 1000);
+
+            if (diff < 10) return "Just now";
+
+            const minutes = Math.floor(diff / 60);
+            const hours = Math.floor(diff / 3600);
+            const days = Math.floor(diff / 86400);
+            const months = Math.floor(diff / 2592000);
+
+            if (minutes < 1) return diff + " seconds ago";
+            if (minutes < 60) return minutes + (minutes === 1 ? " minute ago" : " minutes ago");
+
+            if (hours < 24) return hours + (hours === 1 ? " hour ago" : " hours ago");
+
+            if (days === 1) return "yesterday";
+            if (days < 30) return days + " days ago";
+
+            if (months < 12) return months + (months === 1 ? " month ago" : " months ago");
+
+            const years = Math.floor(months / 12);
+            return years + (years === 1 ? " year ago" : " years ago");
+        }
+
+        function formatFull(dateString) {
+            const d = new Date(dateString);
+
+            return d.toLocaleString('vi-VN', {
+                weekday: 'short',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateTimes() {
+            document.querySelectorAll('.note-time').forEach(el => {
+                el.textContent = timeAgo(el.dataset.time);
+            });
+
+            document.querySelectorAll('.note-full-time').forEach(el => {
+                el.textContent = formatFull(el.dataset.time);
+            });
+        }
+
+        // chạy lần đầu
+        updateTimes();
+
+        // cập nhật mỗi phút
+        setInterval(updateTimes, 10000);
     </script>
 </x-app-layout>

@@ -19,8 +19,7 @@ class LabelController extends Controller
             'name' => 'required|string|max:255'
         ]);
 
-        // ✅ FIX: tránh trùng + đúng user
-        $name = trim(strtolower($request->name));
+        $name = trim($request->name);
 
         $label = Label::firstOrCreate([
             'name' => $name,

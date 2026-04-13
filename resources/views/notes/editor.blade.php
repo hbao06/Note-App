@@ -340,9 +340,19 @@
 
         // Logic gỡ nhãn (Bạn cần viết API route xóa pivot note_label này)
         function detachLabel(labelId) {
-             // Gọi API xóa label khỏi note ở đây (tùy thuộc route của bạn)
-             // Tạm thời xóa trên UI:
-             document.getElementById(`badge-${labelId}`).remove();
+            const noteId = document.getElementById('noteId').value;
+
+            fetch(`/notes/${noteId}/labels/${labelId}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                }
+            })
+            .then(() => {
+                const el = document.getElementById(`badge-${labelId}`);
+                el.classList.add('opacity-0', 'scale-75', 'transition');
+                setTimeout(() => el.remove(), 200);
+            });
         }
 
         loadLabels();
