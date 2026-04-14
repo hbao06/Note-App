@@ -1,4 +1,5 @@
-<x-app-layout>
+<!-- hello -->
+<x-app-layout> 
     <div class="py-8 max-w-7xl mx-auto px-4">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Your Notes</h1>
@@ -40,7 +41,8 @@
                 @php $uniqueLabels = $note->labels->unique('name'); @endphp
 
                 
-                <div onclick="window.location='{{ route('notes.editor.edit', $note->id) }}'"
+                <div data-url="{{ route('notes.editor.edit', $note->id) }}"
+                        onclick="window.location.href=this.dataset.url"
                     data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
                     class="note-card group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200 cursor-default flex flex-col min-h-[140px]" >
                     
