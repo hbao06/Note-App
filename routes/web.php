@@ -66,6 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notes/{note}/labels/{label}', [NoteController::class, 'detachLabel']);
 
 
+    // PASSWORD NOTE
+    Route::post('/notes/{note}/set-password', [NoteController::class, 'setPassword']);
+    Route::post('/notes/{note}/verify-password', [NoteController::class, 'verifyPassword']);
+    Route::post('/notes/{note}/remove-password', [NoteController::class, 'removePassword']);    
+
 });
 require __DIR__.'/auth.php';
 

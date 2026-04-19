@@ -91,11 +91,54 @@
             <input type="hidden" id="noteId" value="{{ $note->id ?? '' }}">
 
             <!-- ACTION BUTTONS -->
-            <div class="flex justify-end mt-6">
+            <div class="flex justify-between items-center mt-6">
+                <!-- LOCK ACTION -->
+                <div class="flex gap-2">
+                    <button onclick="showLockBox()" 
+                        class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
+                        🔒 Lock
+                    </button>
+
+                    <button onclick="showUnlockBox()" 
+                        class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                        🔓 Unlock
+                    </button>
+                </div>
+
+                <!-- BACK BUTTON -->
                 <a href="{{ route('notes.index') }}"
-                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                     Back
                 </a>
+            </div>
+
+            <!-- LOCK BOX -->
+            <div id="lockBox" class="hidden mt-4 border rounded-lg p-4 bg-yellow-50">
+                <h4 class="font-semibold mb-2">Set Password</h4>
+
+                <input type="password" id="lockPassword" placeholder="Password"
+                    class="w-full mb-2 px-3 py-2 border rounded">
+
+                <input type="password" id="lockConfirm" placeholder="Confirm Password"
+                    class="w-full mb-2 px-3 py-2 border rounded">
+
+                <button onclick="setPassword()" 
+                    class="px-4 py-2 bg-yellow-500 text-white rounded">
+                    Confirm Lock
+                </button>
+            </div>
+
+            <!-- UNLOCK BOX -->
+            <div id="unlockBox" class="hidden mt-4 border rounded-lg p-4 bg-gray-50">
+                <h4 class="font-semibold mb-2">Remove Password</h4>
+
+                <input type="password" id="unlockPassword" placeholder="Enter current password"
+                    class="w-full mb-2 px-3 py-2 border rounded">
+
+                <button onclick="removePassword()" 
+                    class="px-4 py-2 bg-gray-700 text-white rounded">
+                    Confirm Unlock
+                </button>
             </div>
 
         </div>
@@ -356,6 +399,88 @@
         }
 
         loadLabels();
+
+        // PASSWORD NOTE
+        // SHOW BOX
+        function showLockBox() {
+            document.getElementById('lockBox').classList.toggle('hidden');
+            document.getElementById('unlockBox').classList.add('hidden');
+        }
+
+        function showUnlockBox() {
+            document.getElementById('unlockBox').classList.toggle('hidden');
+            document.getElementById('lockBox').classList.add('hidden');
+        }
+
+        // SET PASSWORD
+        function setPassword() {
+            const password = document.getElementById('lockPassword').value;
+            const confirm = document.getElementById('lockConfirm').value;
+
+            if (!password || password.length < 4) {
+                alert("Password phải >= 4 ký tự");
+                return;
+            }
+
+            if (password !== confirm) {
+                alert("Mật khẩu không khớp");
+                return;
+            }
+
+            if (!noteIdInput.value) {
+                alert("Note chưa save, đợi 1 giây...");
+                return;
+            }
+
+            fetch(`/notes/${noteIdInput.value}/set-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    password: password,
+                    password_confirmation: confirm
+                })
+            })
+            .then(res => res.json())
+            .then(() => {
+                alert("Đã khóa note 🔒");
+                document.getElementById('lockBox').classList.add('hidden');
+            });
+        }
+
+        // REMOVE PASSWORD
+        function removePassword() {
+            const password = document.getElementById('unlockPassword').value;
+
+            if (!password) {
+                alert("Nhập password");
+                return;
+            }
+
+            fetch(`/notes/${noteIdInput.value}/remove-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    password: password
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(() => {
+                alert("Đã mở khóa 🔓");
+                document.getElementById('unlockBox').classList.add('hidden');
+            })
+            .catch(() => {
+                alert("Sai mật khẩu!");
+            });
+        }
 
     </script>
 </x-app-layout>

@@ -11,6 +11,8 @@ use App\Models\NoteImage;
 use App\Models\Label;   
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Hash;
+
 class NoteController extends Controller
 {
     public function index()
@@ -34,6 +36,10 @@ class NoteController extends Controller
     // GIAO DIỆN EDITOR CHUNG (CREATE + EDIT)
     public function editor(Note $note = null)
     {
+        if ($note && $note->note_password) {
+            return view('notes.enter-password', compact('note'));
+        }
+
         return view('notes.editor', [
             'note' => $note
         ]);
@@ -221,5 +227,50 @@ class NoteController extends Controller
         return response()->json([
             'status' => 'detached'
         ]);
+    }
+
+    // SET PASSWORD
+    public function setPassword(Request $request, Note $note)
+    {
+        // bảo mật: chỉ chủ note mới được set
+        if ($note->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'password' => 'required|min:4|confirmed'
+        ]);
+
+        $note->update([
+            'note_password' => Hash::make($request->password)
+        ]);
+
+        return response()->json(['status' => 'locked']);
+    }
+
+    public function verifyPassword(Request $request, Note $note)
+    {
+        if (!$note->note_password) {
+            return response()->json(['status' => 'no_password']);
+        }
+
+        if (!Hash::check($request->password, $note->note_password)) {
+            return response()->json(['error' => 'Wrong password'], 403);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function removePassword(Request $request, Note $note)
+    {
+        if (!Hash::check($request->password, $note->note_password)) {
+            return response()->json(['error' => 'Wrong password'], 403);
+        }
+
+        $note->update([
+            'note_password' => null
+        ]);
+
+        return response()->json(['status' => 'unlocked']);
     }
 }
