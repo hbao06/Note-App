@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\SharedNote;
+
 class NoteController extends Controller
 {
     public function index()
     {
-        $notes = Note::with('labels')
+        $notes = Note::with(['labels', 'sharedNotes'])
             ->where('user_id', Auth::id())
             ->orderByDesc('is_pinned')
             ->orderByDesc('pinned_at')
@@ -36,12 +38,30 @@ class NoteController extends Controller
     // GIAO DIỆN EDITOR CHUNG (CREATE + EDIT)
     public function editor(Note $note = null)
     {
-        if ($note && $note->note_password) {
+        if (!$note) {
+            return view('notes.editor', ['note' => null]);
+        }
+
+        $isOwner = $note->user_id === auth()->id();
+
+        $share = SharedNote::where('note_id', $note->id)
+            ->where('recipient_id', auth()->id())
+            ->first();
+
+        if (!$isOwner && !$share) {
+            abort(403);
+        }
+
+        $canEdit = $isOwner || ($share && $share->permission === 'edit');
+
+        // 🔒 LOCK CHECK
+        if ($note->note_password && !session("unlocked_note_{$note->id}")) {
             return view('notes.enter-password', compact('note'));
         }
 
         return view('notes.editor', [
-            'note' => $note
+            'note' => $note,
+            'canEdit' => $canEdit
         ]);
     }
 
@@ -67,6 +87,16 @@ class NoteController extends Controller
         $note = Note::where('id', $request->id)
             ->where('user_id', Auth::id()) // bảo mật
             ->firstOrFail();
+        
+        $canEdit = $note->user_id === Auth::id()
+        || \App\Models\SharedNote::where('note_id', $note->id)
+            ->where('recipient_id', Auth::id())
+            ->where('permission', 'edit')
+            ->exists();
+
+        if (!$canEdit) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
 
         $note->update([
             'title' => $request->title ?? '',
@@ -232,8 +262,7 @@ class NoteController extends Controller
     // SET PASSWORD
     public function setPassword(Request $request, Note $note)
     {
-        // bảo mật: chỉ chủ note mới được set
-        if ($note->user_id !== Auth::id()) {
+        if ($note->user_id !== auth()->id) {
             abort(403);
         }
 
@@ -258,6 +287,9 @@ class NoteController extends Controller
             return response()->json(['error' => 'Wrong password'], 403);
         }
 
+        // 🔥 QUAN TRỌNG: lưu session
+        session(["unlocked_note_{$note->id}" => true]);
+
         return response()->json(['status' => 'success']);
     }
 
@@ -271,6 +303,71 @@ class NoteController extends Controller
             'note_password' => null
         ]);
 
+        // clear session
+        session()->forget("unlocked_note_{$note->id}");
+
         return response()->json(['status' => 'unlocked']);
+    }
+
+    // SHARE NOTE
+    public function share(Request $request, Note $note)
+    {
+        if ($note->user_id !== auth()->id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'email' => 'required|email',
+            'permission' => 'required|in:read,edit'
+        ]);
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        \App\Models\SharedNote::updateOrCreate(
+            [
+                'note_id' => $note->id,
+                'recipient_id' => $user->id
+            ],
+            [
+                'owner_id' => auth()->id,
+                'permission' => $request->permission
+            ]
+        );
+
+        return response()->json(['status' => 'shared']);
+    }
+
+    // SHARE WITH
+    public function sharedWithMe()
+    {
+        $shares = \App\Models\SharedNote::with(['note', 'owner'])
+            ->where('recipient_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('notes.shared', compact('shares'));
+    }
+
+    public function revokeShare(Note $note, $userId)
+    {
+        \App\Models\SharedNote::where('note_id', $note->id)
+            ->where('recipient_id', $userId)
+            ->delete();
+
+        return response()->json(['status' => 'revoked']);
+    }
+
+
+    public function sharedNotes()
+    {
+        $shared = SharedNote::with(['note', 'owner'])
+            ->where('recipient_id', auth()->id())
+            ->get();
+
+        return view('notes.shared', compact('shared'));
     }
 }

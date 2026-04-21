@@ -13,6 +13,8 @@ use App\Http\Controllers\LabelController;
 
 
 
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -69,8 +71,17 @@ Route::middleware('auth')->group(function () {
     // PASSWORD NOTE
     Route::post('/notes/{note}/set-password', [NoteController::class, 'setPassword']);
     Route::post('/notes/{note}/verify-password', [NoteController::class, 'verifyPassword']);
-    Route::post('/notes/{note}/remove-password', [NoteController::class, 'removePassword']);    
+    Route::post('/notes/{note}/remove-password', [NoteController::class, 'removePassword']);
 
+    // route editor (đảm bảo đúng)
+    Route::get('/notes/editor/{note}', [NoteController::class, 'editor']); 
+
+    // SHARE WITH
+    Route::get('/notes/shared', [NoteController::class, 'sharedWithMe'])
+    ->name('notes.shared');
+
+    Route::get('/notes/shared', [NoteController::class, 'sharedNotes'])
+    ->name('notes.shared');
 });
 require __DIR__.'/auth.php';
 

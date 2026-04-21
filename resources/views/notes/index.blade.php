@@ -6,6 +6,11 @@
             <div class="flex items-center gap-3">
                 <button onclick="toggleView()" id="viewToggleBtn" class="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm transition">🔳</button>
                 <a href="{{ route('notes.editor') }}" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition">+ Create Note</a>
+                <!-- 🆕 THÊM Ở ĐÂY -->
+                <a href="{{ route('notes.shared') }}" 
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    📩 Shared
+                </a>
             </div>
         </div>
 
@@ -41,7 +46,7 @@
                 @php $uniqueLabels = $note->labels->unique('name'); @endphp
 
                 
-                <div data-url="{{ route('notes.editor.edit', $note->id) }}"
+                <div data-url="{{ url('/notes/editor/' . $note->id) }}"
                         onclick="window.location.href=this.dataset.url"
                     data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
                     class="note-card group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200 cursor-default flex flex-col min-h-[140px]" >
@@ -52,6 +57,21 @@
                                 {{ $note->is_pinned ? 'text-gray-900 rotate-45' : 'text-gray-400' }}">
                             </i>
                     </button>
+
+                    <!-- ICONS -->
+                    <div class="absolute top-2 left-2 flex gap-2 text-gray-400 text-sm">
+
+                        <!-- LOCK -->
+                        @if($note->note_password)
+                            <i class="fa-solid fa-lock text-yellow-500" title="Locked"></i>
+                        @endif
+
+                        <!-- SHARE -->
+                        @if($note->sharedNotes->count() > 0)
+                            <i class="fa-solid fa-user-group text-blue-500" title="Shared"></i>
+                        @endif
+
+                    </div>
 
                     <div class="mb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">

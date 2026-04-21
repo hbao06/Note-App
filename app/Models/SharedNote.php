@@ -8,7 +8,7 @@ class SharedNote extends Model
 {
     //
      protected $fillable = [
-        'note_id',
+        'note_id',  
         'owner_id',
         'recipient_id',
         'permission',
@@ -16,12 +16,12 @@ class SharedNote extends Model
 
     public function note()
     {
-        return $this->belongsTo(Note::class);
+        return $this->belongsTo(\App\Models\Note::class);
     }
 
     public function owner()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(\App\Models\User::class, 'owner_id');
     }
 
     public function recipient()
@@ -29,3 +29,7 @@ class SharedNote extends Model
         return $this->belongsTo(User::class, 'recipient_id');
     }
 }
+    
+
+
+

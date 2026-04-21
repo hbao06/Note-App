@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Note extends Model
 {
     //
@@ -13,8 +14,7 @@ class Note extends Model
         'content',
         'is_pinned',
         'pinned_at',
-        'is_locked',
-        'locked_password',
+        'note_password',
     ];
 
     // 1 note thuộc về 1 user
@@ -39,5 +39,10 @@ class Note extends Model
     public function shared()
     {
         return $this->hasMany(SharedNote::class);
+    }
+
+    public function sharedNotes()
+    {
+        return $this->hasMany(\App\Models\SharedNote::class);
     }
 }
