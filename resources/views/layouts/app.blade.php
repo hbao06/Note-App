@@ -32,6 +32,15 @@
             <main>
                 {{ $slot }}
             </main>
+
+            @auth
+                @if(!auth()->user()->hasVerifiedEmail())
+                    <div class="bg-yellow-100 text-yellow-800 px-4 py-3 text-center text-sm font-medium">
+                        Tài khoản của bạn chưa được xác minh. Vui lòng kiểm tra email để kích hoạt tài khoản.
+                    </div>
+                @endif
+            @endauth
         </div>
+        
     </body>
 </html>

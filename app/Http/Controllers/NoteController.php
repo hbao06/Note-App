@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Models\SharedNote;
 
+use App\Events\NoteUpdated;
+
 class NoteController extends Controller
 {
     public function index()
@@ -38,70 +40,76 @@ class NoteController extends Controller
     // GIAO DIỆN EDITOR CHUNG (CREATE + EDIT)
     public function editor(Note $note = null)
     {
+        // 👉 Nếu tạo note mới
         if (!$note) {
-            return view('notes.editor', ['note' => null]);
+            return view('notes.editor', [
+                'note' => null,
+                'canEdit' => true
+            ]);
         }
 
-        $isOwner = $note->user_id === auth()->id();
+        // 👉 Nếu là owner
+        if ($note->user_id === auth()->id()) {
+            return view('notes.editor', [
+                'note' => $note,
+                'canEdit' => true
+            ]);
+        }
 
-        $share = SharedNote::where('note_id', $note->id)
+        // 👉 Nếu là người được share
+        $share = \App\Models\SharedNote::where('note_id', $note->id)
             ->where('recipient_id', auth()->id())
             ->first();
 
-        if (!$isOwner && !$share) {
-            abort(403);
+        if ($share) {
+            return view('notes.editor', [
+                'note' => $note,
+                'canEdit' => $share->permission === 'edit'
+            ]);
         }
 
-        $canEdit = $isOwner || ($share && $share->permission === 'edit');
-
-        // 🔒 LOCK CHECK
-        if ($note->note_password && !session("unlocked_note_{$note->id}")) {
-            return view('notes.enter-password', compact('note'));
-        }
-
-        return view('notes.editor', [
-            'note' => $note,
-            'canEdit' => $canEdit
-        ]);
+        abort(403);
     }
 
     // =============== AUTOSAVE ===============
     public function autosave(Request $request)
     {
-        // Nếu chưa có note → tạo note mới
         if (!$request->id) {
-
-            $newNote = Note::create([
+            $note = Note::create([
                 'user_id' => Auth::id(),
                 'title' => $request->title ?? '',
                 'content' => $request->content ?? '',
             ]);
 
+            broadcast(new NoteUpdated($note, Auth::id()))->toOthers();
+
             return response()->json([
                 'status' => 'created',
-                'note_id' => $newNote->id
+                'note_id' => $note->id
             ]);
         }
 
-        // Nếu đã có note → update
-        $note = Note::where('id', $request->id)
-            ->where('user_id', Auth::id()) // bảo mật
-            ->firstOrFail();
-        
-        $canEdit = $note->user_id === Auth::id()
-        || \App\Models\SharedNote::where('note_id', $note->id)
+        $note = Note::findOrFail($request->id);
+
+        $isOwner = $note->user_id === Auth::id();
+
+        $shared = SharedNote::where('note_id', $note->id)
             ->where('recipient_id', Auth::id())
             ->where('permission', 'edit')
-            ->exists();
+            ->first();
+
+        $canEdit = $isOwner || $shared;
 
         if (!$canEdit) {
-            return response()->json(['error' => 'Forbidden'], 403);
+            return response()->json(['error' => 'No permission'], 403);
         }
 
         $note->update([
             'title' => $request->title ?? '',
             'content' => $request->content ?? '',
         ]);
+
+        broadcast(new NoteUpdated($note, Auth::id()))->toOthers();
 
         return response()->json([
             'status' => 'updated',
@@ -133,14 +141,31 @@ class NoteController extends Controller
         return view('notes.edit', compact('note'));
     }
 
+    // UPDATE
     public function update(Request $request, Note $note)
     {
+        $isOwner = $note->user_id === auth()->id();
+
+        $canEdit = \App\Models\SharedNote::where('note_id', $note->id)
+            ->where('recipient_id', auth()->id())
+            ->where('permission', 'edit')
+            ->exists();
+
+        if (!$isOwner && !$canEdit) {
+            abort(403); // 🔥 chặn luôn
+        }
+
         $note->update([
-            'title'   => $request->title,
+            'title' => $request->title,
             'content' => $request->content,
         ]);
 
-        return redirect()->route('notes.index');
+        broadcast(new NoteUpdated($note, auth()->id()))->toOthers();
+
+        return response()->json([
+            'status' => 'updated',
+            'note_id' => $note->id
+        ]);
     }
 
     public function destroy(Note $note)
@@ -262,7 +287,7 @@ class NoteController extends Controller
     // SET PASSWORD
     public function setPassword(Request $request, Note $note)
     {
-        if ($note->user_id !== auth()->id) {
+        if ($note->user_id !== auth()->id()) {
             abort(403);
         }
 
@@ -312,35 +337,35 @@ class NoteController extends Controller
     // SHARE NOTE
     public function share(Request $request, Note $note)
     {
-        if ($note->user_id !== auth()->id) {
+        if ($note->user_id !== auth()->id()) {
             abort(403);
         }
 
         $request->validate([
-            'email' => 'required|email',
+            'emails' => 'required|array',
             'permission' => 'required|in:read,edit'
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        foreach ($request->emails as $email) {
 
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            $user = \App\Models\User::where('email', $email)->first();
+
+            if ($user) {
+                \App\Models\SharedNote::updateOrCreate(
+                    [
+                        'note_id' => $note->id,
+                        'recipient_id' => $user->id
+                    ],
+                    [
+                        'owner_id' => auth()->id(),
+                        'permission' => $request->permission
+                    ]
+                );
+            }
         }
-
-        \App\Models\SharedNote::updateOrCreate(
-            [
-                'note_id' => $note->id,
-                'recipient_id' => $user->id
-            ],
-            [
-                'owner_id' => auth()->id,
-                'permission' => $request->permission
-            ]
-        );
 
         return response()->json(['status' => 'shared']);
     }
-
     // SHARE WITH
     public function sharedWithMe()
     {
@@ -349,11 +374,17 @@ class NoteController extends Controller
             ->latest()
             ->get();
 
-        return view('notes.shared', compact('shares'));
+        return view('notes.shared', [
+                    'shared' => $shares
+                ]);
     }
 
     public function revokeShare(Note $note, $userId)
     {
+        if ($note->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         \App\Models\SharedNote::where('note_id', $note->id)
             ->where('recipient_id', $userId)
             ->delete();
@@ -361,13 +392,30 @@ class NoteController extends Controller
         return response()->json(['status' => 'revoked']);
     }
 
-
-    public function sharedNotes()
+    public function getShares(Note $note)
     {
-        $shared = SharedNote::with(['note', 'owner'])
-            ->where('recipient_id', auth()->id())
+        return \App\Models\SharedNote::with('recipient')
+            ->where('note_id', $note->id)
             ->get();
-
-        return view('notes.shared', compact('shared'));
     }
+
+    public function updateSharePermission(Request $request, Note $note, $userId)
+    {
+        if ($note->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'permission' => 'required|in:read,edit'
+        ]);
+
+        SharedNote::where('note_id', $note->id)
+            ->where('recipient_id', $userId)
+            ->update([
+                'permission' => $request->permission
+            ]);
+
+        return response()->json(['status' => 'updated']);
+    }
+
 }

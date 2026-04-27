@@ -20,8 +20,8 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return redirect()->route('notes.index');
+})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -77,11 +77,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/notes/editor/{note}', [NoteController::class, 'editor']); 
 
     // SHARE WITH
-    Route::get('/notes/shared', [NoteController::class, 'sharedWithMe'])
-    ->name('notes.shared');
+    Route::get('/notes/shared', [NoteController::class, 'sharedWithMe'])->name('notes.shared');
 
-    Route::get('/notes/shared', [NoteController::class, 'sharedNotes'])
-    ->name('notes.shared');
+    Route::post('/notes/{note}/share', [NoteController::class, 'share'])->name('notes.share');
+    Route::delete('/notes/{note}/share/{user}', [NoteController::class, 'revokeShare']);
+    Route::get('/notes/{note}/shares', [NoteController::class, 'getShares']);
+    Route::put('/notes/{note}/share/{user}', [NoteController::class, 'updateSharePermission']);
+
 });
 require __DIR__.'/auth.php';
 

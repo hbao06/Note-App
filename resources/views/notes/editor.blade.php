@@ -4,6 +4,12 @@
         <!-- CARD WRAPPER -->
         <div class="bg-white shadow-md rounded-xl p-6 border border-gray-200 relative">
 
+            @if(!$canEdit)
+                <div class="mb-4 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium">
+                    👁️ You are in READ ONLY mode
+                </div>
+            @endif
+
             <!-- AUTOSAVE STATUS -->
             <div id="saveStatus" class="absolute top-3 right-4 text-sm text-gray-500">
                 Saved
@@ -15,24 +21,29 @@
                 id="noteTitle"
                 value="{{ $note->title ?? '' }}"
                 placeholder="Title..."
-                class="w-full text-2xl font-semibold text-gray-800 outline-none border-none mb-4"
+                {{ !$canEdit ? 'disabled' : '' }}
+                class="w-full text-2xl font-semibold text-gray-800 outline-none border-none mb-4 
+                {{ !$canEdit ? 'bg-gray-100 cursor-not-allowed text-gray-500' : '' }}"
             />
 
             <!-- CONTENT INPUT -->
             <textarea
                 id="noteContent"
                 placeholder="Write something..."
-                class="w-full text-gray-700 outline-none border-none resize-none min-h-[200px]"
+                {{ !$canEdit ? 'disabled' : '' }}
+                class="w-full outline-none border-none resize-none min-h-[200px]
+                {{ !$canEdit ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'text-gray-700' }}"
             >{{ $note->content ?? '' }}</textarea>
-
             <!-- IMAGE UPLOAD -->
             <div class="mt-4">
                 <label class="block font-semibold text-gray-700 mb-2">Images</label>
 
-                <input type="file" id="imageInput" multiple accept="image/*">
+               <input type="file" id="imageInput" multiple accept="image/*"
+                    {{ !$canEdit ? 'disabled' : '' }}>
 
                 <!-- NÚT UPLOAD ẢNH -->
                 <button id="uploadBtn"
+                    {{ !$canEdit ? 'disabled' : '' }}
                         class="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hidden">
                     Upload Images
                 </button>
@@ -47,10 +58,12 @@
                                 class="w-full h-32 object-cover rounded-lg shadow">
 
                             <!-- DELETE BUTTON -->
+                            @if($canEdit)
                             <button onclick="event.stopPropagation(); deleteImage('{{ $img->id }}')"
                                     class="absolute top-1 right-1 bg-black/60 text-white text-sm px-2 py-1 rounded hidden group-hover:block">
                                 ✕
                             </button>
+                            @endif
                         </div>
                     @endforeach
                 @endif
@@ -75,13 +88,16 @@
                     <div class="flex flex-1 items-center text-gray-500 focus-within:text-gray-800 border-b border-transparent focus-within:border-gray-200 transition">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                         <input type="text" id="newLabel" 
+                        {{ !$canEdit ? 'disabled' : '' }}
                             placeholder="Add label..." 
                             class="w-full text-sm outline-none border-none focus:ring-0 bg-transparent py-2"
                             oninput="showSuggestions(this.value)">
                     </div>
+                    @if($canEdit)
                     <button onclick="createLabel()" class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded hover:bg-blue-100 transition">
                         ADD
                     </button>
+                    @endif
                     
                     <div id="labelSuggestions" class="absolute z-10 w-full mt-1 top-full bg-white border rounded-lg shadow-lg hidden max-h-48 overflow-y-auto"></div>
                 </div>
@@ -93,6 +109,7 @@
             <!-- ACTION BUTTONS -->
             <div class="flex justify-between items-center mt-6">
                 <!-- LOCK ACTION -->
+                @if($canEdit)
                 <div class="flex gap-2">
                     <button onclick="showLockBox()" 
                         class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
@@ -104,6 +121,7 @@
                         🔓 Unlock
                     </button>
                 </div>
+                @endif
 
                 <!-- BACK BUTTON -->
                 <a href="{{ route('notes.index') }}"
@@ -146,6 +164,8 @@
 
     <!-- AUTOSAVE SCRIPT -->
     <script>
+        const canEdit = @json($canEdit ?? true);
+
         let timer = null;
 
         const titleInput = document.getElementById('noteTitle');
@@ -154,6 +174,8 @@
         const saveStatus = document.getElementById('saveStatus');
 
         function autosave() {
+            if (!canEdit) return; // ❌ chặn nếu read only
+
             saveStatus.textContent = "Saving...";
 
             fetch("{{ route('notes.autosave') }}", {
@@ -168,7 +190,10 @@
                     content: contentInput.value
                 })
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Save failed");
+                return res.json();
+            })
             .then(data => {
                 saveStatus.textContent = "Saved";
 
@@ -177,6 +202,10 @@
                     noteIdInput.value = data.note_id;
                     window.history.replaceState({}, "", "/notes/editor/" + data.note_id);
                 }
+            })
+            .catch(err => {
+                console.log("SAVE ERROR:", err);
+                saveStatus.textContent = "❌ Save failed";
             });
         }
 
@@ -482,5 +511,36 @@
             });
         }
 
+        
+
+        const currentUserId = @json(auth()->id());
+
+        const noteId = document.getElementById('noteId').value;
+
+        let isTypingRealtime = false;
+
+        titleInput.addEventListener('input', () => {
+            isTypingRealtime = true;
+            setTimeout(() => isTypingRealtime = false, 1000);
+        });
+
+        contentInput.addEventListener('input', () => {
+            isTypingRealtime = true;
+            setTimeout(() => isTypingRealtime = false, 1000);
+        });
+
+        if (noteId) {
+            Echo.channel('note.' + noteId)
+                .listen('.note.updated', (e) => {
+                    if (e.updated_by === currentUserId) return;
+                    if (isTypingRealtime) return;
+
+                    titleInput.value = e.title ?? '';
+                    contentInput.value = e.content ?? '';
+                    saveStatus.textContent = "Updated from another user";
+                });
+        }
+                
+    
     </script>
 </x-app-layout>
