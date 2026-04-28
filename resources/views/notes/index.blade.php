@@ -1,20 +1,20 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#071F18] text-white">
+    <div class="min-h-screen bg-gray-50 text-gray-900">
         <!-- SIDEBAR -->
         <aside id="sidebar"
-            class="fixed left-0 top-0 z-40 h-screen w-72 bg-[#0F3D2E]/95 border-r border-emerald-300/10 backdrop-blur-xl transition-all duration-300 overflow-hidden">
+            class="fixed left-0 top-0 z-40 h-screen w-72 bg-white border-r border-gray-200 backdrop-blur-xl transition-all duration-300 overflow-hidden">
 
             <!-- USER -->
-            <div class="p-4 border-b border-emerald-300/10 flex items-center gap-3">
-                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#166534] to-[#22C55E] flex items-center justify-center text-white font-bold">
+            <div class="p-4 border-b border-gray-200 flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold">
                     {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                 </div>
 
                 <div class="sidebar-text">
-                    <div class="font-semibold text-white truncate">
+                    <div class="font-semibold text-gray-900 truncate">
                         {{ auth()->user()->name }}
                     </div>
-                    <div class="text-xs text-[#A7F3D0]/60 truncate">
+                    <div class="text-xs text-gray-400 truncate">
                         {{ auth()->user()->email }}
                     </div>
                 </div>
@@ -22,45 +22,47 @@
 
             <!-- MENU -->
             <nav class="p-3 space-y-2">
+
+                <a href="{{ route('profile.edit') }}" onclick="loadPage(event, this.href)"
+                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-user w-5"></i>
+                    <span class="sidebar-text">Profile</span>
+                </a>
+
                 <a href="{{ route('notes.index') }}"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl bg-[#166534] text-white">
+                    class="flex items-center gap-3 px-3 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium">
                     <i class="fa-solid fa-note-sticky w-5"></i>
                     <span class="sidebar-text">My Notes</span>
                 </a>
 
-                <a href="{{ route('notes.shared') }}"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-[#A7F3D0] hover:bg-[#14532D] transition">
+                <a href="{{ route('notes.shared') }}" onclick="loadPage(event, this.href)"
+                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
                     <i class="fa-solid fa-user-group w-5"></i>
                     <span class="sidebar-text">Shared with me</span>
                 </a>
 
                 <button onclick="openSettingsModal()"
-                    class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[#A7F3D0] hover:bg-[#14532D] transition">
+                    class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span class="sidebar-text">Settings</span>
                 </button>
 
-                <a href="{{ route('profile.edit') }}"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-[#A7F3D0] hover:bg-[#14532D] transition">
-                    <i class="fa-solid fa-user w-5"></i>
-                    <span class="sidebar-text">Profile</span>
-                </a>
             </nav>
 
             <!-- RECENT NOTES -->
             <div class="px-4 mt-4 sidebar-text">
-                <h3 class="text-xs uppercase tracking-widest text-[#A7F3D0]/50 mb-3">
+                <h3 class="text-xs uppercase tracking-widest text-gray-400 mb-3">
                     Gần đây
                 </h3>
 
                 <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                     @foreach($notes->take(6) as $recent)
                         <a href="{{ url('/notes/editor/' . $recent->id) }}"
-                            class="block px-3 py-2 rounded-xl hover:bg-[#14532D] transition">
-                            <div class="text-sm text-white truncate">
+                            class="block px-3 py-2 rounded-xl hover:bg-gray-100 transition">
+                            <div class="text-sm text-gray-800 truncate">
                                 {{ $recent->title ?: 'Untitled' }}
                             </div>
-                            <div class="text-xs text-[#A7F3D0]/50 truncate">
+                            <div class="text-xs text-gray-400 truncate">
                                 {{ Str::limit($recent->content, 32) }}
                             </div>
                         </a>
@@ -73,72 +75,72 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                        class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-200 hover:bg-red-400/10 transition">
+                        class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
                         <i class="fa-solid fa-right-from-bracket w-5"></i>
                         <span class="sidebar-text">Logout</span>
                     </button>
                 </form>
 
                 <button onclick="toggleSidebar()"
-                    class="w-full flex items-center justify-center px-3 py-3 rounded-xl bg-[#14532D] text-[#A7F3D0] hover:bg-[#166534] transition">
+                    class="w-full flex items-center justify-center px-3 py-3 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
                     <i id="sidebarToggleIcon" class="fa-solid fa-chevron-left"></i>
                 </button>
             </div>
         </aside>
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,197,94,0.18),transparent_30%),radial-gradient(circle_at_90%_0%,rgba(74,222,128,0.12),transparent_28%),linear-gradient(135deg,#071F18_0%,#0F3D2E_55%,#071F18_100%)]"></div>
 
-        <div id="mainContent" class="relative py-8 max-w-7xl mx-auto px-4 transition-all duration-300 lg:ml-72">
+        <div class="pointer-events-none fixed inset-0 bg-white"></div>
+
+        <div id="mainContent" class="relative py-8 px-6 transition-all duration-300 lg:ml-72">
 
             <!-- HEADER -->
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
                 <div>
-                    <p class="text-sm text-[#A7F3D0]/70 mb-1">Good Morning ✨</p>
-                    <h1 class="text-4xl font-bold tracking-tight text-white">Your Notes!</h1>
+                    <p class="text-sm text-gray-400 mb-1">Good Morning ✨</p>
+                    <h1 class="text-4xl font-bold tracking-tight text-gray-900">Your Notes!</h1>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
                     <button onclick="toggleView()" id="viewToggleBtn"
-                        class="p-3 bg-[#0F3D2E]/80 border border-emerald-300/10 text-[#A7F3D0] rounded-xl hover:bg-[#14532D] transition shadow-lg">
+                        class="p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-100 transition shadow-sm">
                         🔳
                     </button>
 
-                    <a href="{{ route('notes.editor') }}"
-                        class="px-5 py-3 bg-gradient-to-r from-[#166534] to-[#22C55E] text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-95 transition">
+                    <button onclick="openEditorModal('{{ route('notes.editor') }}')"
+                        class="px-5 py-3 bg-gray-900 text-white font-semibold rounded-xl shadow-sm hover:bg-gray-700 active:scale-95 transition">
                         + Create Note
-                    </a>
-
+                    <button>
                 </div>
             </div>
 
             <!-- SEARCH -->
             <div class="relative mb-8">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-4">
-                    <svg class="w-5 h-5 text-[#A7F3D0]/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </span>
 
                 <input type="text" id="searchInput" placeholder="Search notes..."
-                    class="w-full pl-12 pr-4 py-4 border border-emerald-300/10 bg-[#0F3D2E]/80 rounded-2xl text-white placeholder-[#A7F3D0]/45 focus:ring-2 focus:ring-[#22C55E]/70 focus:border-[#22C55E] outline-none transition shadow-xl" />
+                    class="w-full pl-12 pr-4 py-4 border border-gray-200 bg-white rounded-2xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 outline-none transition shadow-sm" />
             </div>
 
             <!-- FILTER LABELS -->
             <div class="mb-8 overflow-x-auto">
                 <div class="flex flex-wrap gap-2 items-center">
-                    <span class="text-xs font-bold text-[#A7F3D0]/60 uppercase mr-2 tracking-widest">
+                    <span class="text-xs font-bold text-gray-400 uppercase mr-2 tracking-widest">
                         Filters Label:
                     </span>
 
                     <button onclick="filterByLabel('all')"
                         data-id="all"
-                        class="filter-chip active px-4 py-2 rounded-full border border-[#22C55E]/40 bg-gradient-to-r from-[#166534] to-[#22C55E] text-white text-sm font-medium shadow-sm transition">
+                        class="filter-chip active px-4 py-2 rounded-full border border-gray-900 bg-gray-900 text-white text-sm font-medium shadow-sm transition">
                         All
                     </button>
 
                     @foreach($allLabels as $label)
                         <button onclick="filterByLabel('{{ $label->id }}')"
                             data-id="{{ $label->id }}"
-                            class="filter-chip px-4 py-2 rounded-full border border-emerald-300/10 bg-[#0F3D2E]/80 text-[#A7F3D0] text-sm hover:bg-[#14532D] hover:border-[#22C55E]/50 transition shadow-sm">
+                            class="filter-chip px-4 py-2 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:bg-gray-100 hover:border-gray-300 transition shadow-sm">
                             {{ $label->name }}
                         </button>
                     @endforeach
@@ -151,53 +153,51 @@
                     @php $uniqueLabels = $note->labels->unique('name'); @endphp
 
                     <div data-url="{{ url('/notes/editor/' . $note->id) }}"
-                        onclick="window.location.href=this.dataset.url"
+                        onclick="openEditorModal(this.dataset.url)"
                         data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
-                        class="note-card group relative overflow-hidden bg-gradient-to-br from-[#166534] to-[#0F3D2E] border border-emerald-300/10 rounded-[1.75rem] p-5 shadow-xl shadow-black/10 hover:shadow-emerald-500/20 hover:-translate-y-1 hover:border-[#22C55E]/40 transition-all duration-300 cursor-pointer flex flex-col min-h-[250px]">
-
-                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(74,222,128,0.22),transparent_35%),linear-gradient(180deg,rgba(255,255,255,0.08),transparent)]"></div>
+                        class="note-card group relative overflow-hidden bg-white border border-gray-200 rounded-[1.75rem] p-5 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 cursor-pointer flex flex-col min-h-[250px]">
 
                         <!-- PIN -->
                         <button onclick="event.stopPropagation(); togglePin('{{ $note->id }}')"
-                            class="absolute top-4 right-4 z-10 p-2 rounded-xl bg-white/10 hover:bg-white/20 opacity-0 group-hover:opacity-100 transition">
-                            <i class="fa-solid fa-thumbtack {{ $note->is_pinned ? 'text-[#4ADE80] rotate-45' : 'text-[#A7F3D0]/70' }}"></i>
+                            class="absolute top-4 right-4 z-10 p-2 rounded-xl bg-gray-100 hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-thumbtack {{ $note->is_pinned ? 'text-gray-900 rotate-45' : 'text-gray-400' }}"></i>
                         </button>
 
                         <!-- CONTENT -->
                         <div class="relative z-10 mb-4 pr-8">
                             <div class="flex items-center gap-2 mb-3 text-sm">
                                 @if($note->sharedNotes->count() > 0)
-                                    <span title="This note is shared" class="text-[#4ADE80]">
+                                    <span title="This note is shared" class="text-gray-500">
                                         <i class="fa-solid fa-user-group"></i>
                                     </span>
                                 @endif
 
                                 @if($note->note_password)
-                                    <span title="This note is locked" class="text-yellow-300">
+                                    <span title="This note is locked" class="text-yellow-500">
                                         <i class="fa-solid fa-lock"></i>
                                     </span>
                                 @endif
 
                                 @if($note->is_pinned)
-                                    <span title="Pinned note" class="text-[#A7F3D0]">
+                                    <span title="Pinned note" class="text-gray-500">
                                         <i class="fa-solid fa-thumbtack"></i>
                                     </span>
                                 @endif
                             </div>
 
-                            <h2 class="text-2xl font-semibold text-white mb-3 line-clamp-2 group-hover:text-[#4ADE80] transition">
+                            <h2 class="text-2xl font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-black transition">
                                 {{ $note->title ?: 'Untitled' }}
                             </h2>
 
-                            <p class="text-[#D1FAE5]/75 text-sm leading-6 line-clamp-6">
+                            <p class="text-gray-500 text-sm leading-6 line-clamp-6">
                                 {{ $note->content }}
                             </p>
 
-                            <div class="mt-4 relative group/time inline-flex items-center gap-1 text-[11px] text-[#A7F3D0]/60 hover:text-[#A7F3D0] transition cursor-default">
+                            <div class="mt-4 relative group/time inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition cursor-default">
                                 <i class="fa-regular fa-clock"></i>
                                 <span class="note-time" data-time="{{ $note->updated_at->format('c') }}"></span>
 
-                                <div class="absolute bottom-full mb-2 hidden group-hover/time:block bg-[#071F18] text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-50 border border-emerald-300/10">
+                                <div class="absolute bottom-full mb-2 hidden group-hover/time:block bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-50 border border-gray-700">
                                     <span class="note-full-time" data-time="{{ $note->updated_at->format('c') }}"></span>
                                 </div>
                             </div>
@@ -206,7 +206,7 @@
                         <!-- LABELS -->
                         <div class="relative z-10 flex flex-wrap gap-2 mt-auto pb-10">
                             @foreach($uniqueLabels as $label)
-                                <span class="px-3 py-1 bg-white/10 text-[#A7F3D0] text-[12px] font-medium rounded-full border border-white/10 hover:bg-white/15 transition">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-600 text-[12px] font-medium rounded-full border border-gray-200 hover:bg-gray-200 transition">
                                     {{ $label->name }}
                                 </span>
                             @endforeach
@@ -217,7 +217,7 @@
 
                             <button onclick="event.stopPropagation(); openShareModal({{ $note->id }})"
                                 title="Share note"
-                                class="p-2 rounded-xl bg-white/10 text-[#A7F3D0] hover:bg-[#22C55E]/20 hover:text-[#4ADE80] transition">
+                                class="p-2 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition">
                                 <i class="fa-solid fa-share"></i>
                             </button>
 
@@ -229,7 +229,7 @@
                                 <button type="submit"
                                     onclick="event.stopPropagation()"
                                     title="Delete note"
-                                    class="p-2 rounded-xl bg-white/10 text-red-200/80 hover:bg-red-400/10 hover:text-red-200 transition">
+                                    class="p-2 rounded-xl bg-gray-100 text-red-400 hover:bg-red-50 hover:text-red-500 transition">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>
@@ -239,66 +239,72 @@
             </div>
 
             <!-- SHARE MODAL -->
-            <div id="shareModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 px-4">
-                <div class="bg-[#0F3D2E] border border-emerald-300/10 w-full max-w-md p-6 rounded-2xl shadow-2xl text-white">
+            <div id="shareModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
+                <div class="bg-white border border-gray-200 w-full max-w-md p-6 rounded-2xl shadow-2xl text-gray-900">
 
                     <h2 class="text-xl font-bold mb-4">Share Note</h2>
 
                     <input type="text" id="shareEmails"
                         placeholder="Nhập email, cách nhau dấu phẩy"
-                        class="w-full border border-emerald-300/10 bg-[#071F18] text-white placeholder-[#A7F3D0]/40 px-4 py-3 rounded-xl mb-3 focus:ring-2 focus:ring-[#22C55E] outline-none">
+                        class="w-full border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 px-4 py-3 rounded-xl mb-3 focus:ring-2 focus:ring-gray-300 outline-none">
 
                     <select id="sharePermission"
-                        class="w-full border border-emerald-300/10 bg-[#071F18] text-white px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-[#22C55E] outline-none">
+                        class="w-full border border-gray-200 bg-gray-50 text-gray-900 px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-gray-300 outline-none">
                         <option value="read">Read only</option>
                         <option value="edit">Can edit</option>
                     </select>
 
                     <button onclick="shareNote()"
-                        class="w-full bg-gradient-to-r from-[#166534] to-[#22C55E] text-white py-3 rounded-xl font-semibold mb-4 hover:brightness-110 transition">
+                        class="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold mb-4 hover:bg-gray-700 transition">
                         Share
                     </button>
 
                     <div id="shareList" class="space-y-2 max-h-40 overflow-y-auto"></div>
 
-                    <button onclick="closeShareModal()" class="mt-4 text-sm text-[#A7F3D0]/70 hover:text-white">
+                    <button onclick="closeShareModal()" class="mt-4 text-sm text-gray-400 hover:text-gray-700">
                         Close
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- EDITOR MODAL -->
+        <div id="editorModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 px-4">
+            <div id="editorModalContent"
+                class="w-full max-w-3xl h-[620px] overflow-hidden rounded-3xl bg-white shadow-2xl">
+            </div>
+        </div>
+
         <!-- SETTINGS MODAL -->
-        <div id="settingsModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 px-4">
-            <div class="bg-[#0F3D2E] border border-emerald-300/10 p-6 rounded-2xl w-full max-w-md text-white shadow-2xl">
+        <div id="settingsModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
+            <div class="bg-white border border-gray-200 p-6 rounded-2xl w-full max-w-md text-gray-900 shadow-2xl">
                 <h2 class="text-xl font-bold mb-4">User Settings</h2>
 
-                <label class="block text-sm font-medium mb-1 text-[#A7F3D0]">Font size</label>
-                <select id="settingFontSize" class="w-full border border-emerald-300/10 bg-[#071F18] rounded-xl px-3 py-3 mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-600">Font size</label>
+                <select id="settingFontSize" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
                     <option value="text-sm">Small</option>
                     <option value="text-base">Normal</option>
                     <option value="text-lg">Large</option>
                 </select>
 
-                <label class="block text-sm font-medium mb-1 text-[#A7F3D0]">Note color</label>
-                <select id="settingNoteColor" class="w-full border border-emerald-300/10 bg-[#071F18] rounded-xl px-3 py-3 mb-4">
-                    <option value="bg-[#14532D]">Dark Green</option>
-                    <option value="bg-[#166534]">Emerald</option>
-                    <option value="bg-[#0F3D2E]">Deep Green</option>
+                <label class="block text-sm font-medium mb-1 text-gray-600">Note color</label>
+                <select id="settingNoteColor" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
                     <option value="bg-white">White</option>
+                    <option value="bg-gray-50">Light Gray</option>
+                    <option value="bg-gray-100">Gray</option>
                 </select>
 
-                <label class="block text-sm font-medium mb-1 text-[#A7F3D0]">Theme</label>
-                <select id="settingTheme" class="w-full border border-emerald-300/10 bg-[#071F18] rounded-xl px-3 py-3 mb-4">
-                    <option value="dark">Dark</option>
+                <label class="block text-sm font-medium mb-1 text-gray-600">Theme</label>
+                <select id="settingTheme" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
                     <option value="light">Light</option>
+                    <option value="dark">Dark</option>
                 </select>
 
-                <button onclick="saveSettings()" class="w-full bg-gradient-to-r from-[#166534] to-[#22C55E] text-white py-3 rounded-xl font-semibold">
+                <button onclick="saveSettings()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition">
                     Save Settings
                 </button>
 
-                <button onclick="closeSettingsModal()" class="mt-3 text-sm text-[#A7F3D0]/70 hover:text-white">
+                <button onclick="closeSettingsModal()" class="mt-3 text-sm text-gray-400 hover:text-gray-700">
                     Close
                 </button>
             </div>
@@ -306,6 +312,63 @@
     </div>
 
     <script>
+        async function openEditorModal(url) {
+            const modal = document.getElementById('editorModal');
+            const content = document.getElementById('editorModalContent');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            content.innerHTML = `
+                <div class="p-10 text-center text-gray-400">
+                    Loading editor...
+                </div>
+            `;
+
+            const res = await fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const html = await res.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const editor = doc.querySelector('#editorContent');
+
+            content.innerHTML = editor ? editor.outerHTML : html;
+
+            content.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+                newScript.remove();
+            });
+        }
+                
+
+        function reInitEditorScripts() {
+            // re-bind autosave
+            if (typeof scheduleSave === "function") {
+                const title = document.getElementById('noteTitle');
+                const content = document.getElementById('noteContent');
+
+                if (title) title.addEventListener("input", scheduleSave);
+                if (content) content.addEventListener("input", scheduleSave);
+            }
+        }
+
+        function closeEditorModal() {
+            const modal = document.getElementById('editorModal');
+            const content = document.getElementById('editorModalContent');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            content.innerHTML = "";
+        }
         const notesContainer = document.getElementById('notesContainer');
 
         function filterByLabel(labelId) {
@@ -325,8 +388,8 @@
                 const isMatch = btn.getAttribute('data-id') === labelId;
 
                 btn.className = isMatch
-                    ? "filter-chip px-4 py-2 rounded-full border border-[#22C55E]/40 bg-gradient-to-r from-[#166534] to-[#22C55E] text-white text-sm font-medium shadow-sm transition"
-                    : "filter-chip px-4 py-2 rounded-full border border-emerald-300/10 bg-[#0F3D2E]/80 text-[#A7F3D0] text-sm hover:bg-[#14532D] hover:border-[#22C55E]/50 transition shadow-sm";
+                    ? "filter-chip px-4 py-2 rounded-full border border-gray-900 bg-gray-900 text-white text-sm font-medium shadow-sm transition"
+                    : "filter-chip px-4 py-2 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:bg-gray-100 hover:border-gray-300 transition shadow-sm";
             });
         }
 
@@ -354,8 +417,8 @@
 
                 const regex = new RegExp(`(${query})`, 'gi');
 
-                titleEl.innerHTML = titleText.replace(regex, `<mark class="bg-[#22C55E]/30 text-white px-1 rounded">$1</mark>`);
-                contentEl.innerHTML = contentText.replace(regex, `<mark class="bg-[#22C55E]/30 text-white px-1 rounded">$1</mark>`);
+                titleEl.innerHTML = titleText.replace(regex, `<mark class="bg-yellow-200 text-gray-900 px-1 rounded">$1</mark>`);
+                contentEl.innerHTML = contentText.replace(regex, `<mark class="bg-yellow-200 text-gray-900 px-1 rounded">$1</mark>`);
 
                 const isMatch = titleText.toLowerCase().includes(query) || contentText.toLowerCase().includes(query);
                 card.style.display = isMatch ? "" : "none";
@@ -482,9 +545,7 @@
         function revoke(userId) {
             fetch(`/notes/${currentNoteId}/share/${userId}`, {
                 method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                }
+                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
             })
             .then(() => location.reload());
         }
@@ -496,9 +557,7 @@
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
-                body: JSON.stringify({
-                    permission: permission
-                })
+                body: JSON.stringify({ permission: permission })
             })
             .then(res => res.json())
             .then(() => loadShares());
@@ -513,22 +572,22 @@
 
                 data.forEach(share => {
                     container.innerHTML += `
-                        <div class="flex justify-between items-center border border-emerald-300/10 bg-[#071F18]/70 p-3 rounded-xl">
+                        <div class="flex justify-between items-center border border-gray-200 bg-gray-50 p-3 rounded-xl">
                             <div>
-                                <div class="text-sm text-white">${share.recipient.email}</div>
-                                <div class="text-xs text-[#A7F3D0]/60">
+                                <div class="text-sm text-gray-900">${share.recipient.email}</div>
+                                <div class="text-xs text-gray-400">
                                     ${share.permission} • ${share.created_at}
                                 </div>
                             </div>
 
                             <div class="flex gap-2 items-center">
-                                <select class="bg-[#0F3D2E] text-white border border-emerald-300/10 rounded-lg px-2 py-1 text-xs"
+                                <select class="bg-white text-gray-900 border border-gray-200 rounded-lg px-2 py-1 text-xs"
                                     onchange="updatePermission(${share.recipient_id}, this.value)">
                                     <option value="read" ${share.permission === 'read' ? 'selected' : ''}>Read</option>
                                     <option value="edit" ${share.permission === 'edit' ? 'selected' : ''}>Edit</option>
                                 </select>
 
-                                <button onclick="revoke(${share.recipient_id})" class="text-red-300 hover:text-red-200">
+                                <button onclick="revoke(${share.recipient_id})" class="text-red-400 hover:text-red-500">
                                     ✕
                                 </button>
                             </div>
@@ -558,8 +617,6 @@
 
         function applySettings() {
             const fontSize = localStorage.getItem('noteFontSize') || 'text-sm';
-            const noteColor = localStorage.getItem('noteColor') || 'bg-[#14532D]';
-            const theme = localStorage.getItem('theme') || 'dark';
 
             document.querySelectorAll('.note-card').forEach(card => {
                 const content = card.querySelector('p');
@@ -568,59 +625,97 @@
                     content.classList.add(fontSize);
                 }
             });
-
-            if (theme === 'dark') {
-                document.body.classList.add('bg-[#071F18]', 'text-white');
-            } else {
-                document.body.classList.remove('bg-[#071F18]', 'text-white');
-            }
         }
 
         applySettings();
 
-        function toggleSidebar() {
+        function setSidebarState(state) {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const icon = document.getElementById('sidebarToggleIcon');
             const texts = document.querySelectorAll('.sidebar-text');
 
-            const collapsed = sidebar.classList.contains('w-72');
+            const isCollapsed = state === 'collapsed';
 
-            if (collapsed) {
-                sidebar.classList.remove('w-72');
-                sidebar.classList.add('w-20');
+            sidebar.classList.toggle('w-72', !isCollapsed);
+            sidebar.classList.toggle('w-20', isCollapsed);
 
-                mainContent.classList.remove('lg:ml-72');
-                mainContent.classList.add('lg:ml-20');
+            mainContent.classList.toggle('lg:ml-72', !isCollapsed);
+            mainContent.classList.toggle('lg:ml-20', isCollapsed);
 
-                texts.forEach(el => el.classList.add('hidden'));
+            texts.forEach(el => {
+                el.classList.toggle('hidden', isCollapsed);
+            });
 
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
+            icon.classList.toggle('fa-chevron-left', !isCollapsed);
+            icon.classList.toggle('fa-chevron-right', isCollapsed);
 
-                localStorage.setItem('sidebar', 'collapsed');
-            } else {
-                sidebar.classList.remove('w-20');
-                sidebar.classList.add('w-72');
+            localStorage.setItem('sidebar', state);
+        }
 
-                mainContent.classList.remove('lg:ml-20');
-                mainContent.classList.add('lg:ml-72');
+        function toggleSidebar() {
+            const currentState = localStorage.getItem('sidebar') || 'expanded';
+            const nextState = currentState === 'expanded' ? 'collapsed' : 'expanded';
 
-                texts.forEach(el => el.classList.remove('hidden'));
-
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
-
-                localStorage.setItem('sidebar', 'expanded');
-            }
+            setSidebarState(nextState);
         }
 
         function applySidebarState() {
-            if (localStorage.getItem('sidebar') === 'collapsed') {
-                toggleSidebar();
-            }
+            const savedState = localStorage.getItem('sidebar') || 'expanded';
+            setSidebarState(savedState);
         }
 
         applySidebarState();
+
+        async function loadPage(event, url) {
+            event.preventDefault();
+
+            const mainContent = document.getElementById('mainContent');
+
+            mainContent.innerHTML = `
+                <div class="flex items-center justify-center min-h-[400px] text-gray-400">
+                    Loading...
+                </div>
+            `;
+
+            try {
+                const response = await fetch(url, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('#mainContent');
+
+                if (newContent) {
+                    mainContent.innerHTML = newContent.innerHTML;
+                } else {
+                    mainContent.innerHTML = doc.body.innerHTML;
+                }
+
+                window.history.pushState({}, '', url);
+
+            } catch (error) {
+                mainContent.innerHTML = `<div class="text-red-500">Không thể tải nội dung. Vui lòng thử lại.</div>`;
+                console.error(error);
+            }
+        }
+
+        window.addEventListener('popstate', async function () {
+            const url = window.location.href;
+            const mainContent = document.getElementById('mainContent');
+
+            const response = await fetch(url, {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('#mainContent');
+
+            mainContent.innerHTML = newContent ? newContent.innerHTML : doc.body.innerHTML;
+        });
     </script>
 </x-app-layout>

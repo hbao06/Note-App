@@ -55,7 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/notes/search', [NoteController::class, 'search'])->name('notes.search');
 
     // LABEL
-    Route::post('/notes/{note}/labels', [NoteController::class, 'syncLabels']);
     Route::get('/labels', [LabelController::class, 'index']);
     Route::post('/labels', [LabelController::class, 'store']);
     Route::put('/labels/{label}', [LabelController::class, 'update']);
@@ -73,8 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notes/{note}/verify-password', [NoteController::class, 'verifyPassword']);
     Route::post('/notes/{note}/remove-password', [NoteController::class, 'removePassword']);
 
-    // route editor (đảm bảo đúng)
-    Route::get('/notes/editor/{note}', [NoteController::class, 'editor']); 
+
 
     // SHARE WITH
     Route::get('/notes/shared', [NoteController::class, 'sharedWithMe'])->name('notes.shared');
