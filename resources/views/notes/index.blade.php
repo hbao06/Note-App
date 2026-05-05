@@ -1,48 +1,58 @@
+
+
 <x-app-layout>
-    <div class="min-h-screen bg-gray-50 text-gray-900">
+    <div class="h-screen overflow-hidden bg-gray-50 text-gray-900">
         <!-- SIDEBAR -->
         <aside id="sidebar"
-            class="fixed left-0 top-0 z-40 h-screen w-72 bg-white border-r border-gray-200 backdrop-blur-xl transition-all duration-300 overflow-hidden">
-
+            class="fixed left-0 top-0 z-40 h-screen w-64 
+                bg-white border-r border-gray-200 
+                transition-all duration-300 ease-in-out 
+                flex flex-col overflow-hidden">
             <!-- USER -->
-            <div class="p-4 border-b border-gray-200 flex items-center gap-3">
-                <div class="w-11 h-11 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                </div>
+            <div id="sidebarUser" class="p-4 border-b border-gray-200">
 
-                <div class="sidebar-text">
-                    <div class="font-semibold text-gray-900 truncate">
-                        {{ auth()->user()->name }}
+
+                <!-- AVATAR  -->
+                <a href="{{ route('profile.edit') }}" 
+                onclick="loadPage(event, this.href)"
+                id="userInfo"
+                class="sidebar-avatar-link flex items-center gap-3 min-w-0 rounded-xl hover:bg-gray-100 transition">
+
+                    <div id="userAvatar"
+                        class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                     </div>
-                    <div class="text-xs text-gray-400 truncate">
-                        {{ auth()->user()->email }}
+
+                    <div class="sidebar-text min-w-0">
+                        <div class="font-semibold text-gray-900 truncate">
+                            {{ auth()->user()->name }}
+                        </div>
+                        <div class="text-xs text-gray-400 truncate">
+                            {{ auth()->user()->email }}
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- MENU -->
             <nav class="p-3 space-y-2">
 
-                <a href="{{ route('profile.edit') }}" onclick="loadPage(event, this.href)"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
-                    <i class="fa-solid fa-user w-5"></i>
-                    <span class="sidebar-text">Profile</span>
-                </a>
-
                 <a href="{{ route('notes.index') }}"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium">
+                class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl transition text-gray-600 hover:bg-gray-100"
+                data-route="notes">
                     <i class="fa-solid fa-note-sticky w-5"></i>
                     <span class="sidebar-text">My Notes</span>
                 </a>
 
                 <a href="{{ route('notes.shared') }}" onclick="loadPage(event, this.href)"
-                    class="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
+                class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl transition text-gray-600 hover:bg-gray-100"
+                data-route="shared">
                     <i class="fa-solid fa-user-group w-5"></i>
                     <span class="sidebar-text">Shared with me</span>
                 </a>
 
                 <button onclick="openSettingsModal()"
-                    class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
+                    class="sidebar-link w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span class="sidebar-text">Settings</span>
                 </button>
@@ -50,14 +60,15 @@
             </nav>
 
             <!-- RECENT NOTES -->
-            <div class="px-4 mt-4 sidebar-text">
-                <h3 class="text-xs uppercase tracking-widest text-gray-400 mb-3">
+            <div class="px-4 mt-4 sidebar-text flex-1 min-h-0 flex flex-col">
+                <h3 class="text-xs uppercase tracking-widest text-gray-400 mb-3 flex-shrink-0">
                     Gần đây
                 </h3>
 
-                <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                    @foreach($notes->take(6) as $recent)
+                <div class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
+                    @foreach($notes->take(20) as $recent)
                         <a href="{{ url('/notes/editor/' . $recent->id) }}"
+                            onclick="event.preventDefault(); openEditorModal(this.href)"
                             class="block px-3 py-2 rounded-xl hover:bg-gray-100 transition">
                             <div class="text-sm text-gray-800 truncate">
                                 {{ $recent->title ?: 'Untitled' }}
@@ -70,200 +81,287 @@
                 </div>
             </div>
 
-            <!-- BOTTOM -->
-            <div class="absolute bottom-4 left-0 right-0 px-3 space-y-2">
+
+            <!-- LOGOUT -->
+            <div class="mt-auto px-3 pb-4 w-full">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                        class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
-                        <i class="fa-solid fa-right-from-bracket w-5"></i>
-                        <span class="sidebar-text">Logout</span>
+                        class="sidebar-link w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
+                        <i class="fa-solid fa-right-from-bracket w-5 flex-shrink-0"></i>
+                        <span class="sidebar-text">Đăng xuất</span>
                     </button>
                 </form>
-
-                <button onclick="toggleSidebar()"
-                    class="w-full flex items-center justify-center px-3 py-3 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
-                    <i id="sidebarToggleIcon" class="fa-solid fa-chevron-left"></i>
-                </button>
             </div>
+
+
+            
         </aside>
+
+        <button onclick="toggleSidebar()"
+            id="sidebarToggleBtn"
+            class="fixed top-8 z-50 
+                w-9 h-9 flex items-center justify-center
+                rounded-full bg-white/90 backdrop-blur
+                border border-gray-200 shadow-sm
+                text-gray-600 hover:scale-105 hover:shadow-md
+                transition-all duration-200">
+
+            <i id="sidebarToggleIcon" class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
 
         <div class="pointer-events-none fixed inset-0 bg-white"></div>
 
-        <div id="mainContent" class="relative py-8 px-6 transition-all duration-300 lg:ml-72">
+        <div id="mainContent" class="relative h-screen overflow-hidden transition-all duration-300 ml-64 bg-gray-50">
+            <div class="sticky top-0 z-30 bg-white/70 backdrop-blur-xl px-6 pt-6 pb-5 border-b border-slate-100">
+                <!-- HEADER -->
+                <!-- TOP BAR -->
+                <div class="flex items-start justify-between gap-4 mb-6">
 
-            <!-- HEADER -->
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
-                <div>
-                    <p class="text-sm text-gray-400 mb-1">Good Morning ✨</p>
-                    <h1 class="text-4xl font-bold tracking-tight text-gray-900">Your Notes!</h1>
+                    <!-- LEFT -->
+                    <div>
+                        <div class="text-sm font-semibold text-slate-400 mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="greetingText"></span>
+                        </div>
+
+                        <h1 class="text-4xl font-black tracking-tight text-slate-950">
+                            Your Notes
+                        </h1>
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="flex items-center gap-3">
+
+                        <!-- View toggle -->
+                        <button onclick="toggleView()" id="viewToggleBtn"
+                            class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-950 transition">
+                            <i class="fa-solid fa-list"></i>
+                        </button>
+
+                        <!-- Create -->
+                        <button onclick="openEditorModal('{{ route('notes.editor') }}')"
+                            class="h-12 px-5 rounded-2xl bg-slate-950 text-white font-bold shadow-lg shadow-slate-300/50 hover:bg-slate-800 active:scale-95 transition">
+                            + Create
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="toggleView()" id="viewToggleBtn"
-                        class="p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-100 transition shadow-sm">
-                        🔳
-                    </button>
+                <!-- SEARCH BAR -->
+                <div class="relative mb-5 group">
 
-                    <button onclick="openEditorModal('{{ route('notes.editor') }}')"
-                        class="px-5 py-3 bg-gray-900 text-white font-semibold rounded-xl shadow-sm hover:bg-gray-700 active:scale-95 transition">
-                        + Create Note
-                    <button>
-                </div>
-            </div>
-
-            <!-- SEARCH -->
-            <div class="relative mb-8">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-4">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-
-                <input type="text" id="searchInput" placeholder="Search notes..."
-                    class="w-full pl-12 pr-4 py-4 border border-gray-200 bg-white rounded-2xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 outline-none transition shadow-sm" />
-            </div>
-
-            <!-- FILTER LABELS -->
-            <div class="mb-8 overflow-x-auto">
-                <div class="flex flex-wrap gap-2 items-center">
-                    <span class="text-xs font-bold text-gray-400 uppercase mr-2 tracking-widest">
-                        Filters Label:
+                    <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition">
+                        <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
 
-                    <button onclick="filterByLabel('all')"
-                        data-id="all"
-                        class="filter-chip active px-4 py-2 rounded-full border border-gray-900 bg-gray-900 text-white text-sm font-medium shadow-sm transition">
-                        All
-                    </button>
+                    <input type="text"
+                        id="searchInput"
+                        placeholder="Search notes, ideas..."
+                        class="w-full h-14 pl-12 pr-4 rounded-2xl border border-slate-200 bg-white/80 text-slate-900 placeholder:text-slate-400 shadow-sm transition outline-none
+                        focus:border-slate-300 focus:ring-4 focus:ring-slate-200/60 focus:bg-white">
+                </div>
 
-                    @foreach($allLabels as $label)
-                        <button onclick="filterByLabel('{{ $label->id }}')"
-                            data-id="{{ $label->id }}"
-                            class="filter-chip px-4 py-2 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:bg-gray-100 hover:border-gray-300 transition shadow-sm">
-                            {{ $label->name }}
+                <!-- FILTER -->
+                <div class="flex items-center gap-3 overflow-x-auto pb-1">
+
+                    <!-- Label text -->
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-filter text-[11px]"></i>
+                        Labels
+                    </div>
+
+                    <!-- Chips -->
+                    <div id="filterLabelsContainer" class="flex items-center gap-2 min-w-max">
+
+                        <button onclick="filterByLabel('all')" data-id="all"
+                            class="filter-chip active px-4 py-2.5 rounded-full bg-slate-950 text-white text-sm font-bold shadow-sm">
+                            All
                         </button>
+
+                        @foreach($allLabels as $label)
+                            <button onclick="filterByLabel('{{ $label->id }}')"
+                                data-id="{{ $label->id }}"
+                                class="filter-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-950 transition">
+                                {{ $label->name }}
+                            </button>
+                        @endforeach
+
+                    </div>
+                </div>
+            </div>
+
+        
+            <!-- NOTES GRID -->
+            <div class="h-[calc(100vh-280px)] overflow-y-auto px-6 py-6">
+                <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    @foreach ($notes as $note)
+                        @php $uniqueLabels = $note->labels->unique('name'); @endphp
+
+                        <div data-note-id="{{ $note->id }}"
+                            data-url="{{ url('/notes/editor/' . $note->id) }}"
+                            onclick="openEditorModal(this.dataset.url)"
+                            data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
+                            class="note-card group relative overflow-hidden bg-white border border-gray-200 rounded-[1.75rem] p-5 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 cursor-pointer flex flex-col min-h-[250px]">
+
+                            <!-- PIN -->
+                            <button type="button"   
+                                onclick="event.preventDefault(); event.stopPropagation(); togglePin({{ $note->id }}, this)"
+                                class="absolute top-4 right-4 z-30 w-10 h-10 p-0 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition">
+                                <i class="fa-solid fa-thumbtack {{ $note->is_pinned ? 'text-gray-900 rotate-45' : 'text-gray-400' }}"></i>
+                            </button>
+
+                            <!-- CONTENT -->
+                            <div class="relative z-10 mb-4 pr-8">
+                                <div class="flex items-center gap-2 mb-3 text-sm">
+                                    @if($note->sharedNotes->count() > 0)
+                                        <span title="This note is shared" class="text-gray-500">
+                                            <i class="fa-solid fa-user-group"></i>
+                                        </span>
+                                    @endif
+
+                                    @if($note->note_password)
+                                        <span title="This note is locked" class="text-yellow-500">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                    @endif
+
+                                    <span title="Pinned note"
+                                        class="pinned-status text-gray-500 {{ $note->is_pinned ? '' : 'hidden' }}">
+                                        <i class="fa-solid fa-thumbtack"></i>
+                                    </span>
+                                </div>
+
+                                <h2 class="card-title text-2xl font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-black transition">
+                                    {{ $note->title ?: 'Untitled' }}
+                                </h2>
+
+                                <p class="card-content text-gray-500 text-sm leading-6 line-clamp-6">
+                                    {{ $note->content }}
+                                </p>
+
+                                <div class="mt-4 relative group/time inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition cursor-default">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span class="note-time" data-time="{{ $note->updated_at->format('c') }}"></span>
+
+                                    <div class="absolute bottom-full mb-2 hidden group-hover/time:block bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-50 border border-gray-700">
+                                        <span class="note-full-time" data-time="{{ $note->updated_at->format('c') }}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LABELS -->
+                            <div class="relative z-10 flex flex-wrap gap-2 mt-auto pb-10">
+                                @foreach($uniqueLabels as $label)
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-600 text-[12px] font-medium rounded-full border border-gray-200 hover:bg-gray-200 transition">
+                                        {{ $label->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+
+                            <!-- ACTIONS -->
+                            <div class="absolute bottom-4 right-4 z-30 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition"
+                                onclick="event.stopPropagation()">
+
+                                <button type="button"
+                                    onclick="event.preventDefault(); event.stopPropagation(); openShareModal({{ $note->id }})"
+                                    title="Share note"
+                                    class="w-10 h-10 p-0 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-sm text-gray-600 hover:bg-gray-100 transition">
+                                    <i class="fa-solid fa-share"></i>
+                                </button>
+
+                                <form action="{{ route('notes.destroy', $note) }}" method="POST"
+                                    class="m-0 p-0 flex items-center"
+                                    onsubmit="event.stopPropagation(); return confirm('Bạn có chắc muốn xóa ghi chú này không?')">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                        onclick="event.stopPropagation()"
+                                        title="Delete note"
+                                        class="w-10 h-10 p-0 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-sm text-red-500 hover:bg-red-50 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @endforeach
                 </div>
             </div>
 
-            <!-- NOTES GRID -->
-            <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                @foreach ($notes as $note)
-                    @php $uniqueLabels = $note->labels->unique('name'); @endphp
+            <!-- SHARE MODAL -->
+            <div id="shareModal"
+                class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
 
-                    <div data-url="{{ url('/notes/editor/' . $note->id) }}"
-                        onclick="openEditorModal(this.dataset.url)"
-                        data-labels="{{ $uniqueLabels->pluck('id')->join(',') }}"
-                        class="note-card group relative overflow-hidden bg-white border border-gray-200 rounded-[1.75rem] p-5 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 cursor-pointer flex flex-col min-h-[250px]">
+                <div class="w-full max-w-lg rounded-[2rem] bg-white border border-white shadow-2xl shadow-slate-900/20 overflow-hidden">
 
-                        <!-- PIN -->
-                        <button onclick="event.stopPropagation(); togglePin('{{ $note->id }}')"
-                            class="absolute top-4 right-4 z-10 p-2 rounded-xl bg-gray-100 hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition">
-                            <i class="fa-solid fa-thumbtack {{ $note->is_pinned ? 'text-gray-900 rotate-45' : 'text-gray-400' }}"></i>
-                        </button>
-
-                        <!-- CONTENT -->
-                        <div class="relative z-10 mb-4 pr-8">
-                            <div class="flex items-center gap-2 mb-3 text-sm">
-                                @if($note->sharedNotes->count() > 0)
-                                    <span title="This note is shared" class="text-gray-500">
-                                        <i class="fa-solid fa-user-group"></i>
-                                    </span>
-                                @endif
-
-                                @if($note->note_password)
-                                    <span title="This note is locked" class="text-yellow-500">
-                                        <i class="fa-solid fa-lock"></i>
-                                    </span>
-                                @endif
-
-                                @if($note->is_pinned)
-                                    <span title="Pinned note" class="text-gray-500">
-                                        <i class="fa-solid fa-thumbtack"></i>
-                                    </span>
-                                @endif
+                    <!-- Header -->
+                    <div class="px-7 py-6 border-b border-slate-100 flex items-start justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-share-nodes"></i>
                             </div>
 
-                            <h2 class="text-2xl font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-black transition">
-                                {{ $note->title ?: 'Untitled' }}
+                            <h2 class="text-2xl font-black text-slate-950">
+                                Share note
                             </h2>
 
-                            <p class="text-gray-500 text-sm leading-6 line-clamp-6">
-                                {{ $note->content }}
+                            <p class="mt-1 text-sm text-slate-500">
+                                Invite people by email and manage permissions.
                             </p>
+                        </div>
 
-                            <div class="mt-4 relative group/time inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition cursor-default">
-                                <i class="fa-regular fa-clock"></i>
-                                <span class="note-time" data-time="{{ $note->updated_at->format('c') }}"></span>
+                        <button onclick="closeShareModal()"
+                            class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
 
-                                <div class="absolute bottom-full mb-2 hidden group-hover/time:block bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-50 border border-gray-700">
-                                    <span class="note-full-time" data-time="{{ $note->updated_at->format('c') }}"></span>
-                                </div>
+                    <!-- Body -->
+                    <div class="px-7 py-6 space-y-4">
+
+                        <!-- Email input -->
+                        <div>
+                            <label class="text-sm font-bold text-slate-700">Email addresses</label>
+                            <input type="text" id="shareEmails"
+                                placeholder="name@example.com, friend@example.com"
+                                class="mt-2 w-full rounded-2xl border-slate-200 bg-slate-50/80 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-slate-950 focus:ring-slate-950 outline-none">
+                            <p class="mt-2 text-xs text-slate-400">
+                                Separate multiple emails with commas.
+                            </p>
+                        </div>
+
+                        <!-- Permission -->
+                        <div>
+                            <label class="text-sm font-bold text-slate-700">Permission</label>
+                            <div class="relative mt-2">
+                                <select id="sharePermission"
+                                    class="w-full appearance-none rounded-2xl border-slate-200 bg-slate-50/80 px-4 py-3.5 pr-10 text-slate-900 focus:border-slate-950 focus:ring-slate-950 outline-none">
+                                    <option value="read">Read only</option>
+                                    <option value="edit">Can edit</option>
+                                </select>
+
+                                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
                             </div>
                         </div>
 
-                        <!-- LABELS -->
-                        <div class="relative z-10 flex flex-wrap gap-2 mt-auto pb-10">
-                            @foreach($uniqueLabels as $label)
-                                <span class="px-3 py-1 bg-gray-100 text-gray-600 text-[12px] font-medium rounded-full border border-gray-200 hover:bg-gray-200 transition">
-                                    {{ $label->name }}
-                                </span>
-                            @endforeach
+                        <!-- Button -->
+                        <button onclick="shareNote()"
+                            class="w-full py-4 rounded-2xl bg-slate-950 text-white font-black shadow-xl shadow-slate-300/50 hover:bg-slate-800 active:scale-[0.98] transition">
+                            Share note
+                        </button>
+
+                        <!-- List -->
+                        <div class="pt-2">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-black text-slate-800">
+                                    People with access
+                                </h3>
+                            </div>
+
+                            <div id="shareList" class="space-y-2 max-h-52 overflow-y-auto pr-1"></div>
                         </div>
 
-                        <!-- ACTIONS -->
-                        <div class="absolute bottom-4 right-4 z-20 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
-
-                            <button onclick="event.stopPropagation(); openShareModal({{ $note->id }})"
-                                title="Share note"
-                                class="p-2 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition">
-                                <i class="fa-solid fa-share"></i>
-                            </button>
-
-                            <form action="{{ route('notes.destroy', $note) }}" method="POST"
-                                onsubmit="return confirm('Bạn có chắc muốn xóa ghi chú này không?')">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit"
-                                    onclick="event.stopPropagation()"
-                                    title="Delete note"
-                                    class="p-2 rounded-xl bg-gray-100 text-red-400 hover:bg-red-50 hover:text-red-500 transition">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
                     </div>
-                @endforeach
-            </div>
-
-            <!-- SHARE MODAL -->
-            <div id="shareModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
-                <div class="bg-white border border-gray-200 w-full max-w-md p-6 rounded-2xl shadow-2xl text-gray-900">
-
-                    <h2 class="text-xl font-bold mb-4">Share Note</h2>
-
-                    <input type="text" id="shareEmails"
-                        placeholder="Nhập email, cách nhau dấu phẩy"
-                        class="w-full border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 px-4 py-3 rounded-xl mb-3 focus:ring-2 focus:ring-gray-300 outline-none">
-
-                    <select id="sharePermission"
-                        class="w-full border border-gray-200 bg-gray-50 text-gray-900 px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-gray-300 outline-none">
-                        <option value="read">Read only</option>
-                        <option value="edit">Can edit</option>
-                    </select>
-
-                    <button onclick="shareNote()"
-                        class="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold mb-4 hover:bg-gray-700 transition">
-                        Share
-                    </button>
-
-                    <div id="shareList" class="space-y-2 max-h-40 overflow-y-auto"></div>
-
-                    <button onclick="closeShareModal()" class="mt-4 text-sm text-gray-400 hover:text-gray-700">
-                        Close
-                    </button>
                 </div>
             </div>
         </div>
@@ -276,45 +374,211 @@
         </div>
 
         <!-- SETTINGS MODAL -->
-        <div id="settingsModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
-            <div class="bg-white border border-gray-200 p-6 rounded-2xl w-full max-w-md text-gray-900 shadow-2xl">
-                <h2 class="text-xl font-bold mb-4">User Settings</h2>
+        <div id="settingsModal"
+            class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm px-4">
 
-                <label class="block text-sm font-medium mb-1 text-gray-600">Font size</label>
-                <select id="settingFontSize" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
-                    <option value="text-sm">Small</option>
-                    <option value="text-base">Normal</option>
-                    <option value="text-lg">Large</option>
-                </select>
+            <div class="w-full max-w-xl rounded-[28px] bg-gray-50 shadow-2xl border border-gray-200 overflow-hidden">
 
-                <label class="block text-sm font-medium mb-1 text-gray-600">Note color</label>
-                <select id="settingNoteColor" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
-                    <option value="bg-white">White</option>
-                    <option value="bg-gray-50">Light Gray</option>
-                    <option value="bg-gray-100">Gray</option>
-                </select>
+                <div class="px-7 py-6 border-b border-gray-100 flex items-start justify-between">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-gray-950">Settings</h2>
+                        <p class="mt-1 text-sm text-gray-500">Customize your workspace.</p>
+                    </div>
 
-                <label class="block text-sm font-medium mb-1 text-gray-600">Theme</label>
-                <select id="settingTheme" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 mb-4">
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                </select>
+                    <button onclick="closeSettingsModal()"
+                        class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
 
-                <button onclick="saveSettings()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition">
-                    Save Settings
+                <div class="px-7 py-6 space-y-7 bg-gray-50">
+                    <!-- Font size -->
+                    <div>
+                        <div class="mb-3 flex items-center justify-between">
+                            <label class="text-sm font-medium text-gray-800">Font size</label>
+                            <span class="text-xs text-gray-400">Note content</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 rounded-2xl bg-gray-100 p-1">
+                            <button type="button" onclick="selectSetting('settingFontSize', 'text-sm', this)"
+                                class="setting-option rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-white transition">
+                                Small
+                            </button>
+
+                            <button type="button" onclick="selectSetting('settingFontSize', 'text-base', this)"
+                                class="setting-option rounded-xl px-4 py-2.5 text-sm font-medium bg-white text-gray-950 shadow-sm transition">
+                                Normal
+                            </button>
+
+                            <button type="button" onclick="selectSetting('settingFontSize', 'text-lg', this)"
+                                class="setting-option rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-white transition">
+                                Large
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="settingFontSize" value="text-base">
+                    </div>
+
+                    <!-- Note color -->
+                    <div>
+                        <div class="mb-3 flex items-center justify-between">
+                            <label class="text-sm font-medium text-gray-800">Note color</label>
+                            <span class="text-xs text-gray-400">Card background</span>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-3">
+                            <button type="button" onclick="selectNoteColor('bg-white', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-gray-950 bg-white shadow-sm" title="White"></button>
+
+                            <button onclick="selectNoteColor('bg-gray-800', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-gray-800 shadow-sm">
+                            </button>
+
+                            <button type="button" onclick="selectNoteColor('bg-yellow-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-yellow-50 shadow-sm" title="Yellow"></button>
+
+                            <button type="button" onclick="selectNoteColor('bg-orange-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-orange-50 shadow-sm" title="Orange"></button>
+
+                            <button type="button" onclick="selectNoteColor('bg-green-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-green-50 shadow-sm" title="Green"></button>
+
+                            <button type="button" onclick="selectNoteColor('bg-blue-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-blue-50 shadow-sm" title="Blue"></button>
+
+                            <button type="button" onclick="selectNoteColor('bg-purple-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-purple-50 shadow-sm" title="Purple"></button>
+
+                            <button type="button" onclick="selectNoteColor('bg-rose-50', this)"
+                                class="note-color-option h-14 rounded-2xl border-2 border-transparent bg-rose-50 shadow-sm" title="Rose"></button>
+                        </div>
+
+                        <input type="hidden" id="settingNoteColor" value="bg-white">
+                    </div>
+
+                    <!-- Theme -->
+                    <div>
+                        <div class="mb-3 flex items-center justify-between">
+                            <label class="text-sm font-medium text-gray-800">Theme</label>
+                            <span class="text-xs text-gray-400">Workspace style</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="selectTheme('light', this)"
+                                class="theme-option rounded-2xl border-2 border-gray-950 bg-white px-5 py-4 text-left transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                                        <i class="fa-regular fa-sun text-gray-700"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-semibold text-gray-950">Light</p>
+                                        <p class="text-xs text-gray-400">Clean white</p>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button type="button" onclick="selectTheme('dark', this)"
+                                class="theme-option rounded-2xl border-2 border-transparent bg-gray-100 px-5 py-4 text-left transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center">
+                                        <i class="fa-regular fa-moon text-white"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-semibold text-gray-950">Dark</p>
+                                        <p class="text-xs text-gray-400">Soft black</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="settingTheme" value="light">
+                    </div>
+                </div>
+
+                <div class="px-7 py-5 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                    <button onclick="closeSettingsModal()"
+                        class="px-5 py-3 rounded-2xl bg-white border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition">
+                        Cancel
+                    </button>
+
+                    <button onclick="saveSettings()"
+                        class="px-6 py-3 rounded-2xl bg-gray-950 text-white font-medium hover:bg-gray-800 transition">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6">
+            <h2 class="text-xl font-bold mb-4">🔒 Note bị khóa</h2>
+
+            <input
+                type="password"
+                id="modalPassword"
+                placeholder="Nhập mật khẩu"
+                autocomplete="off"
+                data-lpignore="true"
+                data-form-type="other"
+                class="w-full px-4 py-3 border rounded-2xl mb-4">
+
+            <div class="flex gap-3">
+                <button onclick="closePasswordModal()"
+                    class="flex-1 px-4 py-3 rounded-2xl bg-gray-100">
+                    Hủy
                 </button>
 
-                <button onclick="closeSettingsModal()" class="mt-3 text-sm text-gray-400 hover:text-gray-700">
-                    Close
+                <button onclick="submitPassword()"
+                    class="flex-1 px-4 py-3 rounded-2xl bg-black text-white">
+                    Mở khóa
                 </button>
             </div>
         </div>
     </div>
 
+    @if (!auth()->user()->hasVerifiedEmail())
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl">
+        
+        <div class="flex justify-center items-center px-5 py-4 rounded-2xl 
+            bg-yellow-50 border border-yellow-200 text-yellow-900 shadow-xl">
+            
+            <span class="text-center text-base">
+                Tài khoản của bạn chưa được xác minh. Vui lòng kiểm tra email để hoàn tất.
+            </span>
+
+        </div>
+    </div>
+    @endif
+
     <script>
+        let pendingLockedNoteUrl = null;
+
         async function openEditorModal(url) {
             const modal = document.getElementById('editorModal');
             const content = document.getElementById('editorModalContent');
+
+            const res = await fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            // NOTE BỊ KHÓA
+            if (res.status === 423) {
+                pendingLockedNoteUrl = url;
+
+                document.getElementById('modalPassword').value = '';
+                document.getElementById('passwordModal').classList.remove('hidden');
+                document.getElementById('modalPassword').focus();
+
+                return;
+            }
+
+            if (!res.ok) {
+                alert("Không thể mở note");
+                return;
+            }
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -325,12 +589,6 @@
                 </div>
             `;
 
-            const res = await fetch(url, {
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            });
-
             const html = await res.text();
 
             const parser = new DOMParser();
@@ -340,11 +598,50 @@
 
             content.innerHTML = editor ? editor.outerHTML : html;
 
+
             content.querySelectorAll('script').forEach(oldScript => {
                 const newScript = document.createElement('script');
                 newScript.textContent = oldScript.textContent;
                 document.body.appendChild(newScript);
                 newScript.remove();
+            });
+        }
+
+        function closePasswordModal() {
+            pendingLockedNoteUrl = null;
+            document.getElementById('modalPassword').value = '';
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function submitPassword() {
+            if (!pendingLockedNoteUrl) return;
+
+            const noteId = pendingLockedNoteUrl.split('/').pop();
+            const password = document.getElementById('modalPassword').value;
+
+            fetch(`/notes/${noteId}/verify-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ password })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(() => {
+                const url = pendingLockedNoteUrl;
+
+                document.getElementById('passwordModal').classList.add('hidden');
+                document.getElementById('modalPassword').value = '';
+                pendingLockedNoteUrl = null;
+
+                openEditorModal(url);
+            })
+            .catch(() => {
+                alert("Sai mật khẩu!");
             });
         }
                 
@@ -387,9 +684,9 @@
             document.querySelectorAll('.filter-chip').forEach(btn => {
                 const isMatch = btn.getAttribute('data-id') === labelId;
 
-                btn.className = isMatch
-                    ? "filter-chip px-4 py-2 rounded-full border border-gray-900 bg-gray-900 text-white text-sm font-medium shadow-sm transition"
-                    : "filter-chip px-4 py-2 rounded-full border border-gray-200 bg-white text-gray-600 text-sm hover:bg-gray-100 hover:border-gray-300 transition shadow-sm";
+                    btn.className = isMatch
+                    ? "filter-chip active px-4 py-2.5 rounded-full bg-slate-950 text-white text-sm font-bold shadow-sm"
+                    : "filter-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-950 transition";
             });
         }
 
@@ -425,11 +722,48 @@
             });
         });
 
-        function togglePin(id) {
-            fetch(`/notes/${id}/pin`, {
-                method: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
-            }).then(() => location.reload());
+        async function togglePin(id, btn) {
+            try {
+                const res = await fetch(`/notes/${id}/pin`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Pin request failed");
+                }
+
+                const data = await res.json();
+
+                const card = btn.closest('.note-card');
+                const icon = btn.querySelector('i');
+                const statusIcon = card.querySelector('.pinned-status');
+                const container = document.getElementById('notesContainer');
+
+                const isPinned = data.is_pinned;
+
+                icon.classList.toggle('rotate-45', isPinned);
+                icon.classList.toggle('text-gray-900', isPinned);
+                icon.classList.toggle('text-gray-400', !isPinned);
+
+                if (statusIcon) {
+                    statusIcon.classList.toggle('hidden', !isPinned);
+                }
+
+                if (isPinned) {
+                    container.prepend(card);
+                } else {
+                    location.reload();
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Không ghim được note. Kiểm tra route/controller pin.");
+            }
         }
 
         let currentView = localStorage.getItem('view') || 'grid';
@@ -570,25 +904,49 @@
                 const container = document.getElementById('shareList');
                 container.innerHTML = "";
 
+                if (!data.length) {
+                    container.innerHTML = `
+                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-5 text-center">
+                            <div class="mx-auto mb-2 w-10 h-10 rounded-2xl bg-white text-slate-400 flex items-center justify-center">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-600">No one has access yet</p>
+                            <p class="mt-1 text-xs text-slate-400">Share this note with others by email.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.forEach(share => {
+                    const initials = share.recipient.email.charAt(0).toUpperCase();
+
                     container.innerHTML += `
-                        <div class="flex justify-between items-center border border-gray-200 bg-gray-50 p-3 rounded-xl">
-                            <div>
-                                <div class="text-sm text-gray-900">${share.recipient.email}</div>
-                                <div class="text-xs text-gray-400">
-                                    ${share.permission} • ${share.created_at}
+                        <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-black flex-shrink-0">
+                                    ${initials}
+                                </div>
+
+                                <div class="min-w-0">
+                                    <div class="text-sm font-bold text-slate-900 truncate">
+                                        ${share.recipient.email}
+                                    </div>
+                                    <div class="text-xs text-slate-400 truncate">
+                                        ${share.permission === 'edit' ? 'Can edit' : 'Read only'} · ${share.created_at}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="flex gap-2 items-center">
-                                <select class="bg-white text-gray-900 border border-gray-200 rounded-lg px-2 py-1 text-xs"
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <select class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:ring-slate-950 focus:border-slate-950"
                                     onchange="updatePermission(${share.recipient_id}, this.value)">
                                     <option value="read" ${share.permission === 'read' ? 'selected' : ''}>Read</option>
                                     <option value="edit" ${share.permission === 'edit' ? 'selected' : ''}>Edit</option>
                                 </select>
 
-                                <button onclick="revoke(${share.recipient_id})" class="text-red-400 hover:text-red-500">
-                                    ✕
+                                <button onclick="revoke(${share.recipient_id})"
+                                    class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition">
+                                    <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
                         </div>
@@ -597,13 +955,55 @@
             });
         }
 
+        
         function openSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-            document.getElementById('settingsModal').classList.add('flex');
+            syncSettingsUI();
+
+            const modal = document.getElementById('settingsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
+            const modal = document.getElementById('settingsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function selectSetting(inputId, value, btn) {
+            document.getElementById(inputId).value = value;
+
+            btn.parentElement.querySelectorAll('.setting-option').forEach(item => {
+                item.classList.remove('bg-white', 'text-gray-950', 'shadow-sm');
+                item.classList.add('text-gray-600');
+            });
+
+            btn.classList.add('bg-white', 'text-gray-950', 'shadow-sm');
+            btn.classList.remove('text-gray-600');
+        }
+
+        function selectNoteColor(value, btn) {
+            document.getElementById('settingNoteColor').value = value;
+
+            document.querySelectorAll('.note-color-option').forEach(item => {
+                item.classList.remove('border-gray-950');
+                item.classList.add('border-transparent');
+            });
+
+            btn.classList.remove('border-transparent');
+            btn.classList.add('border-gray-950');
+        }
+
+        function selectTheme(value, btn) {
+            document.getElementById('settingTheme').value = value;
+
+            document.querySelectorAll('.theme-option').forEach(item => {
+                item.classList.remove('border-gray-950', 'bg-white');
+                item.classList.add('border-transparent', 'bg-gray-100');
+            });
+
+            btn.classList.remove('border-transparent', 'bg-gray-100');
+            btn.classList.add('border-gray-950', 'bg-white');
         }
 
         function saveSettings() {
@@ -616,13 +1016,81 @@
         }
 
         function applySettings() {
-            const fontSize = localStorage.getItem('noteFontSize') || 'text-sm';
+            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
+            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
+            const theme = localStorage.getItem('theme') || 'light';
 
-            document.querySelectorAll('.note-card').forEach(card => {
+            document.documentElement.classList.toggle('app-dark', theme === 'dark');
+
+            document.querySelectorAll('.note-card, .shared-note-card').forEach(card => {
+                card.classList.remove(
+                    'bg-white',
+                    'bg-gray-50',
+                    'bg-yellow-50',
+                    'bg-orange-50',
+                    'bg-green-50',
+                    'bg-blue-50',
+                    'bg-purple-50',
+                    'bg-rose-50',
+                    'bg-gray-800'
+                );
+
+                // ✅ FIX QUAN TRỌNG
+                if (theme === 'dark') {
+                    const darkColor = getDarkColor(noteColor);
+                    card.classList.add(darkColor);
+                } else {
+                    card.classList.add(noteColor);
+                }
+
                 const content = card.querySelector('p');
                 if (content) {
                     content.classList.remove('text-sm', 'text-base', 'text-lg');
                     content.classList.add(fontSize);
+                }
+            });
+
+            if (typeof window.applyEditorStyle === 'function') {
+                window.applyEditorStyle();
+            }
+        }
+
+        function syncSettingsUI() {
+            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
+            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
+            const theme = localStorage.getItem('theme') || 'light';
+
+            document.getElementById('settingFontSize').value = fontSize;
+            document.getElementById('settingNoteColor').value = noteColor;
+            document.getElementById('settingTheme').value = theme;
+
+            document.querySelectorAll('.setting-option').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-gray-950', 'shadow-sm');
+                btn.classList.add('text-gray-600');
+
+                if ((btn.getAttribute('onclick') || '').includes(`'${fontSize}'`)) {
+                    btn.classList.add('bg-white', 'text-gray-950', 'shadow-sm');
+                    btn.classList.remove('text-gray-600');
+                }
+            });
+
+            document.querySelectorAll('.note-color-option').forEach(btn => {
+                btn.classList.remove('border-gray-950');
+                btn.classList.add('border-transparent');
+
+                if ((btn.getAttribute('onclick') || '').includes(`'${noteColor}'`)) {
+                    btn.classList.add('border-gray-950');
+                    btn.classList.remove('border-transparent');
+                }
+            });
+
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.classList.remove('border-gray-950', 'bg-white');
+                btn.classList.add('border-transparent', 'bg-gray-100');
+
+                if ((btn.getAttribute('onclick') || '').includes(`'${theme}'`)) {
+                    btn.classList.add('border-gray-950', 'bg-white');
+                    btn.classList.remove('border-transparent', 'bg-gray-100');
                 }
             });
         }
@@ -633,16 +1101,38 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const icon = document.getElementById('sidebarToggleIcon');
+
+            const user = document.getElementById('sidebarUser');
+            const userInfo = document.getElementById('userInfo');
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
             const texts = document.querySelectorAll('.sidebar-text');
+
+            const avatar = document.getElementById('userAvatar');
 
             const isCollapsed = state === 'collapsed';
 
-            sidebar.classList.toggle('w-72', !isCollapsed);
+            if (isCollapsed) {
+                toggleBtn.style.left = 'calc(5rem - 18px)';
+                userInfo.classList.add('justify-center', 'mx-auto', 'w-12', 'h-12');
+                userInfo.classList.remove('gap-3');
+
+                avatar.classList.remove('w-9', 'h-9');
+                avatar.classList.add('w-8', 'h-8');
+            } else {
+                toggleBtn.style.left = 'calc(16rem - 18px)';
+
+                userInfo.classList.remove('justify-center', 'mx-auto', 'w-12', 'h-12');
+                userInfo.classList.add('gap-3');
+
+                avatar.classList.remove('w-8', 'h-8');
+                avatar.classList.add('w-9', 'h-9');
+            }
+
+            sidebar.classList.toggle('w-64', !isCollapsed);
             sidebar.classList.toggle('w-20', isCollapsed);
 
-            mainContent.classList.toggle('lg:ml-72', !isCollapsed);
-            mainContent.classList.toggle('lg:ml-20', isCollapsed);
-
+            mainContent.classList.toggle('ml-64', !isCollapsed);
+            mainContent.classList.toggle('ml-20', isCollapsed);
             texts.forEach(el => {
                 el.classList.toggle('hidden', isCollapsed);
             });
@@ -651,8 +1141,34 @@
             icon.classList.toggle('fa-chevron-right', isCollapsed);
 
             localStorage.setItem('sidebar', state);
+
+            const menuItems = document.querySelectorAll('.sidebar-link');
+
+            menuItems.forEach(item => {
+                if (isCollapsed) {
+                    item.classList.remove('gap-3', 'px-3');
+                    item.classList.add('justify-center', 'px-0', 'mx-auto', 'w-12', 'h-12');
+                } else {
+                    item.classList.remove('justify-center', 'px-0', 'mx-auto', 'w-12', 'h-12');
+                    item.classList.add('gap-3', 'px-3');
+                }
+            });
         }
 
+        function setActiveSidebar(route) {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('bg-gray-100', 'text-gray-900', 'font-medium');
+                link.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+
+            const active = document.querySelector(`.sidebar-link[data-route="${route}"]`);
+
+            if (active) {
+                active.classList.add('bg-gray-100', 'text-gray-900', 'font-medium');
+                active.classList.remove('text-gray-600');
+            }
+        }
+        
         function toggleSidebar() {
             const currentState = localStorage.getItem('sidebar') || 'expanded';
             const nextState = currentState === 'expanded' ? 'collapsed' : 'expanded';
@@ -696,6 +1212,12 @@
 
                 window.history.pushState({}, '', url);
 
+                if (url.includes('/notes/shared')) {
+                    setActiveSidebar('shared');
+                } else if (url.includes('/notes')) {
+                    setActiveSidebar('notes');
+                }
+
             } catch (error) {
                 mainContent.innerHTML = `<div class="text-red-500">Không thể tải nội dung. Vui lòng thử lại.</div>`;
                 console.error(error);
@@ -717,5 +1239,79 @@
 
             mainContent.innerHTML = newContent ? newContent.innerHTML : doc.body.innerHTML;
         });
+
+        if (window.location.pathname.includes('/notes/shared')) {
+            setActiveSidebar('shared');
+        } else {
+            setActiveSidebar('notes');
+        }
+
+        function getDarkColor(color) {
+            const map = {
+                'bg-white': 'bg-gray-800',
+                'bg-gray-50': 'bg-gray-800',
+
+                'bg-red-50': 'bg-red-900/30',
+                'bg-orange-50': 'bg-orange-900/30',
+                'bg-yellow-50': 'bg-yellow-900/30',
+                'bg-green-50': 'bg-green-900/30',
+                'bg-blue-50': 'bg-blue-900/30',
+                'bg-purple-50': 'bg-purple-900/30',
+                'bg-pink-50': 'bg-pink-900/30',
+                'bg-rose-50': 'bg-rose-900/30',
+            };
+
+            return map[color] || 'bg-gray-800';
+        }
+
+        window.refreshNotesIndex = async function () {
+            const res = await fetch("{{ route('notes.index') }}", {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+
+            const newContainer = doc.querySelector('#notesContainer');
+            const newFilters = doc.querySelector('#filterLabelsContainer');
+
+            if (newContainer) {
+                document.getElementById('notesContainer').innerHTML = newContainer.innerHTML;
+            }
+
+            if (newFilters && document.getElementById('filterLabelsContainer')) {
+                document.getElementById('filterLabelsContainer').innerHTML = newFilters.innerHTML;
+            }
+
+            if (typeof applySettings === 'function') applySettings();
+            if (typeof updateTimes === 'function') updateTimes();
+            if (typeof applyView === 'function') applyView(currentView);
+        }
+
+        window.refreshSharedNotes = async function () {
+            const res = await fetch("/notes/shared", {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, "text/html");
+
+            const newContainer = doc.querySelector("#sharedNotesContainer");
+            const currentContainer = document.getElementById("sharedNotesContainer");
+
+            if (newContainer && currentContainer) {
+                currentContainer.innerHTML = newContainer.innerHTML;
+            }
+
+            if (typeof applySettings === "function") applySettings();
+
+            if (typeof applySharedView === "function") {
+                applySharedView(localStorage.getItem("sharedView") || "grid");
+            }
+        }
     </script>
 </x-app-layout>

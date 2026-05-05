@@ -29,10 +29,11 @@ class NoteController extends Controller
             ->get();
 
         // CHỈ lấy những nhãn mà chính User này đã tạo hoặc đang sử dụng
-        $allLabels = Label::where('user_id', Auth::id())
-            ->select('id', 'name')
-            ->distinct()
-            ->get();
+        $allLabels = Label::whereHas('notes', function ($q) {
+            $q->where('user_id', Auth::id());
+        })
+        ->select('id', 'name')
+        ->get();
 
         return view('notes.index', compact('notes', 'allLabels'));
     }
@@ -40,37 +41,47 @@ class NoteController extends Controller
     // GIAO DIỆN EDITOR CHUNG (CREATE + EDIT)
     public function editor(Note $note = null)
     {
-        // 👉 Nếu tạo note mới
         if (!$note) {
-            return view('notes.editor', [
+            $canEdit = true;
+
+            $view = request()->ajax()
+                ? 'notes.partials.editor'
+                : 'notes.editor';
+
+            return view($view, [
                 'note' => null,
-                'canEdit' => true
+                'canEdit' => $canEdit
             ]);
         }
 
-        // 👉 Nếu là owner
-        if ($note->user_id === auth()->id()) {
-            return view('notes.editor', [
-                'note' => $note,
-                'canEdit' => true
-            ]);
+        if ($note->note_password && !session("unlocked_note_{$note->id}")) {
+            return response()->json([
+                'locked' => true,
+                'note_id' => $note->id
+            ], 423);
         }
 
-        // 👉 Nếu là người được share
+        $isOwner = $note->user_id === auth()->id();
+
         $share = \App\Models\SharedNote::where('note_id', $note->id)
             ->where('recipient_id', auth()->id())
             ->first();
 
-        if ($share) {
-            return view('notes.editor', [
-                'note' => $note,
-                'canEdit' => $share->permission === 'edit'
-            ]);
+        if (!$isOwner && !$share) {
+            abort(403);
         }
 
-        abort(403);
-    }
+        $canEdit = $isOwner || ($share && $share->permission === 'edit');
 
+        $view = request()->ajax()
+            ? 'notes.partials.editor'
+            : 'notes.editor';
+
+        return view($view, [
+            'note' => $note,
+            'canEdit' => $canEdit
+        ]);
+    }
     // =============== AUTOSAVE ===============
     public function autosave(Request $request)
     {
@@ -111,9 +122,12 @@ class NoteController extends Controller
 
         broadcast(new NoteUpdated($note, Auth::id()))->toOthers();
 
-        return response()->json([
+       return response()->json([
             'status' => 'updated',
-            'note_id' => $note->id
+            'note_id' => $note->id,
+            'title' => $note->title,
+            'content' => $note->content,
+            'updated_at' => $note->updated_at->format('c'),
         ]);
     }
     // =======================================
@@ -122,7 +136,13 @@ class NoteController extends Controller
     // CRUD GỐC — GIỮ NGUYÊN ĐỂ KHÔNG ẢNH HƯỞNG
     public function create()
     {
-        return view('notes.create');
+        return response()->json([
+            'status' => 'created',
+            'note_id' => $note->id,
+            'title' => $note->title,
+            'content' => $note->content,
+            'updated_at' => $note->updated_at->format('c'),
+        ]);
     }
 
     public function store(Request $request)
@@ -206,19 +226,12 @@ class NoteController extends Controller
     // PIN NOTE
     public function togglePin(Note $note)
     {
-        if ($note->is_pinned) {
-            $note->update([
-                'is_pinned' => false,
-                'pinned_at' => null
-            ]);
-        } else {
-            $note->update([
-                'is_pinned' => true,
-                'pinned_at' => now()
-            ]);
-        }
+        $note->is_pinned = ! $note->is_pinned;
+        $note->save();
 
-        return response()->json(['status' => 'ok']);
+        return response()->json([
+            'is_pinned' => $note->is_pinned,
+        ]);
     }
 
     // SEARCH

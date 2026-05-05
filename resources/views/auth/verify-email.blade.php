@@ -1,31 +1,84 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verify Email - My Notes</title>
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+
+<body class="antialiased bg-[#f5f3ef] text-slate-950">
+    <div class="min-h-screen relative overflow-hidden flex items-center justify-center px-5 py-10">
+
+        <!-- Background -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[850px] h-[850px] rounded-full bg-white blur-3xl opacity-80"></div>
+            <div class="absolute top-20 -right-32 w-[500px] h-[500px] rounded-full bg-orange-100 blur-3xl opacity-70"></div>
+            <div class="absolute bottom-0 -left-32 w-[500px] h-[500px] rounded-full bg-slate-200 blur-3xl opacity-70"></div>
         </div>
-    @endif
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+        <div class="relative z-10 w-full max-w-md">
+            <div class="rounded-[2rem] bg-white/85 backdrop-blur-xl border border-white shadow-2xl shadow-slate-300/40 p-7 sm:p-8">
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+                <!-- Logo -->
+                <div class="mb-8">
+                    <a href="/" class="inline-flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-black shadow-lg shadow-slate-300/40">
+                            N
+                        </div>
+                        <div>
+                            <div class="text-xl font-black leading-none">My Notes</div>
+                            <div class="text-xs text-slate-400 mt-1">Minimal note workspace</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="mb-7">
+                    <div class="w-12 h-12 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center mb-5">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+
+                    <h1 class="text-3xl font-black tracking-tight">
+                        Verify your email
+                    </h1>
+
+                    <p class="mt-2 text-sm leading-6 text-slate-500">
+                        We sent a verification link to your email. Please check your inbox to complete your account setup.
+                    </p>
+                </div>
+
+                @if (session('status') == 'verification-link-sent')
+                    <div class="mb-5 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm font-medium text-emerald-700">
+                        A new verification link has been sent to your email address.
+                    </div>
+                @endif
+
+                <div class="space-y-3">
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+
+                        <button type="submit"
+                            class="w-full py-4 rounded-2xl bg-slate-950 text-white font-black shadow-xl shadow-slate-300/50 hover:bg-slate-800 active:scale-[0.98] transition">
+                            Resend verification email
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <button type="submit"
+                            class="w-full py-3.5 rounded-2xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 active:scale-[0.98] transition">
+                            Log out
+                        </button>
+                    </form>
+                </div>
             </div>
-        </form>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
+            <p class="mt-6 text-center text-xs text-slate-400">
+                Secure access for your notes workspace.
+            </p>
+        </div>
     </div>
-</x-guest-layout>
+</body>
+</html>

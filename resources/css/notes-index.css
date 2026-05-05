@@ -1,0 +1,568 @@
+/* =========================
+   APP DARK BASE
+========================= */
+html.app-dark body {
+    background: #202123;
+}
+
+html.app-dark #mainContent {
+    background: #202123 !important;
+    color: #ececf1 !important;
+}
+
+html.app-dark .sticky {
+    background: #202123 !important;
+    border-color: #343541 !important;
+}
+
+/* =========================
+   GLOBAL DARK TEXT
+========================= */
+html.app-dark #mainContent h1,
+html.app-dark #mainContent h2,
+html.app-dark #mainContent h3,
+html.app-dark #mainContent .text-gray-900,
+html.app-dark #mainContent .text-gray-950 {
+    color: #f9fafb !important;
+}
+
+html.app-dark #mainContent p,
+html.app-dark #mainContent .text-gray-400,
+html.app-dark #mainContent .text-gray-500,
+html.app-dark #mainContent .text-gray-600 {
+    color: #cbd5e1 !important;
+}
+
+/* =========================
+   SIDEBAR DARK
+========================= */
+html.app-dark aside,
+html.app-dark #sidebar {
+    background: #171717 !important;
+    border-color: #2f2f2f !important;
+    color: #e5e7eb !important;
+}
+
+html.app-dark #sidebarUser .font-semibold,
+html.app-dark #sidebarUser .text-gray-900,
+html.app-dark .sidebar-text,
+html.app-dark .sidebar-link span {
+    color: #e5e7eb !important;
+}
+
+html.app-dark #sidebarUser .text-gray-400,
+html.app-dark #sidebar .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+html.app-dark #userAvatar {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+html.app-dark .sidebar-link {
+    color: #cbd5e1 !important;
+}
+
+html.app-dark .sidebar-link i {
+    color: #cbd5e1 !important;
+}
+
+html.app-dark .sidebar-link:hover {
+    background: #2f2f2f !important;
+    color: #ffffff !important;
+}
+
+html.app-dark .sidebar-link:hover span,
+html.app-dark .sidebar-link:hover i {
+    color: #ffffff !important;
+}
+
+html.app-dark .sidebar-link.bg-gray-100,
+html.app-dark .sidebar-link.text-gray-900 {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+html.app-dark .sidebar-link.bg-gray-100 span,
+html.app-dark .sidebar-link.bg-gray-100 i,
+html.app-dark .sidebar-link.text-gray-900 span,
+html.app-dark .sidebar-link.text-gray-900 i {
+    color: #111827 !important;
+}
+
+/* Recent notes */
+html.app-dark #sidebar .block:hover {
+    background: #2f2f2f !important;
+}
+
+html.app-dark #sidebar .block .text-gray-800 {
+    color: #e5e7eb !important;
+}
+
+html.app-dark #sidebar .block .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+/* Logout */
+html.app-dark #sidebar button[type="submit"],
+html.app-dark #sidebar button[type="submit"] span,
+html.app-dark #sidebar button[type="submit"] i {
+    color: #ef4444 !important;
+}
+
+/* =========================
+   INPUT / SEARCH DARK
+========================= */
+html.app-dark input,
+html.app-dark select {
+    background: #2f2f2f !important;
+    border-color: #3f3f46 !important;
+    color: #ececf1 !important;
+}
+
+html.app-dark input::placeholder {
+    color: #9ca3af !important;
+}
+
+html.app-dark #searchInput {
+    background: #2f2f2f !important;
+    color: #f9fafb !important;
+    border-color: #444654 !important;
+}
+
+html.app-dark #searchInput::placeholder {
+    color: #9ca3af !important;
+}
+
+/* =========================
+   BUTTONS DARK
+========================= */
+html.app-dark #viewToggleBtn {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+}
+
+html.app-dark #viewToggleBtn i {
+    color: #111827 !important;
+}
+
+html.app-dark button[onclick^="openEditorModal"] {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+/* =========================
+   FILTER CHIP DARK
+========================= */
+html.app-dark .filter-chip:not(.active) {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+}
+
+html.app-dark .filter-chip.active {
+    background: #020617 !important;
+    color: #ffffff !important;
+    border-color: #020617 !important;
+}
+
+/* =========================
+   NOTE CARD BASE
+========================= */
+.note-card,
+.shared-note-card {
+    border-color: #e5e7eb;
+}
+
+/* Text mặc định cho note màu sáng */
+.note-card h2,
+.note-card h3,
+.shared-note-card h2,
+.shared-note-card h3 {
+    color: #111827 !important;
+}
+
+.note-card p,
+.shared-note-card p {
+    color: #374151 !important;
+}
+
+.note-card span,
+.shared-note-card span {
+    color: #374151 !important;
+}
+
+.note-card i,
+.shared-note-card i {
+    color: #4b5563 !important;
+}
+
+.note-card .note-time,
+.note-card .note-full-time,
+.shared-note-card .note-time,
+.shared-note-card .note-full-time {
+    color: #6b7280 !important;
+}
+
+/* Icon khóa vẫn vàng */
+.note-card .text-yellow-500,
+.note-card .text-yellow-500 i,
+.shared-note-card .text-yellow-500,
+.shared-note-card .text-yellow-500 i {
+    color: #eab308 !important;
+}
+
+/* Label trong note */
+.note-card .bg-gray-100,
+.shared-note-card .bg-gray-100 {
+    background: rgba(255, 255, 255, 0.75) !important;
+    color: #374151 !important;
+    border-color: rgba(209, 213, 219, 0.8) !important;
+}
+
+/* =========================
+   DARK NOTE COLOR: bg-gray-800
+   Ô màu thứ 2 màu đen nhẹ
+========================= */
+.note-card.bg-gray-800,
+.shared-note-card.bg-gray-800 {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+.note-card.bg-gray-800 h2,
+.note-card.bg-gray-800 h3,
+.note-card.bg-gray-800 p,
+.note-card.bg-gray-800 span,
+.note-card.bg-gray-800 .note-time,
+.note-card.bg-gray-800 .note-full-time,
+.shared-note-card.bg-gray-800 h2,
+.shared-note-card.bg-gray-800 h3,
+.shared-note-card.bg-gray-800 p,
+.shared-note-card.bg-gray-800 span,
+.shared-note-card.bg-gray-800 .note-time,
+.shared-note-card.bg-gray-800 .note-full-time {
+    color: #f9fafb !important;
+}
+
+.note-card.bg-gray-800 p,
+.shared-note-card.bg-gray-800 p {
+    color: #d1d5db !important;
+}
+
+.note-card.bg-gray-800 i,
+.shared-note-card.bg-gray-800 i {
+    color: #e5e7eb !important;
+}
+
+.note-card.bg-gray-800 .text-yellow-500,
+.note-card.bg-gray-800 .text-yellow-500 i,
+.shared-note-card.bg-gray-800 .text-yellow-500,
+.shared-note-card.bg-gray-800 .text-yellow-500 i {
+    color: #facc15 !important;
+}
+
+.note-card.bg-gray-800 .bg-gray-100,
+.shared-note-card.bg-gray-800 .bg-gray-100 {
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* =========================
+   NOTE ACTION BUTTONS
+   Share / Delete / Pin luôn rõ
+========================= */
+.note-card .absolute.bottom-4 button,
+.note-card button.absolute.top-4,
+.shared-note-card .absolute.bottom-4 button,
+.shared-note-card button.absolute.top-4 {
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #111827 !important;
+    border: 1px solid rgba(229, 231, 235, 0.8) !important;
+    backdrop-filter: blur(8px);
+}
+
+.note-card .absolute.bottom-4 button i,
+.note-card button.absolute.top-4 i,
+.shared-note-card .absolute.bottom-4 button i,
+.shared-note-card button.absolute.top-4 i {
+    color: #111827 !important;
+}
+
+.note-card .absolute.bottom-4 button:hover,
+.note-card button.absolute.top-4:hover,
+.shared-note-card .absolute.bottom-4 button:hover,
+.shared-note-card button.absolute.top-4:hover {
+    background: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Delete icon */
+.note-card button[title="Delete note"],
+.note-card button[title="Delete note"] i,
+.shared-note-card button[title="Delete note"],
+.shared-note-card button[title="Delete note"] i {
+    color: #ef4444 !important;
+}
+
+/* Share icon */
+.note-card button[title="Share note"],
+.note-card button[title="Share note"] i,
+.shared-note-card button[title="Share note"],
+.shared-note-card button[title="Share note"] i {
+    color: #374151 !important;
+}
+
+/* =========================
+   SETTINGS MODAL ALWAYS LIGHT
+========================= */
+#settingsModal > div {
+    background: #f9fafb !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+}
+
+#settingsModal h2 {
+    color: #111827 !important;
+}
+
+#settingsModal p,
+#settingsModal span {
+    color: #6b7280 !important;
+}
+
+#settingsModal label {
+    color: #374151 !important;
+}
+
+#settingsModal > div > div:first-child {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+}
+
+#settingsModal > div > div:nth-child(2) {
+    background: #f9fafb !important;
+}
+
+#settingsModal > div > div:last-child {
+    background: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+}
+
+/* Font size segmented */
+#settingsModal .setting-option {
+    color: #6b7280 !important;
+}
+
+#settingsModal .setting-option.bg-white {
+    background: #ffffff !important;
+    color: #111827 !important;
+}
+
+/* Theme option */
+#settingsModal .theme-option {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+#settingsModal .theme-option.border-gray-950 {
+    background: #ffffff !important;
+    border-color: #111827 !important;
+}
+
+#settingsModal .theme-option p {
+    color: #6b7280 !important;
+}
+
+#settingsModal .theme-option .font-semibold {
+    color: #111827 !important;
+}
+
+/* Note color picker giữ đúng màu */
+#settingsModal .note-color-option {
+    border-color: transparent !important;
+}
+
+#settingsModal .note-color-option.border-gray-950 {
+    border-color: #111827 !important;
+}
+
+/* Ô màu thứ 2 nếu dùng bg-gray-800 */
+#settingsModal .note-color-option.bg-gray-800 {
+    background: #1f2937 !important;
+}
+
+/* Footer buttons */
+#settingsModal button[onclick="closeSettingsModal()"] {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+#settingsModal button[onclick="saveSettings()"] {
+    background: #111827 !important;
+    color: #ffffff !important;
+}
+
+/* Close X */
+#settingsModal button[onclick="closeSettingsModal()"] i,
+#settingsModal .fa-xmark {
+    color: #6b7280 !important;
+}
+
+/* =========================
+   VERIFIED EMAIL TOAST
+========================= */
+html.app-dark .fixed.bottom-4 .bg-yellow-50 {
+    background: #fefce8 !important;
+}
+
+html.app-dark .fixed.bottom-4 .text-yellow-900 {
+    color: #854d0e !important;
+}
+
+/* =========================
+   FIX NOTE TEXT CONTRAST
+   Màu note sáng => chữ tối
+   Màu note đen => chữ sáng
+========================= */
+
+/* Các note màu sáng */
+.note-card:not(.bg-gray-800) h2,
+.note-card:not(.bg-gray-800) h3,
+.note-card:not(.bg-gray-800) p,
+.note-card:not(.bg-gray-800) span,
+.note-card:not(.bg-gray-800) .note-time,
+.note-card:not(.bg-gray-800) .note-full-time,
+.shared-note-card:not(.bg-gray-800) h2,
+.shared-note-card:not(.bg-gray-800) h3,
+.shared-note-card:not(.bg-gray-800) p,
+.shared-note-card:not(.bg-gray-800) span,
+.shared-note-card:not(.bg-gray-800) .note-time,
+.shared-note-card:not(.bg-gray-800) .note-full-time {
+    color: #111827 !important;
+}
+
+/* Nội dung phụ trên note sáng */
+.note-card:not(.bg-gray-800) p,
+.shared-note-card:not(.bg-gray-800) p {
+    color: #374151 !important;
+}
+
+.note-card:not(.bg-gray-800) .note-time,
+.note-card:not(.bg-gray-800) .note-full-time,
+.shared-note-card:not(.bg-gray-800) .note-time,
+.shared-note-card:not(.bg-gray-800) .note-full-time {
+    color: #6b7280 !important;
+}
+
+/* Icon trên note sáng */
+.note-card:not(.bg-gray-800) i,
+.shared-note-card:not(.bg-gray-800) i {
+    color: #4b5563 !important;
+}
+
+/* Note màu đen nhẹ */
+.note-card.bg-gray-800 h2,
+.note-card.bg-gray-800 h3,
+.note-card.bg-gray-800 p,
+.note-card.bg-gray-800 span,
+.note-card.bg-gray-800 .note-time,
+.note-card.bg-gray-800 .note-full-time,
+.shared-note-card.bg-gray-800 h2,
+.shared-note-card.bg-gray-800 h3,
+.shared-note-card.bg-gray-800 p,
+.shared-note-card.bg-gray-800 span,
+.shared-note-card.bg-gray-800 .note-time,
+.shared-note-card.bg-gray-800 .note-full-time {
+    color: #f9fafb !important;
+}
+
+.note-card.bg-gray-800 p,
+.shared-note-card.bg-gray-800 p {
+    color: #d1d5db !important;
+}
+
+.note-card.bg-gray-800 i,
+.shared-note-card.bg-gray-800 i {
+    color: #e5e7eb !important;
+}
+
+/* Icon khóa vẫn vàng */
+.note-card .text-yellow-500,
+.note-card .text-yellow-500 i,
+.shared-note-card .text-yellow-500,
+.shared-note-card .text-yellow-500 i {
+    color: #eab308 !important;
+}
+
+.note-action-btn {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 14px !important;
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    line-height: 1 !important;
+}
+
+.note-action-btn i {
+    font-size: 15px !important;
+    line-height: 1 !important;
+}
+
+.note-action-btn.delete-btn,
+.note-action-btn.delete-btn i {
+    color: #111827 !important;
+}
+
+.note-actions form {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+.note-card form {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+.note-card button {
+    line-height: 1 !important;
+}
+
+.note-card button i {
+    line-height: 1 !important;
+}
+
+/* Editor dark mode */
+html.app-dark #editorContent,
+html.app-dark #editorContent > div,
+html.app-dark #editorContent .editor-shell {
+    background: #202123 !important;
+    color: #ececf1 !important;
+}
+
+html.app-dark #noteTitle,
+html.app-dark #noteContent {
+    background: #2f2f2f !important;
+    border-color: #444654 !important;
+    color: #f9fafb !important;
+}
+
+html.app-dark #noteTitle::placeholder,
+html.app-dark #noteContent::placeholder {
+    color: #9ca3af !important;
+}
+
+html.app-dark #saveStatus {
+    color: #cbd5e1 !important;
+}
