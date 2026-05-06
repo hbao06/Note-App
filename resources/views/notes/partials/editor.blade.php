@@ -393,6 +393,7 @@
                 if (!canEditValue) {
                     if (typeof closeEditorModal === 'function') {
                         closeEditorModal();
+
                     } else {
                         window.location.href = "{{ route('notes.shared') }}";
                     }
@@ -802,17 +803,23 @@
                 });
             }
 
-            if (noteId && typeof Echo !== 'undefined') {
-                Echo.channel('note.' + noteId)
-                    .listen('.note.updated', (e) => {
-                        if (e.updated_by === currentUserId) return;
-                        if (isTypingRealtime) return;
+            const channelName = 'note.' + noteId;
 
-                        if (titleInput) titleInput.value = e.title ?? '';
-                        if (contentInput) contentInput.value = e.content ?? '';
-                        if (saveStatus && canEditValue) saveStatus.textContent = "Updated from another user";
-                    });
+            if (window.currentNoteChannel) {
+                Echo.leaveChannel(window.currentNoteChannel);
             }
+
+            window.currentNoteChannel = channelName;
+
+            Echo.channel(channelName)
+                .listen('.note.updated', (e) => {
+                    if (Number(e.updated_by) === Number(currentUserId)) return;
+                    if (isTypingRealtime) return;
+
+                    if (titleInput) titleInput.value = e.title ?? '';
+                    if (contentInput) contentInput.value = e.content ?? '';
+                    if (saveStatus && canEditValue) saveStatus.textContent = "Updated from another user";
+                });
         })();
 
         window.applyEditorStyle = function () {
