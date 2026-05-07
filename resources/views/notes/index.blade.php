@@ -45,10 +45,18 @@
                 </a>
 
                 <a href="{{ route('notes.shared') }}" onclick="loadPage(event, this.href)"
-                class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl transition text-gray-600 hover:bg-gray-100"
-                data-route="shared">
+                    class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl transition text-gray-600 hover:bg-gray-100"
+                    data-route="shared">
+
                     <i class="fa-solid fa-user-group w-5"></i>
-                    <span class="sidebar-text">Shared with me</span>
+
+                    <span class="sidebar-text flex-1">Shared with me</span>
+
+                    @if(auth()->user()->unreadNotifications->count() > 0)
+                        <span class="sidebar-text min-w-[22px] h-[22px] px-2 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                    @endif
                 </a>
 
                 <button onclick="openSettingsModal()"
@@ -212,9 +220,9 @@
 
                             <!-- CONTENT -->
                             <div class="relative z-10 mb-4 pr-8">
-                                <div class="flex items-center gap-2 mb-3 text-sm">
+                                <div class="note-status-icons flex items-center gap-2 mb-3 text-sm">
                                     @if($note->sharedNotes->count() > 0)
-                                        <span title="This note is shared" class="text-gray-500">
+                                        <span title="This note is shared" class="shared-status text-gray-500">
                                             <i class="fa-solid fa-user-group"></i>
                                         </span>
                                     @endif
@@ -322,12 +330,28 @@
                         <!-- Email input -->
                         <div>
                             <label class="text-sm font-bold text-slate-700">Email addresses</label>
-                            <input type="text" id="shareEmails"
-                                placeholder="name@example.com, friend@example.com"
-                                class="mt-2 w-full rounded-2xl border-slate-200 bg-slate-50/80 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-slate-950 focus:ring-slate-950 outline-none">
-                            <p class="mt-2 text-xs text-slate-400">
-                                Separate multiple emails with commas.
+                            <div id="emailChipBox"
+                                onclick="document.getElementById('emailChipInput').focus()"
+                                class="mt-2 min-h-[58px] w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-2 flex flex-wrap items-center gap-2 cursor-text transition
+                                focus-within:border-slate-950 focus-within:ring-4 focus-within:ring-slate-200">
+
+                                <div id="emailChips" class="flex flex-wrap items-center gap-2"></div>
+
+                                <input type="text"
+                                        id="emailChipInput"
+                                        placeholder="Type email and press Enter"
+                                        class="flex-1 min-w-[180px] h-9 border-none bg-transparent px-1 py-0 text-sm text-slate-900 placeholder:text-slate-400 outline-none ring-0 shadow-none focus:border-none focus:outline-none focus:ring-0 focus:shadow-none">
+                            </div>
+
+                            <input type="hidden" id="shareEmails">
+
+                            <p id="emailHint" class="mt-2 text-xs text-slate-400">
+                                Press Enter or comma to add multiple emails.
                             </p>
+
+                            <div id="shareEmailErrors" class="mt-2 space-y-1 text-xs font-semibold text-red-500 hidden"></div>
+
+                            <div id="shareSuccessMessage" class="mt-2 text-xs font-semibold text-emerald-600 hidden"></div>
                         </div>
 
                         <!-- Permission -->
@@ -345,7 +369,7 @@
                         </div>
 
                         <!-- Button -->
-                        <button onclick="shareNote()"
+                        <button id="shareNoteBtn" onclick="shareNote()"
                             class="w-full py-4 rounded-2xl bg-slate-950 text-white font-black shadow-xl shadow-slate-300/50 hover:bg-slate-800 active:scale-[0.98] transition">
                             Share note
                         </button>
@@ -607,10 +631,13 @@
             });
         }
 
-        function closePasswordModal() {
-            pendingLockedNoteUrl = null;
-            document.getElementById('modalPassword').value = '';
-            document.getElementById('passwordModal').classList.add('hidden');
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            resetShareEmailUI();
         }
 
         function submitPassword() {
@@ -849,32 +876,357 @@
             loadShares();
         }
 
-        function closeShareModal() {
-            document.getElementById('shareModal').classList.add('hidden');
+
+        function markNoteAsShared(noteId) {
+            const card = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+            if (!card) return;
+
+            const iconBox = card.querySelector('.note-status-icons');
+            if (!iconBox) return;
+
+            if (iconBox.querySelector('.shared-status')) return;
+
+            iconBox.insertAdjacentHTML('afterbegin', `
+                <span title="This note is shared" class="shared-status text-gray-500">
+                    <i class="fa-solid fa-user-group"></i>
+                </span>
+            `);
         }
 
-        function shareNote() {
-            const emails = document.getElementById('shareEmails').value;
+        async function shareNote() {
+            addEmailChip(document.getElementById('emailChipInput').value);
+
+            const emails = shareEmailList
+                .map(email => email.trim().toLowerCase())
+                .filter(email => email.length > 0);
+
             const permission = document.getElementById('sharePermission').value;
 
-            fetch(`/notes/${currentNoteId}/share`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    emails: emails.split(',').map(e => e.trim()),
-                    permission: permission
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert("Shared thành công");
-                location.reload();
-            })
-            .catch(err => console.log(err));
+            // clear lỗi cũ, nhưng lát nữa sẽ set lại lỗi format
+            shareEmailErrors = {};
+
+            if (!emails.length) {
+                setShareEmailError('Email', 'Vui lòng nhập ít nhất một email.');
+                return;
+            }
+
+            const invalidEmails = emails.filter(email => !isValidEmail(email));
+
+            if (invalidEmails.length) {
+                invalidEmails.forEach(email => {
+                    setShareEmailError(email, 'Email không hợp lệ.');
+                });
+
+                renderEmailChips();
+                renderShareEmailErrors();
+                return;
+            }
+
+            const btn = document.getElementById('shareNoteBtn');
+            const originalText = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Sharing...`;
+
+                const res = await fetch(`/notes/${currentNoteId}/share`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        emails,
+                        permission
+                    })
+                });
+
+                const data = await res.json();
+
+                let hasError = false;
+
+                if (data.not_found?.length) {
+                    hasError = true;
+                    data.not_found.forEach(email => {
+                        setShareEmailError(email, 'Email này chưa có tài khoản trong hệ thống.');
+                    });
+                }
+
+                if (data.unverified?.length) {
+                    hasError = true;
+                    data.unverified.forEach(email => {
+                        setShareEmailError(email, 'Tài khoản này chưa xác thực email.');
+                    });
+                }
+
+                if (data.skipped?.length) {
+                    hasError = true;
+                    data.skipped.forEach(email => {
+                        setShareEmailError(email, 'Không thể chia sẻ cho chính bạn.');
+                    });
+                }
+
+                if (hasError) {
+                    renderEmailChips();
+                    renderShareEmailErrors();
+                    return;
+                }
+
+                if (data.shared?.length) {
+                    renderShareSuccess('Đã chia sẻ thành công với ' + data.shared.join(', '));
+
+                    markNoteAsShared(currentNoteId);
+
+                    shareEmailList = [];
+                    renderEmailChips();
+
+                    loadShares();
+                    return;
+                }
+
+                setShareEmailError('Email', 'Không có email hợp lệ để chia sẻ.');
+
+            } catch (error) {
+                console.error(error);
+                setShareEmailError('System', 'Có lỗi xảy ra khi share note.');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.innerHTML = originalText;
+
+                renderEmailChips();
+            }
         }
+
+        let shareEmailList = [];
+        let shareEmailErrors = {};
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function setShareEmailError(email, message) {
+            shareEmailErrors[email] = message;
+            renderEmailChips();
+            renderShareEmailErrors();
+        }
+
+        function clearShareEmailError(email) {
+            delete shareEmailErrors[email];
+            renderEmailChips();
+            renderShareEmailErrors();
+        }
+
+        function clearAllShareEmailErrors() {
+            shareEmailErrors = {};
+            renderEmailChips();
+            renderShareEmailErrors();
+        }
+
+        function renderShareEmailErrors() {
+
+            const errorBox = document.getElementById('shareEmailErrors');
+            const successBox = document.getElementById('shareSuccessMessage');
+
+            if (!errorBox) return;
+
+            const errors = Object.entries(shareEmailErrors);
+
+            if (!errors.length) {
+                errorBox.classList.add('hidden');
+                errorBox.innerHTML = '';
+                return;
+            }
+
+            if (successBox) {
+                successBox.classList.add('hidden');
+                successBox.innerHTML = '';
+            }
+
+            errorBox.classList.remove('hidden');
+
+            errorBox.innerHTML = errors.map(([email, message]) => `
+                <div class="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 shadow-sm">
+
+                    <div class="mt-0.5 text-red-500">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+
+                    <div class="leading-6">
+                        <span class="font-bold">${email}</span>: ${message}
+                    </div>
+
+                </div>
+            `).join('');
+        }
+
+        function renderShareSuccess(message) {
+
+            const successBox = document.getElementById('shareSuccessMessage');
+            const errorBox = document.getElementById('shareEmailErrors');
+
+            if (!successBox) return;
+
+            if (errorBox) {
+                errorBox.classList.add('hidden');
+                errorBox.innerHTML = '';
+            }
+
+            successBox.classList.remove('hidden');
+
+            successBox.innerHTML = `
+                <div class="flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 shadow-sm">
+
+                    <i class="fa-solid fa-circle-check mt-0.5 text-emerald-500"></i>
+
+                    <span>${message}</span>
+
+                </div>
+            `;
+        }
+
+        function renderEmailChips() {
+            const chips = document.getElementById('emailChips');
+            const hiddenInput = document.getElementById('shareEmails');
+            const shareBtn = document.getElementById('shareNoteBtn');
+
+            if (!chips || !hiddenInput) return;
+
+            chips.innerHTML = '';
+
+            shareEmailList.forEach((email, index) => {
+                const hasError = !!shareEmailErrors[email] || !isValidEmail(email);
+
+                chips.innerHTML += `
+                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold border transition
+                        ${hasError
+                            ? 'bg-red-50 text-red-600 border-red-200'
+                            : 'bg-white text-slate-700 border-slate-200 shadow-sm'}">
+
+                        <i class="fa-solid ${hasError ? 'fa-triangle-exclamation' : 'fa-envelope'} text-xs"></i>
+
+                        <span>${email}</span>
+
+                        <button type="button"
+                            onclick="removeEmailChip(${index})"
+                            class="ml-1 w-5 h-5 rounded-full flex items-center justify-center ${hasError ? 'hover:bg-red-100' : 'hover:bg-slate-100'} transition">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                        </button>
+                    </span>
+                `;
+            });
+
+            hiddenInput.value = shareEmailList.join(',');
+
+            const hasAnyInvalid = shareEmailList.some(email => !isValidEmail(email));
+            const hasBackendError = Object.keys(shareEmailErrors).length > 0;
+
+            if (shareBtn) {
+                shareBtn.disabled = hasAnyInvalid || hasBackendError;
+                shareBtn.classList.toggle('opacity-50', shareBtn.disabled);
+                shareBtn.classList.toggle('cursor-not-allowed', shareBtn.disabled);
+            }
+        }
+
+        function addEmailChip(value) {
+            const raw = value.trim();
+
+            if (!raw) return;
+
+            const parts = raw
+                .split(',')
+                .map(e => e.trim().toLowerCase())
+                .filter(Boolean);
+
+            parts.forEach(email => {
+                if (!shareEmailList.includes(email)) {
+                    shareEmailList.push(email);
+                }
+
+                if (!isValidEmail(email)) {
+                    shareEmailErrors[email] = 'Email không hợp lệ.';
+                } else if (shareEmailErrors[email] === 'Email không hợp lệ.') {
+                    delete shareEmailErrors[email];
+                }
+            });
+
+            const input = document.getElementById('emailChipInput');
+            if (input) input.value = '';
+
+            const successBox = document.getElementById('shareSuccessMessage');
+            if (successBox) {
+                successBox.classList.add('hidden');
+                successBox.innerHTML = '';
+            }
+
+            renderEmailChips();
+            renderShareEmailErrors();
+        }
+
+        function removeEmailChip(index) {
+            const email = shareEmailList[index];
+
+            shareEmailList.splice(index, 1);
+            delete shareEmailErrors[email];
+
+            renderEmailChips();
+            renderShareEmailErrors();
+        }
+
+        function resetShareEmailUI() {
+            shareEmailList = [];
+            shareEmailErrors = {};
+
+            const chipInput = document.getElementById('emailChipInput');
+            const hiddenInput = document.getElementById('shareEmails');
+            const errorBox = document.getElementById('shareEmailErrors');
+            const successBox = document.getElementById('shareSuccessMessage');
+
+            if (chipInput) chipInput.value = '';
+            if (hiddenInput) hiddenInput.value = '';
+            if (errorBox) {
+                errorBox.classList.add('hidden');
+                errorBox.innerHTML = '';
+            }
+            if (successBox) {
+                successBox.classList.add('hidden');
+                successBox.innerHTML = '';
+            }
+
+            renderEmailChips();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('emailChipInput');
+
+            if (!input) return;
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addEmailChip(this.value);
+                }
+
+                if (e.key === 'Backspace' && this.value === '' && shareEmailList.length) {
+                    shareEmailList.pop();
+                    renderEmailChips();
+                    renderShareEmailErrors();
+                }
+            });
+
+            input.addEventListener('blur', function () {
+                addEmailChip(this.value);
+            });
+
+            input.addEventListener('paste', function (e) {
+                e.preventDefault();
+
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                addEmailChip(text);
+            });
+        });
 
         function revoke(userId) {
             fetch(`/notes/${currentNoteId}/share/${userId}`, {

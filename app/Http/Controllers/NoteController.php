@@ -1,21 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Storage;
 use App\Models\NoteImage;   
 use App\Models\Label;   
 use Illuminate\Support\Facades\Log;
-
 use Illuminate\Support\Facades\Hash;
-
 use App\Models\SharedNote;
-
 use App\Events\NoteUpdated;
+use App\Notifications\NoteSharedNotification;
 
 class NoteController extends Controller
 {
@@ -351,45 +347,91 @@ class NoteController extends Controller
     public function share(Request $request, Note $note)
     {
         if ($note->user_id !== auth()->id()) {
-            abort(403);
+            return response()->json([
+                'message' => 'Bạn không có quyền chia sẻ ghi chú này.'
+            ], 403);
         }
 
         $request->validate([
-            'emails' => 'required|array',
-            'permission' => 'required|in:read,edit'
+            'emails' => ['required', 'array', 'min:1'],
+            'emails.*' => ['required', 'email'],
+            'permission' => ['required', 'in:read,edit'],
         ]);
 
-        foreach ($request->emails as $email) {
+        $emails = collect($request->emails)
+            ->map(fn ($email) => strtolower(trim($email)))
+            ->filter()
+            ->unique();
+
+        $notFoundEmails = [];
+        $sharedEmails = [];
+        $skippedEmails = [];
+        $unverifiedEmails = [];
+
+        foreach ($emails as $email) {
 
             $user = \App\Models\User::where('email', $email)->first();
 
-            if ($user) {
-                \App\Models\SharedNote::updateOrCreate(
-                    [
-                        'note_id' => $note->id,
-                        'recipient_id' => $user->id
-                    ],
-                    [
-                        'owner_id' => auth()->id(),
-                        'permission' => $request->permission
-                    ]
-                );
+            // EMAIL KHÔNG TỒN TẠI
+
+            if (!$user) {
+                $notFoundEmails[] = $email;
+                continue;
             }
+
+            if (!$user->hasVerifiedEmail()) {
+                $unverifiedEmails[] = $email;
+                continue;
+            }
+
+
+            // SHARE CHÍNH MÌNH
+            if ($user->id === auth()->id()) {
+                $skippedEmails[] = $email;
+                continue;
+            }
+
+            $share = SharedNote::updateOrCreate(
+                [
+                    'note_id' => $note->id,
+                    'recipient_id' => $user->id
+                ],
+                [
+                    'owner_id' => auth()->id(),
+                    'permission' => $request->permission
+                ]
+            );
+
+            $user->notify(new NoteSharedNotification($note, auth()->user()));
+
+            $sharedEmails[] = $email;
         }
 
-        return response()->json(['status' => 'shared']);
+        return response()->json([
+            'status' => 'shared',
+            'shared' => $sharedEmails,
+            'not_found' => $notFoundEmails,
+            'unverified' => $unverifiedEmails,
+            'skipped' => $skippedEmails,
+        ]);
     }
+
+
     // SHARE WITH
     public function sharedWithMe()
     {
+        auth()->user()->unreadNotifications
+            ->where('type', 'App\Notifications\NoteSharedNotification')
+            ->markAsRead();
+
         $shares = \App\Models\SharedNote::with(['note', 'owner'])
             ->where('recipient_id', auth()->id())
             ->latest()
             ->get();
 
         return view('notes.shared', [
-                    'shared' => $shares
-                ]);
+            'shared' => $shares
+        ]);
     }
 
     public function revokeShare(Note $note, $userId)

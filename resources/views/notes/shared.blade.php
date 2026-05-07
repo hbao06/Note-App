@@ -56,6 +56,37 @@
             @endif
         </div>
 
+        @php
+            $shareNotifications = auth()->user()->unreadNotifications
+                ->where('type', 'App\Notifications\NoteSharedNotification');
+        @endphp
+
+        @if($shareNotifications->count() > 0)
+            <div class="mb-5 space-y-3">
+                @foreach($shareNotifications as $notification)
+                    <a href="{{ $notification->data['url'] ?? route('notes.shared') }}"
+                        class="block rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 hover:bg-blue-100 transition">
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+
+                            <div>
+                                <div class="font-bold">
+                                    New shared note
+                                </div>
+
+                                <div class="text-sm mt-1">
+                                    {{ $notification->data['message'] ?? 'Một ghi chú mới đã được chia sẻ với bạn.' }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
         <!-- SCROLL AREA -->
         <div class="flex-1 min-h-0 overflow-y-auto pr-2 pb-6">
             @if($shared->count() > 0)
