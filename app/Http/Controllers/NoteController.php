@@ -429,8 +429,13 @@ class NoteController extends Controller
             ->latest()
             ->get();
 
+        $notes = \App\Models\Note::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
         return view('notes.shared', [
-            'shared' => $shares
+            'shared' => $shares,
+            'notes' => $notes,
         ]);
     }
 

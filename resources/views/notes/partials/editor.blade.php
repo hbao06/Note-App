@@ -237,6 +237,9 @@
             let timer = null;
             let noteIsLocked = @json(isset($note) && $note->note_password);
 
+            let isCreatingNote = false;
+            let createNotePromise = null;
+
             const titleInput = document.getElementById('noteTitle');
             const contentInput = document.getElementById('noteContent');
             const noteIdInput = document.getElementById('noteId');
@@ -315,55 +318,123 @@
                     : 'w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center justify-center';
             }
 
-            function autosave() {
+            async function autosave() {
                 if (!canEditValue) return Promise.resolve();
-                if (!titleInput || !contentInput || !noteIdInput || !saveStatus) return Promise.resolve();
-                
+
+                if (!titleInput || !contentInput || !noteIdInput || !saveStatus) {
+                    return Promise.resolve();
+                }
+
+                const title = titleInput.value || "";
+                const content = contentInput.value || "";
+
+                // Không save note rỗng
+                if (!title.trim() && !content.trim()) {
+                    return Promise.resolve();
+                }
+
                 saveStatus.textContent = "Saving...";
 
+                // Nếu đang tạo note mới thì đợi request cũ hoàn thành
+                if (!noteIdInput.value && isCreatingNote && createNotePromise) {
+                    await createNotePromise;
+                }
+
+                const wasNewNote = !noteIdInput.value;
+
+                const payload = {
+                    id: noteIdInput.value || null,
+                    title,
+                    content
+                };
+
+                // ===== CREATE NOTE =====
+                if (wasNewNote) {
+
+                    isCreatingNote = true;
+
+                    createNotePromise = fetch("{{ route('notes.autosave') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error("Save failed");
+                        }
+
+                        return res.json();
+                    })
+                    .then(data => {
+
+                        saveStatus.textContent = "Saved";
+
+                        if (data.note_id) {
+                            noteIdInput.value = data.note_id;
+                        }
+
+                        // refresh index lần đầu
+                        if (typeof refreshNotesIndex === 'function') {
+                            refreshNotesIndex();
+                        }
+
+                        return data;
+                    })
+                    .catch(err => {
+
+                        console.log("SAVE ERROR:", err);
+
+                        saveStatus.textContent = "❌ Save failed";
+
+                        throw err;
+                    })
+                    .finally(() => {
+
+                        isCreatingNote = false;
+                        createNotePromise = null;
+                    });
+
+                    return createNotePromise;
+                }
+
+                // ===== UPDATE NOTE =====
                 return fetch("{{ route('notes.autosave') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({
-                        id: noteIdInput.value || null,
-                        title: titleInput.value || "",
-                        content: contentInput.value || ""
-                    })
+                    body: JSON.stringify(payload)
                 })
                 .then(res => {
-                    if (!res.ok) throw new Error("Save failed");
+
+                    if (!res.ok) {
+                        throw new Error("Save failed");
+                    }
+
                     return res.json();
                 })
                 .then(data => {
+
                     saveStatus.textContent = "Saved";
 
-                    const wasNewNote = !noteIdInput.value;
-
-                    if (data.note_id && wasNewNote) {
-                        noteIdInput.value = data.note_id;
-
-                        if (typeof refreshNotesIndex === 'function') {
-                            refreshNotesIndex();
-                        }
-                    }
-
-                    if (!wasNewNote) {
-                        updateNoteCardOnPage(data);
-                    }
+                    updateNoteCardOnPage(data);
 
                     if (typeof window.refreshSharedNotes === 'function') {
                         window.refreshSharedNotes();
                     }
 
-
                     return data;
                 })
                 .catch(err => {
+
                     console.log("SAVE ERROR:", err);
+
                     saveStatus.textContent = "❌ Save failed";
+
                     throw err;
                 });
             }

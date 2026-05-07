@@ -44,7 +44,7 @@
                     <span class="sidebar-text">My Notes</span>
                 </a>
 
-                <a href="{{ route('notes.shared') }}" onclick="loadPage(event, this.href)"
+                <a href="{{ route('notes.shared') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl transition text-gray-600 hover:bg-gray-100"
                     data-route="shared">
 
@@ -1307,7 +1307,24 @@
             });
         }
 
-        
+        const NOTE_COLOR_CLASSES = [
+            'bg-white',
+            'bg-gray-50',
+            'bg-yellow-50',
+            'bg-orange-50',
+            'bg-green-50',
+            'bg-blue-50',
+            'bg-purple-50',
+            'bg-rose-50',
+            'bg-gray-800'
+        ];
+
+        const FONT_SIZE_CLASSES = [
+            'text-sm',
+            'text-base',
+            'text-lg'
+        ];
+
         function openSettingsModal() {
             syncSettingsUI();
 
@@ -1326,11 +1343,23 @@
             document.getElementById(inputId).value = value;
 
             btn.parentElement.querySelectorAll('.setting-option').forEach(item => {
-                item.classList.remove('bg-white', 'text-gray-950', 'shadow-sm');
+                item.classList.remove(
+                    'is-active',
+                    'bg-white',
+                    'text-gray-950',
+                    'shadow-sm'
+                );
+
                 item.classList.add('text-gray-600');
             });
 
-            btn.classList.add('bg-white', 'text-gray-950', 'shadow-sm');
+            btn.classList.add(
+                'is-active',
+                'bg-white',
+                'text-gray-950',
+                'shadow-sm'
+            );
+
             btn.classList.remove('text-gray-600');
         }
 
@@ -1338,30 +1367,50 @@
             document.getElementById('settingNoteColor').value = value;
 
             document.querySelectorAll('.note-color-option').forEach(item => {
-                item.classList.remove('border-gray-950');
+                item.classList.remove('is-active', 'border-gray-950');
                 item.classList.add('border-transparent');
             });
 
+            btn.classList.add('is-active', 'border-gray-950');
             btn.classList.remove('border-transparent');
-            btn.classList.add('border-gray-950');
         }
 
         function selectTheme(value, btn) {
             document.getElementById('settingTheme').value = value;
 
             document.querySelectorAll('.theme-option').forEach(item => {
-                item.classList.remove('border-gray-950', 'bg-white');
-                item.classList.add('border-transparent', 'bg-gray-100');
+                item.classList.remove(
+                    'is-active',
+                    'border-gray-950',
+                    'bg-white'
+                );
+
+                item.classList.add(
+                    'border-transparent',
+                    'bg-gray-100'
+                );
             });
 
-            btn.classList.remove('border-transparent', 'bg-gray-100');
-            btn.classList.add('border-gray-950', 'bg-white');
+            btn.classList.add(
+                'is-active',
+                'border-gray-950',
+                'bg-white'
+            );
+
+            btn.classList.remove(
+                'border-transparent',
+                'bg-gray-100'
+            );
         }
 
         function saveSettings() {
-            localStorage.setItem('noteFontSize', document.getElementById('settingFontSize').value);
-            localStorage.setItem('noteColor', document.getElementById('settingNoteColor').value);
-            localStorage.setItem('theme', document.getElementById('settingTheme').value);
+            const fontSize = document.getElementById('settingFontSize').value;
+            const noteColor = document.getElementById('settingNoteColor').value;
+            const theme = document.getElementById('settingTheme').value;
+
+            localStorage.setItem('noteFontSize', fontSize);
+            localStorage.setItem('noteColor', noteColor);
+            localStorage.setItem('theme', theme);
 
             applySettings();
             closeSettingsModal();
@@ -1372,32 +1421,25 @@
             const noteColor = localStorage.getItem('noteColor') || 'bg-white';
             const theme = localStorage.getItem('theme') || 'light';
 
+            /*
+            FIX CHÍNH:
+            Theme chỉ thêm class app-dark vào <html>.
+            Không đổi màu note ở đây.
+            */
             document.documentElement.classList.toggle('app-dark', theme === 'dark');
 
+            /*
+            Note color chỉ áp dụng cho note-card.
+            Dù theme sáng hay tối, note vẫn giữ màu người dùng đã chọn.
+            */
             document.querySelectorAll('.note-card, .shared-note-card').forEach(card => {
-                card.classList.remove(
-                    'bg-white',
-                    'bg-gray-50',
-                    'bg-yellow-50',
-                    'bg-orange-50',
-                    'bg-green-50',
-                    'bg-blue-50',
-                    'bg-purple-50',
-                    'bg-rose-50',
-                    'bg-gray-800'
-                );
+                card.classList.remove(...NOTE_COLOR_CLASSES);
+                card.classList.add(noteColor);
 
-                // ✅ FIX QUAN TRỌNG
-                if (theme === 'dark') {
-                    const darkColor = getDarkColor(noteColor);
-                    card.classList.add(darkColor);
-                } else {
-                    card.classList.add(noteColor);
-                }
+                const content = card.querySelector('.card-content, p');
 
-                const content = card.querySelector('p');
                 if (content) {
-                    content.classList.remove('text-sm', 'text-base', 'text-lg');
+                    content.classList.remove(...FONT_SIZE_CLASSES);
                     content.classList.add(fontSize);
                 }
             });
@@ -1417,38 +1459,67 @@
             document.getElementById('settingTheme').value = theme;
 
             document.querySelectorAll('.setting-option').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-gray-950', 'shadow-sm');
+                btn.classList.remove(
+                    'is-active',
+                    'bg-white',
+                    'text-gray-950',
+                    'shadow-sm'
+                );
+
                 btn.classList.add('text-gray-600');
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${fontSize}'`)) {
-                    btn.classList.add('bg-white', 'text-gray-950', 'shadow-sm');
+                    btn.classList.add(
+                        'is-active',
+                        'bg-white',
+                        'text-gray-950',
+                        'shadow-sm'
+                    );
+
                     btn.classList.remove('text-gray-600');
                 }
             });
 
             document.querySelectorAll('.note-color-option').forEach(btn => {
-                btn.classList.remove('border-gray-950');
+                btn.classList.remove('is-active', 'border-gray-950');
                 btn.classList.add('border-transparent');
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${noteColor}'`)) {
-                    btn.classList.add('border-gray-950');
+                    btn.classList.add('is-active', 'border-gray-950');
                     btn.classList.remove('border-transparent');
                 }
             });
 
             document.querySelectorAll('.theme-option').forEach(btn => {
-                btn.classList.remove('border-gray-950', 'bg-white');
-                btn.classList.add('border-transparent', 'bg-gray-100');
+                btn.classList.remove(
+                    'is-active',
+                    'border-gray-950',
+                    'bg-white'
+                );
+
+                btn.classList.add(
+                    'border-transparent',
+                    'bg-gray-100'
+                );
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${theme}'`)) {
-                    btn.classList.add('border-gray-950', 'bg-white');
-                    btn.classList.remove('border-transparent', 'bg-gray-100');
+                    btn.classList.add(
+                        'is-active',
+                        'border-gray-950',
+                        'bg-white'
+                    );
+
+                    btn.classList.remove(
+                        'border-transparent',
+                        'bg-gray-100'
+                    );
                 }
             });
         }
 
         applySettings();
 
+    
         function setSidebarState(state) {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -1598,24 +1669,7 @@
             setActiveSidebar('notes');
         }
 
-        function getDarkColor(color) {
-            const map = {
-                'bg-white': 'bg-gray-800',
-                'bg-gray-50': 'bg-gray-800',
-
-                'bg-red-50': 'bg-red-900/30',
-                'bg-orange-50': 'bg-orange-900/30',
-                'bg-yellow-50': 'bg-yellow-900/30',
-                'bg-green-50': 'bg-green-900/30',
-                'bg-blue-50': 'bg-blue-900/30',
-                'bg-purple-50': 'bg-purple-900/30',
-                'bg-pink-50': 'bg-pink-900/30',
-                'bg-rose-50': 'bg-rose-900/30',
-            };
-
-            return map[color] || 'bg-gray-800';
-        }
-
+        
         window.refreshNotesIndex = async function () {
             const res = await fetch("{{ route('notes.index') }}", {
                 headers: {
@@ -1665,5 +1719,110 @@
                 applySharedView(localStorage.getItem("sharedView") || "grid");
             }
         }
+
+        document.addEventListener('submit', async function (event) {
+            const form = event.target;
+
+            if (!['profileInfoForm', 'passwordForm', 'deleteForm'].includes(form.id)) return;
+
+            event.preventDefault();
+
+            let btn;
+            let messageBox;
+            let successText;
+            let errorText;
+
+            if (form.id === 'profileInfoForm') {
+                btn = document.getElementById('profileInfoSaveBtn');
+                messageBox = document.getElementById('profileInfoMessage');
+                successText = 'Cập nhật thông tin thành công.';
+                errorText = 'Không thể cập nhật thông tin.';
+            }
+
+            if (form.id === 'passwordForm') {
+                btn = document.getElementById('passwordSaveBtn');
+                messageBox = document.getElementById('passwordMessage');
+                successText = 'Đổi mật khẩu thành công.';
+                errorText = 'Không thể đổi mật khẩu.';
+            }
+
+            if (form.id === 'deleteForm') {
+                btn = document.getElementById('deleteBtn');
+                messageBox = document.getElementById('deleteMessage');
+                errorText = 'Không thể xóa tài khoản. Vui lòng kiểm tra mật khẩu.';
+            }
+
+            const formData = new FormData(form);
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+            btn.innerHTML = form.id === 'deleteForm'
+                ? `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Deleting...`
+                : `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...`;
+
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: formData
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    if (data.errors) {
+                        errorText = Object.values(data.errors).flat().join('<br>');
+                    }
+
+                    messageBox.classList.remove('hidden');
+                    messageBox.innerHTML = `
+                        <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 shadow-sm">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-circle-exclamation mt-0.5 text-red-500"></i>
+                                <div>${errorText}</div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (form.id === 'deleteForm') {
+                    window.location.href = '/';
+                    return;
+                }
+
+                messageBox.classList.remove('hidden');
+                messageBox.innerHTML = `
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check mt-0.5 text-emerald-500"></i>
+                            <div>${successText}</div>
+                        </div>
+                    </div>
+                `;
+
+                if (form.id === 'passwordForm') {
+                    form.reset();
+                }
+
+                if (form.id === 'profileInfoForm') {
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+
+                    document.querySelectorAll('.profile-hero-name').forEach(el => el.textContent = name);
+                    document.querySelectorAll('.profile-hero-email').forEach(el => el.textContent = email);
+                }
+
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-60', 'cursor-not-allowed');
+                btn.innerHTML = originalText;
+            }
+        });
     </script>
 </x-app-layout>

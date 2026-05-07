@@ -28,12 +28,14 @@ class NoteSharedNotification extends Notification
 
     public function toMail($notifiable)
     {
+        $sharedUrl = url('/notes/shared');
+
         return (new MailMessage)
             ->subject('Một ghi chú đã được chia sẻ với bạn')
             ->greeting('Xin chào ' . $notifiable->name)
             ->line($this->owner->name . ' đã chia sẻ một ghi chú với bạn.')
             ->line('Tiêu đề: ' . ($this->note->title ?: 'Untitled'))
-            ->action('Mở ghi chú', url('/notes/shared'))
+            ->action('Mở ghi chú', $sharedUrl)
             ->line('Bạn có thể xem ghi chú trong mục Shared with me.');
     }
 
