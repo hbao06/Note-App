@@ -715,6 +715,8 @@
                     ? "filter-chip active px-4 py-2.5 rounded-full bg-slate-950 text-white text-sm font-bold shadow-sm"
                     : "filter-chip px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-950 transition";
             });
+
+            refreshFilterChipTheme();
         }
 
         const searchInput = document.getElementById('searchInput');
@@ -1325,46 +1327,59 @@
             'text-lg'
         ];
 
+        function getSavedTheme() {
+            return localStorage.getItem('theme') || 'light';
+        }
+
+        function getSavedNoteColor() {
+            return localStorage.getItem('noteColor') || 'bg-white';
+        }
+
+        function getSavedFontSize() {
+            return localStorage.getItem('noteFontSize') || 'text-base';
+        }
+
         function openSettingsModal() {
             syncSettingsUI();
 
             const modal = document.getElementById('settingsModal');
+            if (!modal) return;
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
         function closeSettingsModal() {
             const modal = document.getElementById('settingsModal');
+            if (!modal) return;
+
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
 
         function selectSetting(inputId, value, btn) {
-            document.getElementById(inputId).value = value;
+            const input = document.getElementById(inputId);
+            if (!input || !btn) return;
 
-            btn.parentElement.querySelectorAll('.setting-option').forEach(item => {
-                item.classList.remove(
-                    'is-active',
-                    'bg-white',
-                    'text-gray-950',
-                    'shadow-sm'
-                );
+            input.value = value;
 
+            const group = btn.parentElement;
+            if (!group) return;
+
+            group.querySelectorAll('.setting-option').forEach(item => {
+                item.classList.remove('is-active', 'bg-white', 'text-gray-950', 'shadow-sm');
                 item.classList.add('text-gray-600');
             });
 
-            btn.classList.add(
-                'is-active',
-                'bg-white',
-                'text-gray-950',
-                'shadow-sm'
-            );
-
+            btn.classList.add('is-active', 'bg-white', 'text-gray-950', 'shadow-sm');
             btn.classList.remove('text-gray-600');
         }
 
         function selectNoteColor(value, btn) {
-            document.getElementById('settingNoteColor').value = value;
+            const input = document.getElementById('settingNoteColor');
+            if (!input || !btn) return;
+
+            input.value = value;
 
             document.querySelectorAll('.note-color-option').forEach(item => {
                 item.classList.remove('is-active', 'border-gray-950');
@@ -1376,106 +1391,112 @@
         }
 
         function selectTheme(value, btn) {
-            document.getElementById('settingTheme').value = value;
+            const input = document.getElementById('settingTheme');
+            if (!input || !btn) return;
+
+            input.value = value;
 
             document.querySelectorAll('.theme-option').forEach(item => {
-                item.classList.remove(
-                    'is-active',
-                    'border-gray-950',
-                    'bg-white'
-                );
-
-                item.classList.add(
-                    'border-transparent',
-                    'bg-gray-100'
-                );
+                item.classList.remove('is-active', 'border-gray-950', 'bg-white');
+                item.classList.add('border-transparent', 'bg-gray-100');
             });
 
-            btn.classList.add(
-                'is-active',
-                'border-gray-950',
-                'bg-white'
-            );
-
-            btn.classList.remove(
-                'border-transparent',
-                'bg-gray-100'
-            );
+            btn.classList.add('is-active', 'border-gray-950', 'bg-white');
+            btn.classList.remove('border-transparent', 'bg-gray-100');
         }
 
         function saveSettings() {
-            const fontSize = document.getElementById('settingFontSize').value;
-            const noteColor = document.getElementById('settingNoteColor').value;
-            const theme = document.getElementById('settingTheme').value;
+            const fontSizeInput = document.getElementById('settingFontSize');
+            const noteColorInput = document.getElementById('settingNoteColor');
+            const themeInput = document.getElementById('settingTheme');
 
-            localStorage.setItem('noteFontSize', fontSize);
-            localStorage.setItem('noteColor', noteColor);
-            localStorage.setItem('theme', theme);
+            localStorage.setItem('noteFontSize', document.getElementById('settingFontSize').value);
+            localStorage.setItem('noteColor', document.getElementById('settingNoteColor').value);
+            localStorage.setItem('theme', document.getElementById('settingTheme').value);
 
             applySettings();
             closeSettingsModal();
         }
 
+        /*
+        Apply theme to whole page.
+        Apply note color only to note cards.
+        */
         function applySettings() {
-            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
-            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
             const theme = localStorage.getItem('theme') || 'light';
+            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
+            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
 
-            /*
-            FIX CHÍNH:
-            Theme chỉ thêm class app-dark vào <html>.
-            Không đổi màu note ở đây.
-            */
             document.documentElement.classList.toggle('app-dark', theme === 'dark');
 
-            /*
-            Note color chỉ áp dụng cho note-card.
-            Dù theme sáng hay tối, note vẫn giữ màu người dùng đã chọn.
-            */
             document.querySelectorAll('.note-card, .shared-note-card').forEach(card => {
-                card.classList.remove(...NOTE_COLOR_CLASSES);
+                card.classList.remove(
+                    'bg-white',
+                    'bg-gray-50',
+                    'bg-yellow-50',
+                    'bg-orange-50',
+                    'bg-green-50',
+                    'bg-blue-50',
+                    'bg-purple-50',
+                    'bg-rose-50',
+                    'bg-gray-800'
+                );
+
                 card.classList.add(noteColor);
 
                 const content = card.querySelector('.card-content, p');
 
                 if (content) {
-                    content.classList.remove(...FONT_SIZE_CLASSES);
+                    content.classList.remove('text-sm', 'text-base', 'text-lg');
                     content.classList.add(fontSize);
                 }
             });
+        }
 
-            if (typeof window.applyEditorStyle === 'function') {
-                window.applyEditorStyle();
-            }
+        function refreshFilterChipTheme() {
+            const theme = getSavedTheme();
+            const isDark = theme === 'dark';
+
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                const isActive = chip.classList.contains('active');
+
+                chip.style.backgroundColor = '';
+                chip.style.borderColor = '';
+                chip.style.color = '';
+
+                if (!isDark) return;
+
+                if (isActive) {
+                    chip.style.backgroundColor = '#f8fafc';
+                    chip.style.borderColor = '#f8fafc';
+                    chip.style.color = '#020617';
+                } else {
+                    chip.style.backgroundColor = '#111827';
+                    chip.style.borderColor = '#263244';
+                    chip.style.color = '#e2e8f0';
+                }
+            });
         }
 
         function syncSettingsUI() {
-            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
-            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
-            const theme = localStorage.getItem('theme') || 'light';
+            const fontSize = getSavedFontSize();
+            const noteColor = getSavedNoteColor();
+            const theme = getSavedTheme();
 
-            document.getElementById('settingFontSize').value = fontSize;
-            document.getElementById('settingNoteColor').value = noteColor;
-            document.getElementById('settingTheme').value = theme;
+            const fontSizeInput = document.getElementById('settingFontSize');
+            const noteColorInput = document.getElementById('settingNoteColor');
+            const themeInput = document.getElementById('settingTheme');
+
+            if (fontSizeInput) fontSizeInput.value = fontSize;
+            if (noteColorInput) noteColorInput.value = noteColor;
+            if (themeInput) themeInput.value = theme;
 
             document.querySelectorAll('.setting-option').forEach(btn => {
-                btn.classList.remove(
-                    'is-active',
-                    'bg-white',
-                    'text-gray-950',
-                    'shadow-sm'
-                );
-
+                btn.classList.remove('is-active', 'bg-white', 'text-gray-950', 'shadow-sm');
                 btn.classList.add('text-gray-600');
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${fontSize}'`)) {
-                    btn.classList.add(
-                        'is-active',
-                        'bg-white',
-                        'text-gray-950',
-                        'shadow-sm'
-                    );
-
+                    btn.classList.add('is-active', 'bg-white', 'text-gray-950', 'shadow-sm');
                     btn.classList.remove('text-gray-600');
                 }
             });
@@ -1491,35 +1512,23 @@
             });
 
             document.querySelectorAll('.theme-option').forEach(btn => {
-                btn.classList.remove(
-                    'is-active',
-                    'border-gray-950',
-                    'bg-white'
-                );
-
-                btn.classList.add(
-                    'border-transparent',
-                    'bg-gray-100'
-                );
+                btn.classList.remove('is-active', 'border-gray-950', 'bg-white');
+                btn.classList.add('border-transparent', 'bg-gray-100');
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${theme}'`)) {
-                    btn.classList.add(
-                        'is-active',
-                        'border-gray-950',
-                        'bg-white'
-                    );
-
-                    btn.classList.remove(
-                        'border-transparent',
-                        'bg-gray-100'
-                    );
+                    btn.classList.add('is-active', 'border-gray-950', 'bg-white');
+                    btn.classList.remove('border-transparent', 'bg-gray-100');
                 }
             });
         }
 
+        /*
+        Initial load
+        */
         applySettings();
 
-    
+        
+        
         function setSidebarState(state) {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');

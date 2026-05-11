@@ -14,17 +14,36 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- My Notes Theme - phải nằm SAU app.css -->
+        <link rel="stylesheet" href="{{ asset('css/my-notes-theme.css') }}?v={{ time() }}">
+
+        <script>
+            /*
+                Apply theme sớm trước khi body render xong
+                để tránh nháy trắng khi reload.
+            */
+            (function () {
+                const theme = localStorage.getItem('theme') || 'light';
+
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('app-dark');
+                } else {
+                    document.documentElement.classList.remove('app-dark');
+                }
+            })();
+        </script>
     </head>
+
     <body class="font-sans antialiased overflow-hidden h-screen">
-        <div class="h-screen bg-gray-100">
+        <div id="appShell" class="h-screen bg-gray-100">
             @if(!request()->is('notes*'))
                 @include('layouts.navigation')
             @endif
 
-            <main class="h-screen p-0 m-0">
+            <main id="appMain" class="h-screen p-0 m-0">
                 {{ $slot }}
             </main>
-
 
             @auth
                 @if(!auth()->user()->hasVerifiedEmail())
@@ -34,6 +53,5 @@
                 @endif
             @endauth
         </div>
-        
     </body>
 </html>

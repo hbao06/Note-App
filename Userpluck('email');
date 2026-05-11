@@ -1,0 +1,34 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#7924
+    [34mall[39m: [
+      [34;4mApp\Models\User[39;24m {#8164
+        [34mid[39m: [35m1[39m,
+        [34mname[39m: [32m"[39m[32mHoai Bao Owner[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mhoaibao2284@gmail.com[39m[32m"[39m,
+        [34memail_verified_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        #[33mpassword[39m: [32m"[39m\$[32m2y[39m\$[32m12[39m\$[32mssploq3QsfnUm.UNTrVpke9pXr/WjPMCZTeZabewxIRp31/7i9Q/y[39m[32m"[39m,
+        #[33mremember_token[39m: [36mnull[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8165
+        [34mid[39m: [35m2[39m,
+        [34mname[39m: [32m"[39m[32mHoai Bao Receiver[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mhoaibao2009@gmail.com[39m[32m"[39m,
+        [34memail_verified_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        #[33mpassword[39m: [32m"[39m\$[32m2y[39m\$[32m12[39m\$[32mrLcrPwfdUzbM55zc8BCF6uOfmcC0JpeY7czYk2e8C74wjnoF8z3Si[39m[32m"[39m,
+        #[33mremember_token[39m: [36mnull[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8166
+        [34mid[39m: [35m3[39m,
+        [34mname[39m: [32m"[39m[32mLe Trung Bao Receiver[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mletrungbao207@gmail.com[39m[32m"[39m,
+        [34memail_verified_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        #[33mpassword[39m: [32m"[39m\$[32m2y[39m\$[32m12[39m\$[32mCYA1CfoJDdi6q3DPUzFRE.kVGNyZoZB6chhcxzFueJXfUrngmcm/.[39m[32m"[39m,
+        #[33mremember_token[39m: [36mnull[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-05-11 23:39:00[39m[32m"[39m,
+      },
+    ],
+  }
