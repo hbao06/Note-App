@@ -1,4 +1,36 @@
 <x-app-layout>
+     @php
+        $user = auth()->user();
+
+        // Màu avatar mặc định: màu đậm, không có trắng
+        $avatarColors = [
+            '#334155',
+            '#374151',
+            '#3f3f46',
+            '#44403c',
+            '#dc2626',
+            '#ea580c',
+            '#d97706',
+            '#65a30d',
+            '#16a34a',
+            '#059669',
+            '#0d9488',
+            '#0891b2',
+            '#0284c7',
+            '#2563eb',
+            '#4f46e5',
+            '#7c3aed',
+            '#9333ea',
+            '#c026d3',
+            '#db2777',
+            '#e11d48',
+        ];
+
+        $avatarColor = $avatarColors[abs(crc32($user->email)) % count($avatarColors)];
+        $initial = strtoupper(mb_substr($user->name ?? 'U', 0, 1, 'UTF-8'));
+
+        $hasAvatar = $user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar);
+    @endphp
     <div class="h-screen overflow-hidden bg-gray-50 text-gray-900">
 
         <!-- SIDEBAR -->
@@ -9,14 +41,21 @@
                 flex flex-col overflow-hidden">
             <!-- USER -->
             <div id="sidebarUser" class="p-4 border-b border-gray-200">
-                <a href="{{ route('profile.edit') }}" 
-                onclick="loadPage(event, this.href)"
-                id="userInfo"
-                class="sidebar-avatar-link flex items-center gap-3 min-w-0 rounded-xl hover:bg-gray-100 transition">
+                <a href="{{ route('profile.edit') }}"
+                    id="userInfo"
+                    class="sidebar-avatar-link flex items-center gap-3 min-w-0 rounded-xl hover:bg-gray-100 transition">
 
                     <div id="userAvatar"
-                        class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                        class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md"
+                        style="background-color: {{ $hasAvatar ? '#e5e7eb' : $avatarColor }};">
+
+                        @if ($hasAvatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}"
+                                alt="Avatar"
+                                class="w-full h-full object-cover">
+                        @else
+                            <span class="select-none">{{ $initial }}</span>
+                        @endif
                     </div>
 
                     <div class="sidebar-text min-w-0">
@@ -290,6 +329,8 @@
             </div>
         </div>
     </div>
+
+    @include('components.email-verify-warning')
 
     <script>
         let sharedCurrentView = localStorage.getItem('sharedView') || 'grid';

@@ -82,6 +82,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/notes/{note}/shares', [NoteController::class, 'getShares']);
     Route::put('/notes/{note}/share/{user}', [NoteController::class, 'updateSharePermission']);
 
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])
+        ->name('profile.avatar.update');
+
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])
+        ->name('profile.avatar.delete');
+
 });
 require __DIR__.'/auth.php';
 

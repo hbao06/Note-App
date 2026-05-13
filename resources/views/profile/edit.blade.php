@@ -1,4 +1,37 @@
 <x-app-layout>
+    @php
+        $user = auth()->user();
+
+        // Màu avatar mặc định: màu đậm, không có trắng
+        $avatarColors = [
+            '#334155',
+            '#374151',
+            '#3f3f46',
+            '#44403c',
+            '#dc2626',
+            '#ea580c',
+            '#d97706',
+            '#65a30d',
+            '#16a34a',
+            '#059669',
+            '#0d9488',
+            '#0891b2',
+            '#0284c7',
+            '#2563eb',
+            '#4f46e5',
+            '#7c3aed',
+            '#9333ea',
+            '#c026d3',
+            '#db2777',
+            '#e11d48',
+        ];
+
+        $avatarColor = $avatarColors[abs(crc32($user->email)) % count($avatarColors)];
+        $initial = strtoupper(mb_substr($user->name ?? 'U', 0, 1, 'UTF-8'));
+
+        $hasAvatar = $user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar);
+    @endphp
+
     <div class="h-screen overflow-hidden bg-gray-50 text-gray-900">
 
         <!-- SIDEBAR -->
@@ -14,9 +47,17 @@
                     id="userInfo"
                     class="sidebar-avatar-link flex items-center gap-3 min-w-0 rounded-xl hover:bg-gray-100 transition">
 
-                    <div id="userAvatar"
-                        class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                   <div id="userAvatar"
+                        class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md"
+                        style="background-color: {{ $hasAvatar ? '#e5e7eb' : $avatarColor }};">
+
+                        @if ($hasAvatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}"
+                                alt="Avatar"
+                                class="w-full h-full object-cover">
+                        @else
+                            <span class="select-none">{{ $initial }}</span>
+                        @endif
                     </div>
 
                     <div class="sidebar-text min-w-0">
@@ -120,18 +161,58 @@
             <div class="h-full overflow-y-auto bg-gray-50 text-gray-900 pb-28">
                 <div class="max-w-4xl mx-auto px-6 py-10 space-y-6">
 
+                    <!-- ALERTS -->
+                    @if (session('status') === 'avatar-updated')
+                        <div class="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700">
+                            Cập nhật ảnh đại diện thành công.
+                        </div>
+                    @endif
+
+                    @error('avatar')
+                        <div class="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
                     <!-- HERO PROFILE -->
                     <div class="relative overflow-hidden rounded-[2rem] bg-white border border-gray-200 shadow-sm">
                         <div class="h-32 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-600"></div>
 
                         <div class="px-8 pb-8">
-                            <div class="-mt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+                            <div class="-mt-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
                                 <div class="flex items-end gap-5">
-                                    <div class="w-28 h-28 rounded-full bg-gray-950 text-white flex items-center justify-center text-5xl font-bold ring-4 ring-white shadow-lg">
-                                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+
+                                    <!-- AVATAR HERO -->
+                                    <div class="relative flex-shrink-0"
+                                        style="width: 132px; height: 132px;">
+
+                                        <!-- Vòng tròn lớn: avatar -->
+                                        <div
+                                            class="rounded-full overflow-hidden flex items-center justify-center text-white text-5xl font-bold ring-4 ring-white shadow-xl"
+                                            style="width: 132px; height: 132px; background-color: {{ $hasAvatar ? '#e5e7eb' : $avatarColor }};">
+
+                                            @if ($hasAvatar)
+                                                <img src="{{ asset('storage/' . $user->avatar) }}"
+                                                    alt="Avatar"
+                                                    class="block object-cover"
+                                                    style="width: 132px; height: 132px;">
+                                            @else
+                                                <span class="select-none leading-none">
+                                                    {{ $initial }}
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Vòng tròn nhỏ: icon camera nằm đè lên avatar -->
+                                        <label for="avatarInput"
+                                            class="absolute z-20 rounded-full bg-gray-950 text-white flex items-center justify-center shadow-lg cursor-pointer hover:bg-gray-700 active:scale-95 transition ring-4 ring-white"
+                                            style="width: 44px; height: 44px; right: 4px; bottom: 4px;"
+                                            title="Thay đổi ảnh đại diện">
+                                            <i class="fa-solid fa-camera text-sm"></i>
+                                        </label>
                                     </div>
 
-                                    <div class="pb-2">
+                                    <div class="pb-3">
                                         <h1 class="profile-hero-name text-3xl font-bold tracking-tight">
                                             {{ auth()->user()->name }}
                                         </h1>
@@ -211,7 +292,95 @@
         </div>
     </div>
 
+    <!-- AVATAR UPLOAD FORM -->
+    <form method="POST"
+        action="{{ route('profile.avatar.update') }}"
+        enctype="multipart/form-data"
+        id="avatarForm"
+        class="hidden">
+        @csrf
+
+        <input id="avatarInput"
+            type="file"
+            name="avatar"
+            accept="image/png,image/jpeg,image/jpg,image/webp">
+    </form>
+
+    @include('components.email-verify-warning')
+
     <script>
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarForm = document.getElementById('avatarForm');
+
+        if (avatarInput && avatarForm) {
+            avatarInput.addEventListener('change', async function () {
+                if (!this.files || !this.files[0]) return;
+
+                const file = this.files[0];
+
+                const allowedTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp'
+                ];
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Chỉ cho phép ảnh JPG, PNG hoặc WEBP.');
+                    this.value = '';
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ảnh không được vượt quá 2MB.');
+                    this.value = '';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('avatar', file);
+
+                try {
+                    const response = await fetch("{{ route('profile.avatar.update') }}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    if (response.status === 422) {
+                        const data = await response.json();
+                        alert(data.message || 'File ảnh không hợp lệ.');
+                        this.value = '';
+                        return;
+                    }
+
+                    if (response.status === 419) {
+                        alert('Phiên đăng nhập đã hết hạn. Hãy refresh trang rồi thử lại.');
+                        this.value = '';
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const text = await response.text();
+                        console.error(text);
+                        alert('Upload lỗi HTTP ' + response.status + '.');
+                        this.value = '';
+                        return;
+                    }
+
+                    window.location.href = "{{ route('profile.edit') }}";
+                } catch (error) {
+                    console.error(error);
+                    alert('Có lỗi xảy ra khi upload ảnh.');
+                    this.value = '';
+                }
+            });
+        }
+
         function setSidebarState(state) {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -232,7 +401,7 @@
                 userInfo.classList.add('justify-center', 'mx-auto', 'w-12', 'h-12');
                 userInfo.classList.remove('gap-3');
 
-                avatar.classList.remove('w-9', 'h-9');
+                avatar.classList.remove('w-10', 'h-10');
                 avatar.classList.add('w-8', 'h-8');
             } else {
                 toggleBtn.style.left = 'calc(16rem - 18px)';
@@ -241,7 +410,7 @@
                 userInfo.classList.add('gap-3');
 
                 avatar.classList.remove('w-8', 'h-8');
-                avatar.classList.add('w-9', 'h-9');
+                avatar.classList.add('w-10', 'h-10');
             }
 
             sidebar.classList.toggle('w-64', !isCollapsed);
