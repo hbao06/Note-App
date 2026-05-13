@@ -478,4 +478,89 @@ class NoteController extends Controller
         return response()->json(['status' => 'updated']);
     }
 
+    public function offlineNotes()
+    {
+        $notes = auth()->user()
+            ->notes()
+            ->latest('updated_at')
+            ->get()
+            ->map(function ($note) {
+                return [
+                    'id' => $note->id,
+                    'client_id' => null,
+                    'title' => $note->title,
+                    'content' => $note->note_password ? null : $note->content,
+                    'is_locked' => (bool) $note->note_password,
+                    'is_pinned' => (bool) $note->is_pinned,
+                    'updated_at' => optional($note->updated_at)->toISOString(),
+                    'created_at' => optional($note->created_at)->toISOString(),
+                ];
+            });
+
+        return response()->json([
+            'notes' => $notes,
+        ]);
+    }
+
+    public function syncOfflineNotes(Request $request)
+    {
+        $validated = $request->validate([
+            'changes' => ['required', 'array'],
+            'changes.*.type' => ['required', 'string', 'in:create,update'],
+            'changes.*.client_id' => ['nullable', 'string'],
+            'changes.*.id' => ['nullable'],
+            'changes.*.title' => ['nullable', 'string', 'max:255'],
+            'changes.*.content' => ['nullable', 'string'],
+            'changes.*.updated_at' => ['nullable', 'date'],
+        ]);
+
+        $synced = [];
+
+        foreach ($validated['changes'] as $change) {
+            if ($change['type'] === 'create') {
+                $note = auth()->user()->notes()->create([
+                    'title' => $change['title'] ?: 'Untitled',
+                    'content' => $change['content'] ?? '',
+                ]);
+
+                $synced[] = [
+                    'client_id' => $change['client_id'] ?? null,
+                    'id' => $note->id,
+                    'title' => $note->title,
+                    'content' => $note->content,
+                    'updated_at' => $note->updated_at->toISOString(),
+                    'created_at' => $note->created_at->toISOString(),
+                ];
+
+                continue;
+            }
+
+            if ($change['type'] === 'update' && ! empty($change['id'])) {
+                $note = auth()->user()->notes()->where('id', $change['id'])->first();
+
+                if (! $note || $note->note_password) {
+                    continue;
+                }
+
+                $note->update([
+                    'title' => $change['title'] ?: 'Untitled',
+                    'content' => $change['content'] ?? '',
+                ]);
+
+                $synced[] = [
+                    'id' => $note->id,
+                    'title' => $note->title,
+                    'content' => $note->content,
+                    'updated_at' => $note->updated_at->toISOString(),
+                    'created_at' => $note->created_at->toISOString(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'synced' => $synced,
+        ]);
+    }
+
 }

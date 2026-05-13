@@ -1,4 +1,7 @@
-<div id="editorContent" class="w-full h-[620px] bg-white">
+<div
+    id="editorContent"
+    data-offline-note-form
+    class="w-full h-[620px] bg-white">
     <div class="w-full h-full">
         <div class="editor-shell bg-white h-full p-6 border border-gray-200 relative flex flex-col">
 
@@ -19,6 +22,7 @@
             <input
                 type="text"
                 id="noteTitle"
+                data-offline-note-title
                 name="note_title_{{ $note->id ?? 'new' }}"
                 value="{{ isset($note) && $note?->title ? $note->title : '' }}"
                 placeholder="Title..."
@@ -36,6 +40,7 @@
 
             <textarea
                 id="noteContent"
+                data-offline-note-content
                 name="note_content"
                 placeholder="Write something..."
                 autocomplete="off"
@@ -226,7 +231,11 @@
                 </div>
             @endif
 
-            <input type="hidden" id="noteId" value="{{ $note->id ?? '' }}">
+            <input
+                type="hidden"
+                id="noteId"
+                data-offline-note-id
+                value="{{ $note->id ?? '' }}">
         </div>
     </div>
 
@@ -348,9 +357,33 @@
                     content
                 };
 
+                async function saveOfflineFallback() {
+                    if (typeof window.saveCurrentNoteOffline !== 'function') {
+                        console.error("window.saveCurrentNoteOffline is not loaded.");
+                        saveStatus.textContent = "❌ Save failed";
+                        throw new Error("Offline save function is missing");
+                    }
+
+                    const savedOfflineNote = await window.saveCurrentNoteOffline(payload);
+
+                    if (!noteIdInput.value && savedOfflineNote.client_id) {
+                        noteIdInput.dataset.clientId = savedOfflineNote.client_id;
+                        noteIdInput.dataset.localKey = savedOfflineNote.local_key;
+                    }
+
+                    saveStatus.textContent = "Saved offline";
+
+                    return savedOfflineNote;
+                }
+
+                // ===== OFFLINE SAVE =====
+                // Nếu trình duyệt nhận biết đang offline thì lưu IndexedDB ngay.
+                if (!navigator.onLine) {
+                    return saveOfflineFallback();
+                }
+
                 // ===== CREATE NOTE =====
                 if (wasNewNote) {
-
                     isCreatingNote = true;
 
                     createNotePromise = fetch("{{ route('notes.autosave') }}", {
@@ -369,7 +402,6 @@
                         return res.json();
                     })
                     .then(data => {
-
                         saveStatus.textContent = "Saved";
 
                         if (data.note_id) {
@@ -383,16 +415,14 @@
 
                         return data;
                     })
-                    .catch(err => {
-
+                    .catch(async err => {
                         console.log("SAVE ERROR:", err);
 
-                        saveStatus.textContent = "❌ Save failed";
-
-                        throw err;
+                        // Nếu fetch online fail do đang mất mạng / request bị SW trả lỗi,
+                        // lưu sang IndexedDB thay vì báo failed.
+                        return saveOfflineFallback();
                     })
                     .finally(() => {
-
                         isCreatingNote = false;
                         createNotePromise = null;
                     });
@@ -410,7 +440,6 @@
                     body: JSON.stringify(payload)
                 })
                 .then(res => {
-
                     if (!res.ok) {
                         throw new Error("Save failed");
                     }
@@ -418,7 +447,6 @@
                     return res.json();
                 })
                 .then(data => {
-
                     saveStatus.textContent = "Saved";
 
                     updateNoteCardOnPage(data);
@@ -429,13 +457,12 @@
 
                     return data;
                 })
-                .catch(err => {
-
+                .catch(async err => {
                     console.log("SAVE ERROR:", err);
 
-                    saveStatus.textContent = "❌ Save failed";
-
-                    throw err;
+                    // Nếu fetch online fail do đang mất mạng / request bị SW trả lỗi,
+                    // lưu sang IndexedDB thay vì báo failed.
+                    return saveOfflineFallback();
                 });
             }
 
@@ -940,7 +967,7 @@
             if (document.referrer && document.referrer.includes('/notes/shared')) {
                 window.location.href = "{{ route('notes.shared') }}";
                 return;
-            }
+            }   
 
             window.location.href = "{{ route('notes.index') }}";
         }

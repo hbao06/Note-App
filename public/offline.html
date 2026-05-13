@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Đang ngoại tuyến</title>
+        <style>
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
+                background: #f9fafb;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+            }
+
+            .card {
+                max-width: 480px;
+                width: 100%;
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 32px;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+                text-align: center;
+            }
+
+            h1 {
+                margin: 0 0 12px;
+                font-size: 28px;
+            }
+
+            p {
+                margin: 0 0 20px;
+                color: #4b5563;
+                line-height: 1.6;
+            }
+
+            a,
+            button {
+                display: inline-block;
+                border: none;
+                border-radius: 999px;
+                background: #111827;
+                color: #ffffff;
+                padding: 12px 20px;
+                font-weight: 600;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+            .hint {
+                margin-top: 16px;
+                font-size: 14px;
+                color: #6b7280;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="card">
+            <h1>Bạn đang ngoại tuyến</h1>
+
+            <p>
+                Không thể tải trang mới vì thiết bị đang mất kết nối internet.
+                Nếu bạn đã mở trang ghi chú trước đó, hãy quay lại trang ghi chú
+                để xem dữ liệu đã được lưu offline.
+            </p>
+
+            <a href="/notes">Quay lại ghi chú</a>
+
+            <p class="hint">
+                Khi có mạng lại, các thay đổi offline sẽ được đồng bộ lên hệ
+                thống.
+            </p>
+        </main>
+    </body>
+</html>

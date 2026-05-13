@@ -188,7 +188,10 @@
                         </button>
 
                         <!-- Create -->
-                        <button onclick="openEditorModal('{{ route('notes.editor') }}')"
+                        <button
+                            type="button"
+                            onclick="openEditorModal('{{ route('notes.editor') }}')"
+                            data-create-offline-note
                             class="h-12 px-5 rounded-2xl bg-slate-950 text-white font-bold shadow-lg shadow-slate-300/50 hover:bg-slate-800 active:scale-95 transition">
                             + Create
                         </button>
@@ -241,7 +244,10 @@
         
             <!-- NOTES GRID -->
             <div class="h-[calc(100vh-280px)] overflow-y-auto px-6 py-6">
-                <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div
+                id="notesContainer"
+                data-offline-notes-list
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     @foreach ($notes as $note)
                         @php $uniqueLabels = $note->labels->unique('name'); @endphp
 
@@ -1862,4 +1868,6 @@
             }
         });
     </script>
+
+    <script src="/js/offline-notes.js"></script>
 </x-app-layout>

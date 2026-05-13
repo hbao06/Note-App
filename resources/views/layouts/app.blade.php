@@ -12,6 +12,10 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
+        <link rel="manifest" href="/manifest.webmanifest">
+        <meta name="theme-color" content="#111827">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -53,5 +57,22 @@
                 @endif
             @endauth
         </div>
+
+        <script src="/js/offline-notes.js" defer></script>
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", function () {
+                    navigator.serviceWorker
+                        .register("/sw.js")
+                        .then(function () {
+                            console.log("Service Worker registered");
+                        })
+                        .catch(function (error) {
+                            console.error("Service Worker registration failed:", error);
+                        });
+                });
+            }
+        </script>
     </body>
 </html>

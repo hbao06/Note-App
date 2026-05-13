@@ -88,6 +88,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])
         ->name('profile.avatar.delete');
 
+
+    Route::get('/offline/notes', [NoteController::class, 'offlineNotes'])->name('notes.offline.index');
+    Route::post('/offline/notes/sync', [NoteController::class, 'syncOfflineNotes'])->name('notes.offline.sync');
+
 });
 require __DIR__.'/auth.php';
 
