@@ -450,4 +450,6 @@
 
         setSidebarState(localStorage.getItem('sidebar') || 'expanded');
     </script>
+
+    
 </x-app-layout>

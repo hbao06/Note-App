@@ -7,34 +7,25 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="theme-color" content="#111827">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- My Notes Theme - phải nằm SAU app.css -->
-        <link rel="stylesheet" href="{{ asset('css/my-notes-theme.css') }}?v={{ time() }}">
+       <link rel="stylesheet" href="{{ asset('css/my-notes-theme.css') }}?v={{ filemtime(public_path('css/my-notes-theme.css')) }}">
 
         <script>
-            /*
-                Apply theme sớm trước khi body render xong
-                để tránh nháy trắng khi reload.
-            */
             (function () {
                 const theme = localStorage.getItem('theme') || 'light';
+                const isDark = theme === 'dark';
 
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('app-dark');
-                } else {
-                    document.documentElement.classList.remove('app-dark');
-                }
+                document.documentElement.classList.toggle('app-dark', isDark);
+                document.documentElement.classList.toggle('app-light', !isDark);
+                document.documentElement.dataset.theme = theme;
             })();
         </script>
     </head>
@@ -58,8 +49,6 @@
             @endauth
         </div>
 
-        <script src="/js/offline-notes.js" defer></script>
-
         <script>
             if ("serviceWorker" in navigator) {
                 window.addEventListener("load", function () {
@@ -74,5 +63,7 @@
                 });
             }
         </script>
+
+        <script src="/js/offline-notes.js"></script>
     </body>
 </html>

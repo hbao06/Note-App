@@ -1426,17 +1426,20 @@
 
         function selectTheme(value, btn) {
             const input = document.getElementById('settingTheme');
-            if (!input || !btn) return;
 
-            input.value = value;
+            if (input) {
+                input.value = value;
+            }
 
             document.querySelectorAll('.theme-option').forEach(item => {
                 item.classList.remove('is-active', 'border-gray-950', 'bg-white');
-                item.classList.add('border-transparent', 'bg-gray-100');
+                item.classList.add('border-transparent');
             });
 
-            btn.classList.add('is-active', 'border-gray-950', 'bg-white');
-            btn.classList.remove('border-transparent', 'bg-gray-100');
+            if (btn) {
+                btn.classList.add('is-active', 'border-gray-950', 'bg-white');
+                btn.classList.remove('border-transparent');
+            }
         }
 
         function saveSettings() {
@@ -1444,24 +1447,31 @@
             const noteColorInput = document.getElementById('settingNoteColor');
             const themeInput = document.getElementById('settingTheme');
 
-            localStorage.setItem('noteFontSize', document.getElementById('settingFontSize').value);
-            localStorage.setItem('noteColor', document.getElementById('settingNoteColor').value);
-            localStorage.setItem('theme', document.getElementById('settingTheme').value);
+            const fontSize = fontSizeInput ? fontSizeInput.value : 'text-base';
+            const noteColor = noteColorInput ? noteColorInput.value : 'bg-white';
+            const theme = themeInput ? themeInput.value : 'light';
+
+            localStorage.setItem('noteFontSize', fontSize);
+            localStorage.setItem('noteColor', noteColor);
+            localStorage.setItem('theme', theme);
 
             applySettings();
+            syncSettingsUI();
             closeSettingsModal();
         }
 
-        /*
-        Apply theme to whole page.
-        Apply note color only to note cards.
-        */
         function applySettings() {
             const theme = localStorage.getItem('theme') || 'light';
             const noteColor = localStorage.getItem('noteColor') || 'bg-white';
             const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
 
-            document.documentElement.classList.toggle('app-dark', theme === 'dark');
+            const isDark = theme === 'dark';
+
+            document.documentElement.classList.toggle('app-dark', isDark);
+            document.documentElement.classList.toggle('app-light', !isDark);
+            document.documentElement.dataset.theme = theme;
+
+            document.body.style.colorScheme = isDark ? 'dark' : 'light';
 
             document.querySelectorAll('.note-card, .shared-note-card').forEach(card => {
                 card.classList.remove(
@@ -1485,37 +1495,22 @@
                     content.classList.add(fontSize);
                 }
             });
+
+            refreshFilterChipTheme();
         }
 
         function refreshFilterChipTheme() {
-            const theme = getSavedTheme();
-            const isDark = theme === 'dark';
-
             document.querySelectorAll('.filter-chip').forEach(chip => {
-                const isActive = chip.classList.contains('active');
-
                 chip.style.backgroundColor = '';
                 chip.style.borderColor = '';
                 chip.style.color = '';
-
-                if (!isDark) return;
-
-                if (isActive) {
-                    chip.style.backgroundColor = '#f8fafc';
-                    chip.style.borderColor = '#f8fafc';
-                    chip.style.color = '#020617';
-                } else {
-                    chip.style.backgroundColor = '#111827';
-                    chip.style.borderColor = '#263244';
-                    chip.style.color = '#e2e8f0';
-                }
             });
         }
 
         function syncSettingsUI() {
-            const fontSize = getSavedFontSize();
-            const noteColor = getSavedNoteColor();
-            const theme = getSavedTheme();
+            const fontSize = localStorage.getItem('noteFontSize') || 'text-base';
+            const noteColor = localStorage.getItem('noteColor') || 'bg-white';
+            const theme = localStorage.getItem('theme') || 'light';
 
             const fontSizeInput = document.getElementById('settingFontSize');
             const noteColorInput = document.getElementById('settingNoteColor');
@@ -1547,18 +1542,14 @@
 
             document.querySelectorAll('.theme-option').forEach(btn => {
                 btn.classList.remove('is-active', 'border-gray-950', 'bg-white');
-                btn.classList.add('border-transparent', 'bg-gray-100');
+                btn.classList.add('border-transparent');
 
                 if ((btn.getAttribute('onclick') || '').includes(`'${theme}'`)) {
                     btn.classList.add('is-active', 'border-gray-950', 'bg-white');
-                    btn.classList.remove('border-transparent', 'bg-gray-100');
+                    btn.classList.remove('border-transparent');
                 }
             });
         }
-
-        /*
-        Initial load
-        */
         applySettings();
 
         
@@ -1869,5 +1860,5 @@
         });
     </script>
 
-    <script src="/js/offline-notes.js"></script>
+    
 </x-app-layout>

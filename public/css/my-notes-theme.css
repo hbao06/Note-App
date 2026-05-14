@@ -1,0 +1,168 @@
+/* =========================================================
+   MY NOTES THEME
+   Only workspace background + Create button + Filter chips
+   Does NOT change note colors, note icons, share/delete/lock buttons
+========================================================= */
+
+:root {
+    color-scheme: light;
+
+    --page-bg: #f8fafc;
+    --page-surface: #ffffff;
+    --page-border: #e5e7eb;
+
+    --create-bg: #020617;
+    --create-text: #ffffff;
+    --create-hover: #1e293b;
+
+    --chip-bg: #ffffff;
+    --chip-text: #020617;
+    --chip-border: #e2e8f0;
+
+    --chip-active-bg: #ffffff;
+    --chip-active-text: #020617;
+    --chip-active-border: #e2e8f0;
+}
+
+html.app-dark {
+    color-scheme: dark;
+
+    --page-bg: #080d18;
+    --page-surface: #0f172a;
+    --page-border: #1e293b;
+
+    --create-bg: #ffffff;
+    --create-text: #020617;
+    --create-hover: #e2e8f0;
+
+    --chip-bg: #111827;
+    --chip-text: #e5e7eb;
+    --chip-border: #334155;
+
+    --chip-active-bg: #020617;
+    --chip-active-text: #ffffff;
+    --chip-active-border: #334155;
+}
+
+/* =========================
+   PAGE BACKGROUND ONLY
+========================= */
+
+html,
+body,
+#appShell,
+#appMain {
+    background: var(--page-bg) !important;
+}
+
+.h-screen.overflow-hidden.bg-gray-50,
+.h-screen.overflow-hidden.text-gray-900,
+.h-screen.bg-gray-50,
+.h-screen.bg-gray-100,
+#mainContent {
+    background: var(--page-bg) !important;
+}
+
+.pointer-events-none.fixed.inset-0,
+.pointer-events-none.fixed.inset-0.bg-white {
+    background: var(--page-bg) !important;
+}
+
+/* Sidebar only background/border */
+#sidebar {
+    background: var(--page-surface) !important;
+    border-color: var(--page-border) !important;
+}
+
+/* Header only background/border */
+#mainContent .sticky {
+    background: color-mix(in srgb, var(--page-bg) 90%, transparent) !important;
+    border-color: var(--page-border) !important;
+}
+
+/* Scroll areas should follow page bg */
+#mainContent > div,
+#mainContent .h-full,
+#mainContent .overflow-y-auto {
+    background: transparent !important;
+}
+
+/* =========================
+   CREATE BUTTON ONLY
+========================= */
+
+button[onclick^="openEditorModal"] {
+    background: var(--create-bg) !important;
+    color: var(--create-text) !important;
+    border: 1px solid var(--create-bg) !important;
+    box-shadow: none !important;
+}
+
+button[onclick^="openEditorModal"] *,
+button[onclick^="openEditorModal"] i {
+    color: var(--create-text) !important;
+}
+
+button[onclick^="openEditorModal"]:hover {
+    background: var(--create-hover) !important;
+    border-color: var(--create-hover) !important;
+    color: var(--create-text) !important;
+}
+
+/* =========================
+   FILTER LABEL CHIPS ONLY
+========================= */
+
+.filter-chip {
+    background: var(--chip-bg) !important;
+    color: var(--chip-text) !important;
+    border: 1px solid var(--chip-border) !important;
+    box-shadow: none !important;
+}
+
+.filter-chip:not(.active) {
+    background: var(--chip-bg) !important;
+    color: var(--chip-text) !important;
+    border-color: var(--chip-border) !important;
+}
+
+.filter-chip.active {
+    background: var(--chip-active-bg) !important;
+    color: var(--chip-active-text) !important;
+    border-color: var(--chip-active-border) !important;
+}
+
+.filter-chip *,
+.filter-chip i {
+    color: inherit !important;
+}
+
+/* Label text/icon near filter */
+html.app-dark #mainContent .fa-filter,
+html.app-dark #mainContent .uppercase.tracking-wider,
+html.app-dark #mainContent .uppercase.tracking-widest {
+    color: #cbd5e1 !important;
+}
+
+/* =========================
+   SETTINGS MODAL BACKDROP ONLY
+========================= */
+
+#settingsModal {
+    background: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* =========================
+   EMAIL WARNING IN DARK MODE
+========================= */
+
+html.app-dark .bg-yellow-100,
+html.app-dark .bg-yellow-50 {
+    background: #422006 !important;
+    border-color: #713f12 !important;
+}
+
+html.app-dark .text-yellow-800,
+html.app-dark .text-yellow-900 {
+    color: #fef3c7 !important;
+}
