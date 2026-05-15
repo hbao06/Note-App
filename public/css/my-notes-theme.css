@@ -1,23 +1,40 @@
 /* =========================================================
-   MY NOTES THEME
-   Only workspace background + Create button + Filter chips
-   Does NOT change note colors, note icons, share/delete/lock buttons
+   MY NOTES THEME - CLEAN VERSION
+   ---------------------------------------------------------
+   Theme chỉ xử lý:
+   - nền workspace
+   - sidebar/header background
+   - nút Create
+   - filter chips/nhãn
+   - màu chữ note để không bị chìm
+   - sidebar hover/active để không bị chìm
+
+   Không đổi:
+   - màu nút share/delete/lock/pin
+   - màu note card do phần Note color quyết định
 ========================================================= */
 
 :root {
     color-scheme: light;
 
+    /* Light theme */
     --page-bg: #f8fafc;
     --page-surface: #ffffff;
     --page-border: #e5e7eb;
 
+    /* Create button - light */
     --create-bg: #020617;
     --create-text: #ffffff;
     --create-hover: #1e293b;
 
+    /* Filter chips - light */
     --chip-bg: #ffffff;
     --chip-text: #020617;
     --chip-border: #e2e8f0;
+
+    --chip-hover-bg: #f8fafc;
+    --chip-hover-text: #020617;
+    --chip-hover-border: #cbd5e1;
 
     --chip-active-bg: #ffffff;
     --chip-active-text: #020617;
@@ -27,25 +44,32 @@
 html.app-dark {
     color-scheme: dark;
 
-    --page-bg: #080d18;
-    --page-surface: #0f172a;
-    --page-border: #1e293b;
+    /* ChatGPT-like dark theme */
+    --page-bg: #212121;
+    --page-surface: #171717;
+    --page-border: #2f2f2f;
 
+    /* Create button - dark */
     --create-bg: #ffffff;
-    --create-text: #020617;
-    --create-hover: #e2e8f0;
+    --create-text: #171717;
+    --create-hover: #e5e5e5;
 
-    --chip-bg: #111827;
-    --chip-text: #e5e7eb;
-    --chip-border: #334155;
+    /* Filter chips - dark */
+    --chip-bg: #2f2f2f;
+    --chip-text: #f5f5f5;
+    --chip-border: #3a3a3a;
 
-    --chip-active-bg: #020617;
+    --chip-hover-bg: #3a3a3a;
+    --chip-hover-text: #ffffff;
+    --chip-hover-border: #525252;
+
+    --chip-active-bg: #171717;
     --chip-active-text: #ffffff;
-    --chip-active-border: #334155;
+    --chip-active-border: #404040;
 }
 
 /* =========================
-   PAGE BACKGROUND ONLY
+   PAGE BACKGROUND
 ========================= */
 
 html,
@@ -68,49 +92,164 @@ body,
     background: var(--page-bg) !important;
 }
 
-/* Sidebar only background/border */
+/* =========================
+   SIDEBAR
+========================= */
+
 #sidebar {
     background: var(--page-surface) !important;
     border-color: var(--page-border) !important;
 }
 
-/* Header only background/border */
+#sidebarUser {
+    border-color: var(--page-border) !important;
+}
+
+/* Dark theme: sidebar default text */
+html.app-dark #sidebarUser .font-semibold,
+html.app-dark #sidebarUser .text-gray-900 {
+    color: #f8fafc !important;
+}
+
+html.app-dark #sidebarUser .text-gray-400,
+html.app-dark #sidebar .text-gray-400,
+html.app-dark #sidebar .text-xs {
+    color: #a3a3a3 !important;
+}
+
+html.app-dark #sidebar .sidebar-link,
+html.app-dark #sidebar .sidebar-link span {
+    color: #f8fafc !important;
+}
+
+html.app-dark #sidebar .sidebar-link i {
+    color: #cbd5e1 !important;
+}
+
+/* Sidebar hover / active: nền sáng thì chữ phải đen */
+html.app-dark #sidebar .sidebar-link:hover,
+html.app-dark #sidebar .sidebar-link.bg-gray-100,
+html.app-dark #sidebar .sidebar-link.text-gray-900,
+html.app-dark #sidebar .sidebar-link.font-medium {
+    background: #f8fafc !important;
+    color: #020617 !important;
+}
+
+html.app-dark #sidebar .sidebar-link:hover span,
+html.app-dark #sidebar .sidebar-link:hover i,
+html.app-dark #sidebar .sidebar-link.bg-gray-100 span,
+html.app-dark #sidebar .sidebar-link.bg-gray-100 i,
+html.app-dark #sidebar .sidebar-link.text-gray-900 span,
+html.app-dark #sidebar .sidebar-link.text-gray-900 i,
+html.app-dark #sidebar .sidebar-link.font-medium span,
+html.app-dark #sidebar .sidebar-link.font-medium i {
+    color: #020617 !important;
+}
+
+/* Recent notes trong sidebar */
+html.app-dark #sidebar .block {
+    color: #f8fafc !important;
+}
+
+html.app-dark #sidebar .block div:first-child {
+    color: #f8fafc !important;
+}
+
+html.app-dark #sidebar .block div:last-child {
+    color: #cbd5e1 !important;
+}
+
+html.app-dark #sidebar .block:hover {
+    background: #f8fafc !important;
+}
+
+html.app-dark #sidebar .block:hover div {
+    color: #020617 !important;
+}
+
+/* Sidebar toggle */
+html.app-dark #sidebarToggleBtn {
+    background: #f8fafc !important;
+    border-color: #e5e7eb !important;
+    color: #020617 !important;
+}
+
+html.app-dark #sidebarToggleBtn i {
+    color: #020617 !important;
+}
+
+/* =========================
+   HEADER / MAIN AREA
+========================= */
+
 #mainContent .sticky {
     background: color-mix(in srgb, var(--page-bg) 90%, transparent) !important;
     border-color: var(--page-border) !important;
 }
 
-/* Scroll areas should follow page bg */
 #mainContent > div,
 #mainContent .h-full,
 #mainContent .overflow-y-auto {
     background: transparent !important;
 }
 
+/* Dark theme: main title */
+html.app-dark #mainContent h1,
+html.app-dark #mainContent .text-slate-950,
+html.app-dark #mainContent .text-gray-950,
+html.app-dark #mainContent .text-gray-900 {
+    color: #f8fafc !important;
+}
+
+html.app-dark #mainContent .text-slate-400,
+html.app-dark #mainContent .text-slate-500,
+html.app-dark #mainContent .text-slate-600,
+html.app-dark #mainContent .text-gray-400,
+html.app-dark #mainContent .text-gray-500,
+html.app-dark #mainContent .text-gray-600 {
+    color: #a3a3a3 !important;
+}
+
+/* Search bar trong dark theme */
+html.app-dark #searchInput {
+    background: #d4d4d4 !important;
+    border-color: #d4d4d4 !important;
+    color: #020617 !important;
+}
+
+html.app-dark #searchInput::placeholder {
+    color: #64748b !important;
+}
+
+html.app-dark #mainContent .fa-magnifying-glass {
+    color: #64748b !important;
+}
+
 /* =========================
-   CREATE BUTTON ONLY
+   CREATE BUTTON
+   Chỉ target đúng nút Create có data-create-offline-note
 ========================= */
 
-button[onclick^="openEditorModal"] {
+button[data-create-offline-note] {
     background: var(--create-bg) !important;
     color: var(--create-text) !important;
     border: 1px solid var(--create-bg) !important;
     box-shadow: none !important;
 }
 
-button[onclick^="openEditorModal"] *,
-button[onclick^="openEditorModal"] i {
+button[data-create-offline-note] *,
+button[data-create-offline-note] i {
     color: var(--create-text) !important;
 }
 
-button[onclick^="openEditorModal"]:hover {
+button[data-create-offline-note]:hover {
     background: var(--create-hover) !important;
     border-color: var(--create-hover) !important;
     color: var(--create-text) !important;
 }
 
 /* =========================
-   FILTER LABEL CHIPS ONLY
+   FILTER LABEL CHIPS
 ========================= */
 
 .filter-chip {
@@ -118,12 +257,24 @@ button[onclick^="openEditorModal"]:hover {
     color: var(--chip-text) !important;
     border: 1px solid var(--chip-border) !important;
     box-shadow: none !important;
+    transition:
+        background-color 160ms ease,
+        color 160ms ease,
+        border-color 160ms ease,
+        transform 160ms ease;
 }
 
 .filter-chip:not(.active) {
     background: var(--chip-bg) !important;
     color: var(--chip-text) !important;
     border-color: var(--chip-border) !important;
+}
+
+.filter-chip:not(.active):hover {
+    background: var(--chip-hover-bg) !important;
+    color: var(--chip-hover-text) !important;
+    border-color: var(--chip-hover-border) !important;
+    transform: translateY(-1px);
 }
 
 .filter-chip.active {
@@ -137,11 +288,108 @@ button[onclick^="openEditorModal"]:hover {
     color: inherit !important;
 }
 
-/* Label text/icon near filter */
+/* Chữ Labels + icon filter trong dark theme */
 html.app-dark #mainContent .fa-filter,
 html.app-dark #mainContent .uppercase.tracking-wider,
 html.app-dark #mainContent .uppercase.tracking-widest {
+    color: #d1d5db !important;
+}
+
+/* =========================
+   NOTE CARD TEXT FIX
+   Không đổi màu nền note, chỉ sửa chữ bị chìm
+========================= */
+
+/* Note màu sáng: chữ phải tối */
+html.app-dark .note-card:not(.bg-gray-800) h2,
+html.app-dark .note-card:not(.bg-gray-800) h3,
+html.app-dark .note-card:not(.bg-gray-800) .card-title,
+html.app-dark .shared-note-card:not(.bg-gray-800) h2,
+html.app-dark .shared-note-card:not(.bg-gray-800) h3,
+html.app-dark .shared-note-card:not(.bg-gray-800) .card-title {
+    color: #020617 !important;
+}
+
+html.app-dark .note-card:not(.bg-gray-800) p,
+html.app-dark .note-card:not(.bg-gray-800) .card-content,
+html.app-dark .shared-note-card:not(.bg-gray-800) p,
+html.app-dark .shared-note-card:not(.bg-gray-800) .card-content {
+    color: #475569 !important;
+}
+
+html.app-dark .note-card:not(.bg-gray-800) .note-time,
+html.app-dark .note-card:not(.bg-gray-800) .note-full-time,
+html.app-dark .shared-note-card:not(.bg-gray-800) .note-time,
+html.app-dark .shared-note-card:not(.bg-gray-800) .note-full-time {
+    color: #64748b !important;
+}
+
+/* Note màu tối: chữ phải sáng */
+html.app-dark .note-card.bg-gray-800 h2,
+html.app-dark .note-card.bg-gray-800 h3,
+html.app-dark .note-card.bg-gray-800 .card-title,
+html.app-dark .shared-note-card.bg-gray-800 h2,
+html.app-dark .shared-note-card.bg-gray-800 h3,
+html.app-dark .shared-note-card.bg-gray-800 .card-title {
+    color: #f8fafc !important;
+}
+
+html.app-dark .note-card.bg-gray-800 p,
+html.app-dark .note-card.bg-gray-800 .card-content,
+html.app-dark .shared-note-card.bg-gray-800 p,
+html.app-dark .shared-note-card.bg-gray-800 .card-content {
     color: #cbd5e1 !important;
+}
+
+html.app-dark .note-card.bg-gray-800 .note-time,
+html.app-dark .note-card.bg-gray-800 .note-full-time,
+html.app-dark .shared-note-card.bg-gray-800 .note-time,
+html.app-dark .shared-note-card.bg-gray-800 .note-full-time {
+    color: #94a3b8 !important;
+}
+
+/* Label bên trong note màu sáng */
+html.app-dark .note-card:not(.bg-gray-800) .bg-gray-100,
+html.app-dark .shared-note-card:not(.bg-gray-800) .bg-gray-100 {
+    background: #f8fafc !important;
+    color: #334155 !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Label bên trong note màu tối */
+html.app-dark .note-card.bg-gray-800 .bg-gray-100,
+html.app-dark .shared-note-card.bg-gray-800 .bg-gray-100 {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #ffffff !important;
+}
+
+/* =========================
+   KEEP NOTE ACTION BUTTONS ORIGINAL
+========================= */
+
+/* Giữ nút Share màu xanh dương */
+.note-card button[title="Share note"],
+.note-card button[title="Share note"] i,
+.shared-note-card button[title="Share note"],
+.shared-note-card button[title="Share note"] i {
+    color: #2563eb !important;
+}
+
+/* Giữ nút Delete màu đỏ */
+.note-card button[title="Delete note"],
+.note-card button[title="Delete note"] i,
+.shared-note-card button[title="Delete note"],
+.shared-note-card button[title="Delete note"] i {
+    color: #ef4444 !important;
+}
+
+/* Giữ icon lock màu vàng */
+.note-card .text-yellow-500,
+.note-card .text-yellow-500 i,
+.shared-note-card .text-yellow-500,
+.shared-note-card .text-yellow-500 i {
+    color: #eab308 !important;
 }
 
 /* =========================

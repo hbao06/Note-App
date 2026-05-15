@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SharedNote;
 use App\Events\NoteUpdated;
 use App\Notifications\NoteSharedNotification;
+use App\Events\NoteSharedRealtime;
 
 class NoteController extends Controller
 {
@@ -402,7 +403,15 @@ class NoteController extends Controller
                 ]
             );
 
-            $user->notify(new NoteSharedNotification($note, auth()->user()));
+            $notification = new NoteSharedNotification($note, auth()->user());
+
+            $user->notify($notification);
+
+            event(new NoteSharedRealtime(
+                $note,
+                $user,
+                $notification->toArray($user)
+            ));
 
             $sharedEmails[] = $email;
         }
@@ -420,9 +429,8 @@ class NoteController extends Controller
     // SHARE WITH
     public function sharedWithMe()
     {
-        auth()->user()->unreadNotifications
-            ->where('type', 'App\Notifications\NoteSharedNotification')
-            ->markAsRead();
+        $shareNotifications = auth()->user()->unreadNotifications
+            ->where('type', 'App\Notifications\NoteSharedNotification');
 
         $shares = \App\Models\SharedNote::with(['note', 'owner'])
             ->where('recipient_id', auth()->id())
@@ -436,6 +444,7 @@ class NoteController extends Controller
         return view('notes.shared', [
             'shared' => $shares,
             'notes' => $notes,
+            'shareNotifications' => $shareNotifications,
         ]);
     }
 

@@ -110,7 +110,7 @@
             <!-- RECENT NOTES -->
             <div class="px-4 mt-4 sidebar-text flex-1 min-h-0 flex flex-col">
                 <h3 class="text-xs uppercase tracking-widest text-gray-400 mb-3 flex-shrink-0">
-                    Gần đây
+                    Recents
                 </h3>
 
                 <div class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
@@ -137,7 +137,7 @@
                     <button type="submit"
                         class="sidebar-link w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
                         <i class="fa-solid fa-right-from-bracket w-5 flex-shrink-0"></i>
-                        <span class="sidebar-text">Đăng xuất</span>
+                        <span class="sidebar-text">Logout</span>
                     </button>
                 </form>
             </div>
@@ -168,14 +168,30 @@
 
                     <!-- LEFT -->
                     <div>
-                        <div class="text-sm font-semibold text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <div class="text-sm font-semibold text-slate-400 mb-3 flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                                <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                            </span>
+
                             <span id="greetingText"></span>
                         </div>
 
-                        <h1 class="text-4xl font-black tracking-tight text-slate-950">
-                            Your Notes
-                        </h1>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-slate-950 text-white flex items-center justify-center shadow-lg shadow-slate-300/40">
+                                <i class="fa-solid fa-book-open text-lg"></i>
+                            </div>
+
+                            <div>
+                                <h1 class="text-4xl font-black tracking-tight text-slate-950 leading-none">
+                                    Your Notes
+                                </h1>
+
+                                <p class="mt-2 text-sm font-medium text-slate-400">
+                                    Capture ideas, organize thoughts, and keep everything in one place.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- RIGHT -->
@@ -199,7 +215,7 @@
                 </div>
 
                 <!-- SEARCH BAR -->
-                <div class="relative mb-5 group">
+                <div class="relative mb-6 group">
 
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -439,7 +455,7 @@
         <!-- EDITOR MODAL -->
         <div id="editorModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 px-4">
             <div id="editorModalContent"
-                class="w-full max-w-3xl h-[620px] overflow-hidden rounded-3xl bg-white shadow-2xl">
+                class="w-full max-w-3xl h-[620px] overflow-visible rounded-3xl bg-white shadow-2xl">
             </div>
         </div>
 
@@ -594,7 +610,8 @@
                 class="w-full px-4 py-3 border rounded-2xl mb-4">
 
             <div class="flex gap-3">
-                <button onclick="closePasswordModal()"
+                <button type="button"
+                    onclick="closePasswordModal()"
                     class="flex-1 px-4 py-3 rounded-2xl bg-gray-100">
                     Hủy
                 </button>
@@ -626,9 +643,21 @@
             if (res.status === 423) {
                 pendingLockedNoteUrl = url;
 
-                document.getElementById('modalPassword').value = '';
-                document.getElementById('passwordModal').classList.remove('hidden');
-                document.getElementById('modalPassword').focus();
+                const passwordModal = document.getElementById('passwordModal');
+                const passwordInput = document.getElementById('modalPassword');
+
+                if (passwordInput) {
+                    passwordInput.value = '';
+                }
+
+                if (passwordModal) {
+                    passwordModal.classList.remove('hidden');
+                    passwordModal.classList.add('flex');
+                }
+
+                if (passwordInput) {
+                    passwordInput.focus();
+                }
 
                 return;
             }
@@ -664,6 +693,22 @@
                 newScript.remove();
             });
         }
+
+        window.closePasswordModal = function () {
+            const passwordModal = document.getElementById('passwordModal');
+            const passwordInput = document.getElementById('modalPassword');
+
+            if (passwordModal) {
+                passwordModal.classList.add('hidden');
+                passwordModal.classList.remove('flex');
+            }
+
+            if (passwordInput) {
+                passwordInput.value = '';
+            }
+
+            pendingLockedNoteUrl = null;
+        };
 
         function closeShareModal() {
             const modal = document.getElementById('shareModal');
@@ -979,7 +1024,15 @@
                     })
                 });
 
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
+
+                console.log("SHARE RESPONSE STATUS:", res.status);
+                console.log("SHARE RESPONSE DATA:", data);
+
+                if (!res.ok) {
+                    setShareEmailError('System', data.message || 'Share note bị lỗi từ server.');
+                    return;
+                }
 
                 let hasError = false;
 
@@ -1574,7 +1627,7 @@
                 userInfo.classList.remove('gap-3');
 
                 avatar.classList.remove('w-9', 'h-9');
-                avatar.classList.add('w-8', 'h-8');
+                avatar.classList.add('w-10', 'h-10');
             } else {
                 toggleBtn.style.left = 'calc(16rem - 18px)';
 
@@ -1582,7 +1635,7 @@
                 userInfo.classList.add('gap-3');
 
                 avatar.classList.remove('w-8', 'h-8');
-                avatar.classList.add('w-9', 'h-9');
+                avatar.classList.add('w-11', 'h-11');
             }
 
             sidebar.classList.toggle('w-64', !isCollapsed);
@@ -1857,6 +1910,27 @@
                 btn.classList.remove('opacity-60', 'cursor-not-allowed');
                 btn.innerHTML = originalText;
             }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUserId = "{{ auth()->id() }}";
+
+            if (!window.Echo || !currentUserId) {
+                console.warn('Echo is not ready');
+                return;
+            }
+
+            window.Echo.private(`user.${currentUserId}`)
+                .listen('.note.shared', async function (event) {
+                    console.log('Realtime note shared:', event);
+
+                    if (window.location.pathname.includes('/notes/shared')) {
+                        if (typeof window.refreshSharedNotes === 'function') {
+                            await window.refreshSharedNotes();
+                        }
+                    }
+                });
         });
     </script>
 

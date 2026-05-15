@@ -123,7 +123,7 @@
                     </div>
                 </div>
 
-                <div id="labelPanel" class="hidden mt-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div id="labelPanel" class="hidden relative z-[9999] mt-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <h3 class="font-semibold text-gray-900 text-sm">Labels</h3>
@@ -168,7 +168,7 @@
                         </button>
 
                         <div id="labelSuggestions"
-                            class="absolute z-50 left-0 right-[70px] top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl hidden max-h-40 overflow-y-auto">
+                            class="absolute z-[99999] left-0 right-[70px] top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl hidden max-h-40 overflow-y-auto">
                         </div>
                     </div>
                 </div>
@@ -248,6 +248,7 @@
 
             let isCreatingNote = false;
             let createNotePromise = null;
+            
 
             const titleInput = document.getElementById('noteTitle');
             const contentInput = document.getElementById('noteContent');
@@ -882,44 +883,87 @@
                 });
             }
 
-            const currentUserId = @json(auth()->id());
-            const noteId = noteIdInput ? noteIdInput.value : null;
+            // ===== REALTIME COLLABORATION - SAFE LISTENER ONLY =====
+            try {
+                const realtimeCurrentUserId = Number(@json(auth()->id()));
+                const realtimeNoteId = noteIdInput ? noteIdInput.value : null;
 
-            let isTypingRealtime = false;
+                function renderCollaboratorStatus(event) {
+                    if (!saveStatus || !canEditValue) return;
 
-            if (canEditValue && titleInput) {
-                titleInput.addEventListener('input', () => {
-                    isTypingRealtime = true;
-                    setTimeout(() => isTypingRealtime = false, 1000);
-                });
+                    const name = event.updated_by_name || 'Another user';
+                    const avatar = event.updated_by_avatar || null;
+                    const initial = event.updated_by_initial || name.charAt(0).toUpperCase();
+
+                    saveStatus.innerHTML = `
+                        <span class="inline-flex items-center gap-2 text-xs text-gray-500">
+                            ${
+                                avatar
+                                    ? `<img src="${avatar}" class="w-6 h-6 rounded-full object-cover border border-gray-200" alt="">`
+                                    : `<span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] font-bold">${initial}</span>`
+                            }
+
+                            <span>
+                                Updated by <span class="font-semibold text-gray-700">${name}</span>
+                            </span>
+                        </span>
+                    `;
+                }
+
+                if (window.Echo && realtimeNoteId) {
+                    const realtimeChannelName = `note.${realtimeNoteId}`;
+
+                    if (window.__currentRealtimeNoteChannel) {
+                        window.Echo.leave(window.__currentRealtimeNoteChannel);
+                    }
+
+                    window.__currentRealtimeNoteChannel = realtimeChannelName;
+
+                    console.log("Listening note realtime:", realtimeChannelName);
+
+                    window.Echo.channel(realtimeChannelName)
+                        .listen('.note.updated', async function (event) {
+                            console.log("Realtime note updated:", event);
+
+                            if (Number(event.updated_by) === realtimeCurrentUserId) {
+                                return;
+                            }
+
+                            if (titleInput && document.activeElement !== titleInput) {
+                                titleInput.value = event.title || '';
+                            }
+
+                            if (contentInput && document.activeElement !== contentInput) {
+                                contentInput.value = event.content || '';
+                            }
+
+                            renderCollaboratorStatus(event);
+
+                            if (typeof updateNoteCardOnPage === 'function') {
+                                updateNoteCardOnPage({
+                                    note_id: event.id,
+                                    title: event.title,
+                                    content: event.content
+                                });
+                            }
+
+                            if (typeof window.refreshSharedNotes === 'function') {
+                                await window.refreshSharedNotes();
+                            }
+
+                            if (typeof window.refreshNotesIndex === 'function') {
+                                await window.refreshNotesIndex();
+                            }
+                        });
+                } else {
+                    console.log("Note realtime skipped: Echo or note id missing");
+                }
+            } catch (error) {
+                console.error("Note realtime listener failed:", error);
             }
-
-            if (canEditValue && contentInput) {
-                contentInput.addEventListener('input', () => {
-                    isTypingRealtime = true;
-                    setTimeout(() => isTypingRealtime = false, 1000);
-                });
-            }
-
-            const channelName = 'note.' + noteId;
-
-            if (window.currentNoteChannel) {
-                Echo.leaveChannel(window.currentNoteChannel);
-            }
-
-            window.currentNoteChannel = channelName;
-
-            Echo.channel(channelName)
-                .listen('.note.updated', (e) => {
-                    if (Number(e.updated_by) === Number(currentUserId)) return;
-                    if (isTypingRealtime) return;
-
-                    if (titleInput) titleInput.value = e.title ?? '';
-                    if (contentInput) contentInput.value = e.content ?? '';
-                    if (saveStatus && canEditValue) saveStatus.textContent = "Updated from another user";
-                });
         })();
 
+        
         window.applyEditorStyle = function () {
             const theme = localStorage.getItem('theme') || 'light';
             const noteColor = localStorage.getItem('noteColor') || 'bg-white';

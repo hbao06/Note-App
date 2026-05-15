@@ -402,7 +402,7 @@
                 userInfo.classList.remove('gap-3');
 
                 avatar.classList.remove('w-10', 'h-10');
-                avatar.classList.add('w-8', 'h-8');
+                avatar.classList.add('w-10', 'h-10');
             } else {
                 toggleBtn.style.left = 'calc(16rem - 18px)';
 

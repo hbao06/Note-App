@@ -215,31 +215,40 @@
                         ->where('type', 'App\Notifications\NoteSharedNotification');
                 @endphp
 
-                @if($shareNotifications->count() > 0)
-                    <div class="mb-5 space-y-3">
-                        @foreach($shareNotifications as $notification)
-                            <a href="{{ $notification->data['url'] ?? route('notes.shared') }}"
-                                class="block rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 hover:bg-blue-100 transition">
+                @php
+                    $shareNotifications = $shareNotifications ?? auth()->user()->unreadNotifications
+                        ->where('type', 'App\Notifications\NoteSharedNotification');
+                @endphp
 
-                                <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
-                                        <i class="fa-solid fa-bell"></i>
-                                    </div>
+                <div id="sharedNotificationBox" class="mb-5 space-y-3 {{ $shareNotifications->count() > 0 ? '' : 'hidden' }}">
+                    @foreach($shareNotifications as $notification)
+                        <a href="{{ $notification->data['url'] ?? route('notes.shared') }}"
+                            class="block rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 hover:bg-blue-100 transition">
 
-                                    <div>
-                                        <div class="font-bold">
-                                            New shared note
-                                        </div>
-
-                                        <div class="text-sm mt-1">
-                                            {{ $notification->data['message'] ?? 'Một ghi chú mới đã được chia sẻ với bạn.' }}
-                                        </div>
-                                    </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                                    <i class="fa-solid fa-bell"></i>
                                 </div>
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
+
+                                <div>
+                                    <div class="font-bold">
+                                        New shared note
+                                    </div>
+
+                                    <div class="text-sm mt-1">
+                                        {{ $notification->data['message'] ?? 'Một ghi chú mới đã được chia sẻ với bạn.' }}
+                                    </div>
+
+                                    @if(!empty($notification->data['note_title']))
+                                        <div class="text-xs mt-1 text-blue-700/70">
+                                            {{ $notification->data['note_title'] }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
 
                 <!-- SCROLL AREA -->
                 <div class="flex-1 min-h-0 overflow-y-auto pr-2 pb-6">
@@ -498,7 +507,7 @@
                 userInfo.classList.remove('gap-3');
 
                 avatar.classList.remove('w-9', 'h-9');
-                avatar.classList.add('w-8', 'h-8');
+                avatar.classList.add('w-10', 'h-10');
             } else {
                 toggleBtn.style.left = 'calc(16rem - 18px)';
 
@@ -506,7 +515,7 @@
                 userInfo.classList.add('gap-3');
 
                 avatar.classList.remove('w-8', 'h-8');
-                avatar.classList.add('w-9', 'h-9');
+                avatar.classList.add('w-11', 'h-11');
             }
 
             sidebar.classList.toggle('w-64', !isCollapsed);
@@ -545,6 +554,114 @@
         }
 
         setSidebarState(localStorage.getItem('sidebar') || 'expanded');
+
+        window.refreshSharedNotes = async function () {
+            console.log("Refreshing shared notes...");
+
+            const res = await fetch("/notes/shared", {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, "text/html");
+
+            const newContainer = doc.querySelector("#sharedNotesContainer");
+            const currentContainer = document.getElementById("sharedNotesContainer");
+
+            if (newContainer && currentContainer) {
+                currentContainer.innerHTML = newContainer.innerHTML;
+            } else {
+                window.location.reload();
+                return;
+            }
+
+            if (typeof applySharedView === "function") {
+                applySharedView(localStorage.getItem("sharedView") || "grid");
+            }
+
+            if (typeof applySettings === "function") {
+                applySettings();
+            }
+        };
+
+        function showSharedNotification(event) {
+            const box = document.getElementById('sharedNotificationBox');
+
+            if (!box) {
+                console.warn("sharedNotificationBox not found");
+                return;
+            }
+
+            const notification = event.notification || {};
+            const message = notification.message || 'Một ghi chú mới đã được chia sẻ với bạn.';
+            const url = notification.url || '/notes/shared';
+            const title = notification.note_title || event.title || 'Untitled';
+
+            box.classList.remove('hidden');
+
+            box.insertAdjacentHTML('afterbegin', `
+                <a href="${url}"
+                    class="block rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 hover:bg-blue-100 transition">
+
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+
+                        <div>
+                            <div class="font-bold">
+                                New shared note
+                            </div>
+
+                            <div class="text-sm mt-1">
+                                ${message}
+                            </div>
+
+                            <div class="text-xs mt-1 text-blue-700/70">
+                                ${title}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            `);
+        }
+
+        function bootSharedNotesRealtime() {
+            const currentUserId = "{{ auth()->id() }}";
+
+            console.log("Realtime boot started for user:", currentUserId);
+
+            if (!window.Echo || !currentUserId) {
+                console.warn("Echo is not ready");
+                return;
+            }
+
+            if (window.__sharedNotesRealtimeBooted) {
+                console.log("Realtime already booted");
+                return;
+            }
+
+            window.__sharedNotesRealtimeBooted = true;
+
+            window.Echo.private(`user.${currentUserId}`)
+                .listen('.note.shared', async function (event) {
+                    console.log("Realtime note shared:", event);
+
+                    showSharedNotification(event);
+
+                    if (window.location.pathname.includes('/notes/shared')) {
+                        await window.refreshSharedNotes();
+                    }
+                });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", bootSharedNotesRealtime);
+        } else {
+            bootSharedNotesRealtime();
+        }
     </script>
 
     <!-- EDITOR MODAL -->
