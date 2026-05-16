@@ -139,7 +139,9 @@ Cấu hình local khuyến nghị:
 
 ### Bước 5: Cấu hình Mailtrap
 
-Ứng dụng sử dụng Mailtrap cho:
+Do việc cấu hình email thật trong môi trường local/development khá phức tạp và có thể phụ thuộc vào nhà cung cấp email, nhóm sử dụng Mailtrap để kiểm thử các chức năng liên quan đến email trong môi trường kiểm thử.
+
+Mailtrap được dùng để kiểm tra:
 
 - Email xác minh tài khoản
 - Email đặt lại mật khẩu
@@ -157,6 +159,12 @@ Ví dụ cấu hình:
     MAIL_FROM_NAME="My Notes"
 
 Thay YOUR_MAILTRAP_USERNAME và YOUR_MAILTRAP_PASSWORD bằng thông tin SMTP lấy từ Mailtrap.
+
+Lưu ý:
+
+- Mailtrap không gửi email đến hộp thư thật của người dùng.
+- Email sẽ xuất hiện trong Mailtrap Testing Inbox.
+- Nếu không cấu hình Mailtrap, các chức năng chính của hệ thống vẫn có thể kiểm tra, nhưng các chức năng email như xác minh tài khoản, đặt lại mật khẩu và thông báo chia sẻ qua email sẽ không hoạt động đầy đủ.
 
 ### Bước 6: Cấu hình Pusher WebSocket
 
@@ -241,26 +249,22 @@ Nếu chạy seeder thành công, có thể sử dụng các tài khoản sau đ
 Tài khoản owner:
 
     Email: hoaibao2284@gmail.com
-    Password: conmeo123
+    Password: password123
 
 Tài khoản nhận chia sẻ 1:
 
-    Email: hoaibao2009@gmail.com
-    Password: concho123
+    Email: trungbao2285@gmail.com
+    Password: password456
 
 Tài khoản nhận chia sẻ 2:
 
-    Email: letrungbao207@gmail.com
-    Password: conga123
-
-Tài khoản test mặc định:
-
-    Email: test@example.com
-    Password: password
+    Email: quocthang2286@gmail.com
+    Password: password789
 
 Ghi chú:
 
-- Các tài khoản trên nên được tạo bằng DatabaseSeeder.
+- Các tài khoản trên được tạo bằng DatabaseSeeder.
+- Các tài khoản đã được đặt email_verified_at để thuận tiện cho quá trình kiểm thử.
 - Nếu tài khoản chưa tồn tại, vui lòng chạy:
 
     docker compose exec app php artisan migrate:fresh --seed
@@ -305,6 +309,7 @@ Ghi chú:
 - Upload một hoặc nhiều hình ảnh cho ghi chú
 - Hiển thị hình ảnh đã upload
 - Sắp xếp ghi chú theo thời gian cập nhật mới nhất
+- Hiển thị thời gian ghi chú được tạo hoặc được chỉnh sửa
 - Quản lý nhãn
 - Gắn nhiều nhãn cho một ghi chú
 - Lọc ghi chú theo nhãn
@@ -315,13 +320,21 @@ Ghi chú:
 
 - Khóa ghi chú bằng mật khẩu
 - Yêu cầu nhập mật khẩu trước khi mở ghi chú bị khóa
-- Gỡ mật khẩu khỏi ghi chú
+- Tạo mật khẩu bảo vệ ghi chú với xác nhận mật khẩu
+- Đổi mật khẩu ghi chú có kiểm tra mật khẩu hiện tại
+- Gỡ mật khẩu khỏi ghi chú có xác nhận lại mật khẩu hiện tại
 - Chia sẻ ghi chú cho người dùng đã đăng ký bằng email
+- Kiểm tra email chia sẻ có thuộc người dùng đã đăng ký trong hệ thống hay không
 - Chia sẻ ghi chú cho nhiều người dùng
+- Gửi email thông báo cho người nhận khi được chia sẻ ghi chú thông qua Mailtrap
+- Hiển thị thông báo trong tài khoản người nhận khi có ghi chú được chia sẻ
 - Phân quyền chia sẻ:
   - Chỉ xem
   - Được chỉnh sửa
 - Chủ sở hữu có thể quản lý quyền truy cập ghi chú
+- Chủ sở hữu có thể xem danh sách người nhận đã được chia sẻ
+- Chủ sở hữu có thể xem email và quyền của từng người nhận
+- Chủ sở hữu có thể thay đổi hoặc thu hồi quyền chia sẻ
 - Người nhận có trang Shared with me để xem ghi chú được chia sẻ
 - Hiển thị thông tin người chia sẻ và quyền truy cập
 - Thông báo realtime khi có ghi chú được chia sẻ
@@ -360,6 +373,7 @@ Ghi chú:
 - Responsive trên desktop, tablet và mobile
 - Sidebar điều hướng
 - Sidebar có thể thu gọn/mở rộng
+- Phần Recent trong sidebar để truy cập nhanh các ghi chú gần đây
 - Giao diện login/register hiện đại
 - Light theme giống nền login
 - Dark theme kiểu ChatGPT
@@ -408,7 +422,7 @@ Nếu realtime không hoạt động:
 
 ## 9. Kiểm tra Email / Mailtrap
 
-Ứng dụng sử dụng Mailtrap để kiểm tra email.
+Do cấu hình email thật trong môi trường local thường phức tạp, nhóm sử dụng Mailtrap để kiểm thử các chức năng xác thực email và thông báo email trong môi trường kiểm thử.
 
 Các email được gửi qua Mailtrap:
 
@@ -419,7 +433,7 @@ Các email được gửi qua Mailtrap:
 Cách kiểm tra:
 
 1. Cấu hình SMTP Mailtrap hợp lệ trong file .env.
-2. Đăng ký tài khoản mới hoặc dùng chức năng quên mật khẩu.
+2. Đăng ký tài khoản mới, dùng chức năng quên mật khẩu hoặc chia sẻ ghi chú cho người dùng khác.
 3. Mở Mailtrap Inbox.
 4. Kiểm tra email được gửi đến.
 
@@ -428,6 +442,7 @@ Lưu ý:
 - Mailtrap không gửi email đến hộp thư thật.
 - Email chỉ xuất hiện trong Mailtrap Testing Inbox.
 - Nếu Mailtrap hết quota hoặc sai credentials, các chức năng email có thể báo lỗi.
+- Các chức năng email trong dự án được triển khai để mô phỏng và kiểm thử luồng email giống môi trường thực tế.
 
 ---
 
@@ -592,25 +607,53 @@ Clear config:
 
 ## 15. Các tính năng nâng cao / điểm cộng
 
-Dự án có triển khai các chức năng nâng cao sau:
+Dự án có triển khai các chức năng nâng cao và các cải tiến bổ sung sau:
 
+- Sidebar điều hướng riêng cho workspace
+- Sidebar có thể thu gọn/mở rộng
+- Phần Recent trong sidebar để người dùng mở nhanh các ghi chú gần đây
+- Hiển thị thời gian tạo hoặc cập nhật của ghi chú
+- Giao diện responsive cho desktop, tablet và mobile
+- Giao diện light theme và dark theme
+- Tùy chỉnh màu ghi chú
+- Tùy chỉnh cỡ chữ ghi chú
+- Upload avatar người dùng
+- Khóa ghi chú bằng mật khẩu với xác nhận bảo mật tốt hơn
+- Chia sẻ ghi chú có kiểm tra email người nhận thuộc người dùng đã đăng ký
+- Gửi email thông báo khi ghi chú được chia sẻ
+- Hiển thị thông báo nổi bật trong tài khoản người nhận khi có ghi chú được chia sẻ
+- Chủ sở hữu ghi chú xem được danh sách người nhận, email và quyền truy cập
+- Chủ sở hữu có thể thay đổi hoặc thu hồi quyền chia sẻ
+- Realtime notification khi chia sẻ ghi chú
+- Realtime collaborative editing cho ghi chú được chia sẻ với quyền edit
 - PWA
 - Tạo và chỉnh sửa ghi chú offline
 - Đồng bộ dữ liệu offline khi online lại
-- Thông báo realtime khi chia sẻ ghi chú
-- Cộng tác chỉnh sửa ghi chú realtime
-- Tích hợp Mailtrap
-- Tùy chỉnh giao diện sáng/tối
-- Tùy chỉnh màu ghi chú
-- Tùy chỉnh cỡ chữ
-- Khóa ghi chú bằng mật khẩu
-- Upload avatar
-- Giao diện responsive
 - Triển khai bằng Docker Compose
+
+Các tính năng trên được phát triển theo hướng cải thiện trải nghiệm người dùng, tăng tính bảo mật, xử lý lỗi tốt hơn và tiệm cận cách hoạt động của các dịch vụ ghi chú hiện đại.
 
 ---
 
-## 16. Thành viên nhóm
+## 16. Ghi chú về mức độ hoàn thiện theo yêu cầu 2.5 Ghi chú
+
+Nhóm đã triển khai các chức năng theo hướng không chỉ đáp ứng mô tả cơ bản mà còn bổ sung các xử lý phù hợp với thực tế sử dụng, bao gồm kiểm tra lỗi, phân quyền, xác thực dữ liệu và cải thiện bảo mật.
+
+### Chia sẻ ghi chú
+
+Hệ thống không chỉ cho phép nhập email để chia sẻ ghi chú, mà còn kiểm tra email đó có thuộc về người dùng đã đăng ký trong hệ thống hay không. Khi chia sẻ thành công, người nhận có thể nhận email thông báo thông qua Mailtrap và có thông báo trong tài khoản. Trang Shared with me cũng được cập nhật realtime để người nhận dễ dàng nhận thấy ghi chú mới được chia sẻ.
+
+### Ghi chú được bảo vệ bằng mật khẩu
+
+Chức năng khóa ghi chú được triển khai theo hướng bảo mật hơn. Người dùng cần xác nhận mật khẩu khi tạo hoặc thay đổi mật khẩu ghi chú. Khi thay đổi hoặc gỡ bảo vệ mật khẩu, hệ thống yêu cầu xác nhận mật khẩu hiện tại để tránh việc vô hiệu hóa bảo vệ ghi chú ngoài ý muốn.
+
+### Chi tiết ghi chú được chia sẻ
+
+Chủ sở hữu ghi chú có thể xem danh sách người nhận đã được chia sẻ, bao gồm email và quyền truy cập của từng người. Chủ sở hữu cũng có thể thay đổi quyền hoặc thu hồi quyền chia sẻ từ giao diện quản lý chia sẻ.
+
+---
+
+## 17. Thành viên nhóm
 
 Thành viên 1:
 
@@ -632,7 +675,7 @@ Thành viên 3:
 
 ---
 
-## 17. Kết luận
+## 18. Kết luận
 
 Dự án đã được đóng gói để chạy bằng Docker Compose. Giảng viên có thể giải nén bài nộp, mở thư mục source, cấu hình file .env, cài đặt dependencies, chạy migration và seeder, sau đó khởi động ứng dụng theo các lệnh được cung cấp trong tài liệu này.
 
