@@ -1,19 +1,39 @@
-MY NOTES - ỨNG DỤNG WEB QUẢN LÝ GHI CHÚ
-FINAL PROJECT SUBMISSION
+# MY NOTES - ỨNG DỤNG WEB QUẢN LÝ GHI CHÚ
 
-============================================================
-1. THÔNG TIN DỰ ÁN
-============================================================
+Final Project Submission
+
+---
+
+## Video demo
+
+Do file demo.mp4 có kích thước lớn, nhóm đã upload video demo lên YouTube.
+
+Link video demo:
+
+DÁN_LINK_YOUTUBE_Ở_ĐÂY
+
+Ghi chú:
+
+- Video được đặt ở chế độ Unlisted / Không công khai để giảng viên có thể truy cập bằng link.
+- Video demo trình bày tổng quan công nghệ, kiến trúc ứng dụng và lần lượt các chức năng theo Rubrik.
+- Nếu không mở được link, vui lòng liên hệ nhóm qua thông tin ở cuối file README.
+
+---
+
+## 1. Thông tin dự án
 
 Tên dự án:
+
 My Notes - Notes Management Web Application
 
 Mô tả:
+
 My Notes là ứng dụng web quản lý ghi chú, cho phép người dùng đăng ký tài khoản, đăng nhập, tạo ghi chú, chỉnh sửa ghi chú, tự động lưu, tìm kiếm, quản lý nhãn, ghim ghi chú, khóa ghi chú bằng mật khẩu, upload hình ảnh, chia sẻ ghi chú cho người dùng khác và cộng tác chỉnh sửa ghi chú theo thời gian thực.
 
 Ứng dụng cũng hỗ trợ PWA/offline, cho phép người dùng tạo hoặc chỉnh sửa ghi chú khi mất kết nối mạng và đồng bộ lại dữ liệu khi có mạng trở lại.
 
 Công nghệ sử dụng:
+
 - Backend: Laravel
 - Frontend: Blade, Tailwind CSS, JavaScript
 - Database: MySQL
@@ -24,227 +44,237 @@ Công nghệ sử dụng:
 
 Dự án được đóng gói bằng Docker Compose để giảng viên có thể chạy và kiểm tra trên máy cục bộ.
 
-============================================================
-2. CẤU TRÚC THƯ MỤC NỘP BÀI
-============================================================
+---
+
+## 2. Cấu trúc thư mục nộp bài
 
 Cấu trúc thư mục nộp bài:
 
-MyNotes_Submission/
-|
-|-- Rubrik.docx
-|-- Readme.txt
-|-- demo.mp4
-|
-|-- source/
-    |-- app/
-    |-- bootstrap/
-    |-- config/
-    |-- database/
-    |-- public/
-    |-- resources/
-    |-- routes/
-    |-- storage/
-    |-- tests/
-    |-- artisan
-    |-- composer.json
-    |-- composer.lock
-    |-- package.json
-    |-- package-lock.json
-    |-- Dockerfile
-    |-- docker-compose.yml
-    |-- nginx.conf
-    |-- .env.example
+    MyNotes_Submission/
+    ├── Rubrik.docx
+    ├── Readme.txt
+    ├── demo-link.txt
+    └── source/
+        ├── app/
+        ├── bootstrap/
+        ├── config/
+        ├── database/
+        ├── public/
+        ├── resources/
+        ├── routes/
+        ├── storage/
+        ├── tests/
+        ├── artisan
+        ├── composer.json
+        ├── composer.lock
+        ├── package.json
+        ├── package-lock.json
+        ├── Dockerfile
+        ├── docker-compose.yml
+        ├── nginx.conf
+        └── .env.example
 
 Ghi chú:
-- Thư mục "source" chứa toàn bộ mã nguồn và cấu hình Docker Compose.
-- Không cần nộp thư mục "vendor" và "node_modules" vì có thể cài lại bằng Composer và npm.
-- File ".env" có thể không được nộp kèm vì chứa thông tin nhạy cảm. Khi chạy dự án, hãy tạo file ".env" từ ".env.example".
 
-============================================================
-3. YÊU CẦU MÔI TRƯỜNG
-============================================================
+- Thư mục source chứa toàn bộ mã nguồn và cấu hình Docker Compose.
+- Không cần nộp thư mục vendor và node_modules vì có thể cài lại bằng Composer và npm.
+- File .env có thể không được nộp kèm vì chứa thông tin nhạy cảm.
+- Khi chạy dự án, tạo file .env từ .env.example.
+- Do video demo có kích thước lớn, nhóm sử dụng link YouTube thay cho file demo.mp4.
+
+---
+
+## 3. Yêu cầu môi trường
 
 Máy chấm cần cài đặt:
+
 - Docker Desktop
 - Docker Compose
 - Kết nối Internet để kiểm tra Mailtrap và Pusher
 
 Kiểm tra Docker bằng lệnh:
 
-docker --version
-docker compose version
+    docker --version
+    docker compose version
 
-Dự án không yêu cầu cài XAMPP, WAMP hoặc cấu hình thủ công Apache/Nginx.
+Dự án không yêu cầu XAMPP, WAMP hoặc cấu hình thủ công Apache/Nginx.
 
-============================================================
-4. HƯỚNG DẪN CHẠY DỰ ÁN BẰNG DOCKER COMPOSE
-============================================================
+---
 
-Bước 1: Giải nén file ZIP bài nộp.
+## 4. Hướng dẫn chạy dự án bằng Docker Compose
 
-Bước 2: Mở terminal/cmd và đi vào thư mục source:
+### Bước 1: Giải nén bài nộp
 
-cd source
+Giải nén file ZIP bài nộp.
 
-Bước 3: Tạo file môi trường .env từ file mẫu:
+### Bước 2: Mở terminal và đi vào thư mục source
 
-cp .env.example .env
+    cd source
 
-Nếu dùng Windows và không chạy được lệnh "cp", có thể copy thủ công file ".env.example" rồi đổi tên thành ".env".
+### Bước 3: Tạo file môi trường .env
 
-Bước 4: Cấu hình file .env.
+    cp .env.example .env
+
+Nếu dùng Windows và không chạy được lệnh cp, có thể copy thủ công file .env.example rồi đổi tên thành .env.
+
+### Bước 4: Cấu hình file .env
 
 Cấu hình local khuyến nghị:
 
-APP_NAME="My Notes"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8080
+    APP_NAME="My Notes"
+    APP_ENV=local
+    APP_DEBUG=true
+    APP_URL=http://localhost:8080
 
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=myproject
-DB_USERNAME=root
-DB_PASSWORD=root
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=myproject
+    DB_USERNAME=root
+    DB_PASSWORD=root
 
-SESSION_DRIVER=file
-CACHE_STORE=file
-QUEUE_CONNECTION=sync
+    SESSION_DRIVER=file
+    CACHE_STORE=file
+    QUEUE_CONNECTION=sync
 
-Bước 5: Cấu hình Mailtrap trong file .env.
+### Bước 5: Cấu hình Mailtrap
 
 Ứng dụng sử dụng Mailtrap cho:
+
 - Email xác minh tài khoản
 - Email đặt lại mật khẩu
 - Email thông báo khi ghi chú được chia sẻ
 
 Ví dụ cấu hình:
 
-MAIL_MAILER=smtp
-MAIL_HOST=sandbox.smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=YOUR_MAILTRAP_USERNAME
-MAIL_PASSWORD=YOUR_MAILTRAP_PASSWORD
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=no-reply@mynotes.test
-MAIL_FROM_NAME="My Notes"
+    MAIL_MAILER=smtp
+    MAIL_HOST=sandbox.smtp.mailtrap.io
+    MAIL_PORT=2525
+    MAIL_USERNAME=YOUR_MAILTRAP_USERNAME
+    MAIL_PASSWORD=YOUR_MAILTRAP_PASSWORD
+    MAIL_ENCRYPTION=tls
+    MAIL_FROM_ADDRESS=no-reply@mynotes.test
+    MAIL_FROM_NAME="My Notes"
 
-Thay YOUR_MAILTRAP_USERNAME và YOUR_MAILTRAP_PASSWORD bằng thông tin SMTP lấy từ tài khoản Mailtrap.
+Thay YOUR_MAILTRAP_USERNAME và YOUR_MAILTRAP_PASSWORD bằng thông tin SMTP lấy từ Mailtrap.
 
-Bước 6: Cấu hình Pusher trong file .env.
+### Bước 6: Cấu hình Pusher WebSocket
 
 Ứng dụng sử dụng Pusher WebSocket cho các chức năng realtime.
 
-Ví dụ cấu hình:
+    BROADCAST_DRIVER=pusher
+    BROADCAST_CONNECTION=pusher
 
-BROADCAST_DRIVER=pusher
-BROADCAST_CONNECTION=pusher
+    PUSHER_APP_ID=YOUR_PUSHER_APP_ID
+    PUSHER_APP_KEY=YOUR_PUSHER_APP_KEY
+    PUSHER_APP_SECRET=YOUR_PUSHER_APP_SECRET
+    PUSHER_APP_CLUSTER=ap1
+    PUSHER_PORT=443
+    PUSHER_SCHEME=https
 
-PUSHER_APP_ID=YOUR_PUSHER_APP_ID
-PUSHER_APP_KEY=YOUR_PUSHER_APP_KEY
-PUSHER_APP_SECRET=YOUR_PUSHER_APP_SECRET
-PUSHER_APP_CLUSTER=ap1
-PUSHER_PORT=443
-PUSHER_SCHEME=https
+    VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+    VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+    VITE_PUSHER_HOST="${PUSHER_HOST}"
+    VITE_PUSHER_PORT="${PUSHER_PORT}"
+    VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 
-VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
-VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
-VITE_PUSHER_HOST="${PUSHER_HOST}"
-VITE_PUSHER_PORT="${PUSHER_PORT}"
-VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+### Bước 7: Build và chạy container
 
-Bước 7: Build và chạy container:
+    docker compose up -d --build
 
-docker compose up -d --build
+### Bước 8: Cài dependency PHP
 
-Bước 8: Cài dependency PHP:
+    docker compose exec app composer install
 
-docker compose exec app composer install
+### Bước 9: Cài dependency frontend
 
-Bước 9: Cài dependency frontend:
+    docker compose exec app npm install
 
-docker compose exec app npm install
+### Bước 10: Tạo Laravel application key
 
-Bước 10: Tạo Laravel application key:
+    docker compose exec app php artisan key:generate
 
-docker compose exec app php artisan key:generate
+### Bước 11: Chạy migration và seed dữ liệu mẫu
 
-Bước 11: Chạy migration và seed dữ liệu mẫu:
-
-docker compose exec app php artisan migrate --seed
+    docker compose exec app php artisan migrate --seed
 
 Nếu muốn reset database hoàn toàn:
 
-docker compose exec app php artisan migrate:fresh --seed
+    docker compose exec app php artisan migrate:fresh --seed
 
-Bước 12: Tạo symbolic link cho storage:
+### Bước 12: Tạo symbolic link cho storage
 
-docker compose exec app php artisan storage:link
+    docker compose exec app php artisan storage:link
 
-Bước 13: Build frontend assets:
+### Bước 13: Build frontend assets
 
-docker compose exec app npm run build
+    docker compose exec app npm run build
 
-Bước 14: Mở trình duyệt và truy cập:
+### Bước 14: Mở ứng dụng
 
-http://localhost:8080
+    http://localhost:8080
 
-Nếu cổng 8080 bị trùng, vui lòng sửa port mapping trong file docker-compose.yml rồi chạy lại Docker Compose.
+Nếu cổng 8080 bị trùng, sửa port mapping trong docker-compose.yml rồi chạy lại Docker Compose.
 
-============================================================
-5. CÁCH DỪNG DỰ ÁN
-============================================================
+---
+
+## 5. Cách dừng dự án
 
 Dừng container:
 
-docker compose down
+    docker compose down
 
 Dừng container và xóa database volume:
 
-docker compose down -v
+    docker compose down -v
 
 Lưu ý:
-Lệnh "docker compose down -v" sẽ xóa dữ liệu database. Sau đó cần chạy lại migration và seeder.
 
-============================================================
-6. TÀI KHOẢN TEST
-============================================================
+Lệnh docker compose down -v sẽ xóa dữ liệu database. Sau đó cần chạy lại migration và seeder.
+
+---
+
+## 6. Tài khoản test
 
 Nếu chạy seeder thành công, có thể sử dụng các tài khoản sau để kiểm tra.
 
 Tài khoản owner:
-Email: hoaibao2284@gmail.com
-Password: conmeo123
+
+    Email: hoaibao2284@gmail.com
+    Password: conmeo123
 
 Tài khoản nhận chia sẻ 1:
-Email: hoaibao2009@gmail.com
-Password: concho123
+
+    Email: hoaibao2009@gmail.com
+    Password: concho123
 
 Tài khoản nhận chia sẻ 2:
-Email: letrungbao207@gmail.com
-Password: conga123
+
+    Email: letrungbao207@gmail.com
+    Password: conga123
 
 Tài khoản test mặc định:
-Email: test@example.com
-Password: password
+
+    Email: test@example.com
+    Password: password
 
 Ghi chú:
+
 - Các tài khoản trên nên được tạo bằng DatabaseSeeder.
 - Nếu tài khoản chưa tồn tại, vui lòng chạy:
 
-docker compose exec app php artisan migrate:fresh --seed
+    docker compose exec app php artisan migrate:fresh --seed
 
 - Người dùng cũng có thể tạo tài khoản mới trực tiếp bằng chức năng Register trên website.
 
-============================================================
-7. CÁC CHỨC NĂNG CHÍNH ĐÃ TRIỂN KHAI
-============================================================
+---
 
-7.1 Quản lý tài khoản
+## 7. Các chức năng chính đã triển khai
+
+### 7.1 Quản lý tài khoản
 
 Ứng dụng đã triển khai:
+
 - Đăng ký tài khoản
 - Đăng nhập
 - Đăng xuất
@@ -255,13 +285,14 @@ docker compose exec app php artisan migrate:fresh --seed
 - Xem và cập nhật thông tin cá nhân
 - Upload và cập nhật ảnh đại diện
 - Tùy chỉnh người dùng:
-  + Cỡ chữ ghi chú
-  + Màu ghi chú
-  + Giao diện sáng/tối
+  - Cỡ chữ ghi chú
+  - Màu ghi chú
+  - Giao diện sáng/tối
 
-7.2 Quản lý ghi chú cơ bản
+### 7.2 Quản lý ghi chú cơ bản
 
 Ứng dụng đã triển khai:
+
 - Hiển thị danh sách ghi chú cá nhân
 - Chế độ xem dạng lưới
 - Chế độ xem dạng danh sách
@@ -278,27 +309,29 @@ docker compose exec app php artisan migrate:fresh --seed
 - Gắn nhiều nhãn cho một ghi chú
 - Lọc ghi chú theo nhãn
 
-7.3 Chức năng ghi chú nâng cao
+### 7.3 Chức năng ghi chú nâng cao
 
 Ứng dụng đã triển khai:
+
 - Khóa ghi chú bằng mật khẩu
 - Yêu cầu nhập mật khẩu trước khi mở ghi chú bị khóa
 - Gỡ mật khẩu khỏi ghi chú
 - Chia sẻ ghi chú cho người dùng đã đăng ký bằng email
 - Chia sẻ ghi chú cho nhiều người dùng
 - Phân quyền chia sẻ:
-  + Chỉ xem
-  + Được chỉnh sửa
+  - Chỉ xem
+  - Được chỉnh sửa
 - Chủ sở hữu có thể quản lý quyền truy cập ghi chú
-- Người nhận có trang "Shared with me" để xem ghi chú được chia sẻ
+- Người nhận có trang Shared with me để xem ghi chú được chia sẻ
 - Hiển thị thông tin người chia sẻ và quyền truy cập
 - Thông báo realtime khi có ghi chú được chia sẻ
 - Trang Shared with me tự cập nhật realtime
 - Cộng tác chỉnh sửa ghi chú realtime với quyền edit
 
-7.4 PWA và Offline
+### 7.4 PWA và Offline
 
 Ứng dụng đã triển khai:
+
 - Có thể cài đặt như PWA
 - Hỗ trợ Service Worker
 - Có trang offline
@@ -308,9 +341,10 @@ docker compose exec app php artisan migrate:fresh --seed
 - Đồng bộ ghi chú offline khi có mạng trở lại
 - Offline logic không làm ảnh hưởng chức năng online
 
-7.5 Realtime WebSocket
+### 7.5 Realtime WebSocket
 
 Ứng dụng đã triển khai:
+
 - Tích hợp Laravel Echo và Pusher
 - Private user channel cho thông báo chia sẻ ghi chú
 - Note channel cho cộng tác chỉnh sửa realtime
@@ -318,9 +352,10 @@ docker compose exec app php artisan migrate:fresh --seed
 - Hiển thị người đang cập nhật bằng avatar/tên tài khoản
 - Cập nhật realtime card ghi chú trong Shared with me
 
-7.6 UI/UX và Responsive
+### 7.6 UI/UX và Responsive
 
 Ứng dụng đã triển khai:
+
 - Giao diện hiện đại, dễ sử dụng
 - Responsive trên desktop, tablet và mobile
 - Sidebar điều hướng
@@ -332,9 +367,9 @@ docker compose exec app php artisan migrate:fresh --seed
 - Trang profile rõ ràng, đồng bộ giao diện
 - Trạng thái ghi chú được thể hiện bằng icon: ghim, khóa, chia sẻ, nhãn
 
-============================================================
-8. KIỂM TRA REALTIME / WEBSOCKET
-============================================================
+---
+
+## 8. Kiểm tra Realtime / WebSocket
 
 Ứng dụng sử dụng Laravel Echo và Pusher để xử lý realtime.
 
@@ -342,7 +377,7 @@ Kiểm tra thông báo realtime khi chia sẻ ghi chú:
 
 1. Mở trình duyệt A và đăng nhập tài khoản owner.
 2. Mở trình duyệt B hoặc tab ẩn danh và đăng nhập tài khoản khác.
-3. Ở trình duyệt B, mở trang "Shared with me".
+3. Ở trình duyệt B, mở trang Shared with me.
 4. Ở trình duyệt A, chia sẻ ghi chú cho email của tài khoản ở trình duyệt B.
 5. Trình duyệt B sẽ nhận thông báo và ghi chú được chia sẻ mà không cần reload thủ công.
 
@@ -350,7 +385,7 @@ Kiểm tra cộng tác chỉnh sửa realtime:
 
 1. Đăng nhập owner ở trình duyệt A.
 2. Đăng nhập user nhận chia sẻ ở trình duyệt B.
-3. Owner chia sẻ ghi chú với quyền "Can edit".
+3. Owner chia sẻ ghi chú với quyền Can edit.
 4. Cả hai tài khoản cùng mở một ghi chú.
 5. Tài khoản A chỉnh sửa ghi chú.
 6. Tài khoản B sẽ thấy tiêu đề/nội dung được cập nhật realtime.
@@ -358,41 +393,45 @@ Kiểm tra cộng tác chỉnh sửa realtime:
 8. Tài khoản A cũng sẽ thấy thay đổi realtime.
 
 Nếu realtime không hoạt động:
+
 - Kiểm tra Pusher credentials trong file .env.
 - Đảm bảo BROADCAST_CONNECTION=pusher.
 - Chạy lệnh:
 
-docker compose exec app php artisan optimize:clear
+    docker compose exec app php artisan optimize:clear
 
 - Nếu thay đổi biến VITE_PUSHER trong .env, chạy lại:
 
-docker compose exec app npm run build
+    docker compose exec app npm run build
 
-============================================================
-9. KIỂM TRA EMAIL / MAILTRAP
-============================================================
+---
+
+## 9. Kiểm tra Email / Mailtrap
 
 Ứng dụng sử dụng Mailtrap để kiểm tra email.
 
 Các email được gửi qua Mailtrap:
+
 - Email xác minh tài khoản
 - Email đặt lại mật khẩu
 - Email thông báo chia sẻ ghi chú
 
 Cách kiểm tra:
+
 1. Cấu hình SMTP Mailtrap hợp lệ trong file .env.
 2. Đăng ký tài khoản mới hoặc dùng chức năng quên mật khẩu.
 3. Mở Mailtrap Inbox.
 4. Kiểm tra email được gửi đến.
 
 Lưu ý:
+
 - Mailtrap không gửi email đến hộp thư thật.
 - Email chỉ xuất hiện trong Mailtrap Testing Inbox.
 - Nếu Mailtrap hết quota hoặc sai credentials, các chức năng email có thể báo lỗi.
 
-============================================================
-10. KIỂM TRA PWA / OFFLINE
-============================================================
+---
+
+## 10. Kiểm tra PWA / Offline
 
 Cách kiểm tra PWA và offline:
 
@@ -407,6 +446,7 @@ Cách kiểm tra PWA và offline:
 9. Dữ liệu offline sẽ được đồng bộ về database online.
 
 Nếu trình duyệt bị cache file cũ:
+
 1. Mở DevTools.
 2. Vào Application > Service Workers.
 3. Chọn Unregister.
@@ -414,141 +454,143 @@ Nếu trình duyệt bị cache file cũ:
 5. Chọn Clear site data.
 6. Reload lại ứng dụng.
 
-============================================================
-11. THÔNG TIN DATABASE
-============================================================
+---
+
+## 11. Thông tin Database
 
 Cấu hình database mặc định:
 
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=myproject
-DB_USERNAME=root
-DB_PASSWORD=root
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=myproject
+    DB_USERNAME=root
+    DB_PASSWORD=root
 
 Chạy migration:
 
-docker compose exec app php artisan migrate
+    docker compose exec app php artisan migrate
 
 Reset database và seed lại dữ liệu mẫu:
 
-docker compose exec app php artisan migrate:fresh --seed
+    docker compose exec app php artisan migrate:fresh --seed
 
 Truy cập MySQL container:
 
-docker compose exec mysql mysql -u root -p
+    docker compose exec mysql mysql -u root -p
 
 Sau đó nhập password:
 
-root
+    root
 
-============================================================
-12. STORAGE VÀ UPLOAD HÌNH ẢNH
-============================================================
+---
+
+## 12. Storage và upload hình ảnh
 
 Ứng dụng sử dụng Laravel storage để lưu hình ảnh ghi chú và avatar.
 
 Sau khi cài đặt dự án, cần chạy:
 
-docker compose exec app php artisan storage:link
+    docker compose exec app php artisan storage:link
 
 Nếu hình ảnh upload không hiển thị, vui lòng kiểm tra:
+
 - APP_URL có đúng là http://localhost:8080 hay không
 - Đã chạy php artisan storage:link chưa
 - Thư mục storage có quyền ghi hay không
 - Cấu hình public disk có đúng không
 
-============================================================
-13. CÁC LỆNH HỮU ÍCH
-============================================================
+---
+
+## 13. Các lệnh hữu ích
 
 Khởi động container:
 
-docker compose up -d --build
+    docker compose up -d --build
 
 Dừng container:
 
-docker compose down
+    docker compose down
 
 Xem log container:
 
-docker compose logs -f
+    docker compose logs -f
 
 Cài dependency PHP:
 
-docker compose exec app composer install
+    docker compose exec app composer install
 
 Cài dependency frontend:
 
-docker compose exec app npm install
+    docker compose exec app npm install
 
 Build frontend:
 
-docker compose exec app npm run build
+    docker compose exec app npm run build
 
 Chạy frontend development server:
 
-docker compose exec app npm run dev
+    docker compose exec app npm run dev
 
 Tạo app key:
 
-docker compose exec app php artisan key:generate
+    docker compose exec app php artisan key:generate
 
 Chạy migration:
 
-docker compose exec app php artisan migrate
+    docker compose exec app php artisan migrate
 
 Reset database và seed lại:
 
-docker compose exec app php artisan migrate:fresh --seed
+    docker compose exec app php artisan migrate:fresh --seed
 
 Tạo storage link:
 
-docker compose exec app php artisan storage:link
+    docker compose exec app php artisan storage:link
 
 Clear cache Laravel:
 
-docker compose exec app php artisan optimize:clear
+    docker compose exec app php artisan optimize:clear
 
 Clear view:
 
-docker compose exec app php artisan view:clear
+    docker compose exec app php artisan view:clear
 
 Clear config:
 
-docker compose exec app php artisan config:clear
+    docker compose exec app php artisan config:clear
 
-============================================================
-14. LƯU Ý KHI CHẤM BÀI
-============================================================
+---
+
+## 14. Lưu ý khi chấm bài
 
 - Ứng dụng nên được chạy tại URL gốc, ví dụ:
-  http://localhost:8080
+
+    http://localhost:8080
 
 - Dự án không cần XAMPP.
-
 - Các chức năng email cần cấu hình Mailtrap hợp lệ.
-
 - Các chức năng realtime cần cấu hình Pusher hợp lệ.
-
 - Nếu PWA cache làm giao diện hoặc file JS/CSS không cập nhật, hãy clear site data trong trình duyệt.
-
 - Nếu thiếu bảng database, chạy:
-  docker compose exec app php artisan migrate:fresh --seed
+
+    docker compose exec app php artisan migrate:fresh --seed
 
 - Nếu ảnh upload không hiển thị, chạy:
-  docker compose exec app php artisan storage:link
+
+    docker compose exec app php artisan storage:link
 
 - Nếu thay đổi file .env, chạy:
-  docker compose exec app php artisan optimize:clear
+
+    docker compose exec app php artisan optimize:clear
 
 - Nếu thay đổi các biến VITE_PUSHER, chạy:
-  docker compose exec app npm run build
 
-============================================================
-15. CÁC TÍNH NĂNG NÂNG CAO / ĐIỂM CỘNG
-============================================================
+    docker compose exec app npm run build
+
+---
+
+## 15. Các tính năng nâng cao / điểm cộng
 
 Dự án có triển khai các chức năng nâng cao sau:
 
@@ -566,25 +608,31 @@ Dự án có triển khai các chức năng nâng cao sau:
 - Giao diện responsive
 - Triển khai bằng Docker Compose
 
-============================================================
-16. THÀNH VIÊN NHÓM
-============================================================
+---
 
-1. Họ tên: Trương Huỳnh Hoài Bảo
-   MSSV: 52400170
-   Email: 52400170@student.tdtu.edu.vn
+## 16. Thành viên nhóm
 
-2. Họ tên: Lê Trung Bảo
-   MSSV: 52400042
-   Email: 52400042@student.tdtu.edu.vn
+Thành viên 1:
 
-3. Họ tên: Dương Quốc Thắng
-   MSSV: 52400237
-   Email: 52400237@student.tdtu.edu.vn
+    Họ tên: Trương Huỳnh Hoài Bảo
+    MSSV: 52400170
+    Email: 52400170@student.tdtu.edu.vn
 
-============================================================
-17. KẾT LUẬN
-============================================================
+Thành viên 2:
+
+    Họ tên: Lê Trung Bảo
+    MSSV: 52400042
+    Email: 52400042@student.tdtu.edu.vn
+
+Thành viên 3:
+
+    Họ tên: Dương Quốc Thắng
+    MSSV: 52400237
+    Email: 52400237@student.tdtu.edu.vn
+
+---
+
+## 17. Kết luận
 
 Dự án đã được đóng gói để chạy bằng Docker Compose. Giảng viên có thể giải nén bài nộp, mở thư mục source, cấu hình file .env, cài đặt dependencies, chạy migration và seeder, sau đó khởi động ứng dụng theo các lệnh được cung cấp trong tài liệu này.
 
