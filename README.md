@@ -1,17 +1,19 @@
-MY NOTES - NOTES MANAGEMENT WEB APPLICATION
+MY NOTES - ỨNG DỤNG WEB QUẢN LÝ GHI CHÚ
 FINAL PROJECT SUBMISSION
 
 ============================================================
-1. PROJECT INFORMATION
+1. THÔNG TIN DỰ ÁN
 ============================================================
 
-Project name:
+Tên dự án:
 My Notes - Notes Management Web Application
 
-Description:
-My Notes is a web-based note management application that allows users to create, edit, organize, protect, share, and collaborate on notes. The system supports authentication, email verification, password reset, note auto-save, labels, pinned notes, password-protected notes, file/image upload, sharing permissions, realtime notifications, realtime collaborative editing, PWA support, offline note creation/editing, and synchronization when the connection is restored.
+Mô tả:
+My Notes là ứng dụng web quản lý ghi chú, cho phép người dùng đăng ký tài khoản, đăng nhập, tạo ghi chú, chỉnh sửa ghi chú, tự động lưu, tìm kiếm, quản lý nhãn, ghim ghi chú, khóa ghi chú bằng mật khẩu, upload hình ảnh, chia sẻ ghi chú cho người dùng khác và cộng tác chỉnh sửa ghi chú theo thời gian thực.
 
-Main technologies:
+Ứng dụng cũng hỗ trợ PWA/offline, cho phép người dùng tạo hoặc chỉnh sửa ghi chú khi mất kết nối mạng và đồng bộ lại dữ liệu khi có mạng trở lại.
+
+Công nghệ sử dụng:
 - Backend: Laravel
 - Frontend: Blade, Tailwind CSS, JavaScript
 - Database: MySQL
@@ -20,13 +22,13 @@ Main technologies:
 - PWA/Offline: Service Worker, IndexedDB
 - Containerization: Docker, Docker Compose
 
-The project is packaged with Docker Compose so it can be built and tested locally on the evaluator's machine.
+Dự án được đóng gói bằng Docker Compose để giảng viên có thể chạy và kiểm tra trên máy cục bộ.
 
 ============================================================
-2. SUBMISSION STRUCTURE
+2. CẤU TRÚC THƯ MỤC NỘP BÀI
 ============================================================
 
-The final submission should have the following structure:
+Cấu trúc thư mục nộp bài:
 
 MyNotes_Submission/
 |
@@ -54,46 +56,46 @@ MyNotes_Submission/
     |-- nginx.conf
     |-- .env.example
 
-Notes:
-- The "source" folder contains the full source code and Docker Compose configuration.
-- The "vendor" and "node_modules" folders are not required in the submission because dependencies can be installed using Composer and npm.
-- The ".env" file may be excluded for security. Please create it from ".env.example" when running the project.
+Ghi chú:
+- Thư mục "source" chứa toàn bộ mã nguồn và cấu hình Docker Compose.
+- Không cần nộp thư mục "vendor" và "node_modules" vì có thể cài lại bằng Composer và npm.
+- File ".env" có thể không được nộp kèm vì chứa thông tin nhạy cảm. Khi chạy dự án, hãy tạo file ".env" từ ".env.example".
 
 ============================================================
-3. SYSTEM REQUIREMENTS
+3. YÊU CẦU MÔI TRƯỜNG
 ============================================================
 
-Required software:
+Máy chấm cần cài đặt:
 - Docker Desktop
 - Docker Compose
-- Internet connection for Mailtrap and Pusher testing
+- Kết nối Internet để kiểm tra Mailtrap và Pusher
 
-Check Docker installation:
+Kiểm tra Docker bằng lệnh:
 
 docker --version
 docker compose version
 
-No XAMPP, WAMP, or manual Apache/Nginx installation is required.
+Dự án không yêu cầu cài XAMPP, WAMP hoặc cấu hình thủ công Apache/Nginx.
 
 ============================================================
-4. HOW TO RUN THE PROJECT WITH DOCKER COMPOSE
+4. HƯỚNG DẪN CHẠY DỰ ÁN BẰNG DOCKER COMPOSE
 ============================================================
 
-Step 1: Extract the submitted ZIP file.
+Bước 1: Giải nén file ZIP bài nộp.
 
-Step 2: Open terminal and go to the source folder:
+Bước 2: Mở terminal/cmd và đi vào thư mục source:
 
 cd source
 
-Step 3: Create the environment file:
+Bước 3: Tạo file môi trường .env từ file mẫu:
 
 cp .env.example .env
 
-On Windows, if the "cp" command is not available, manually copy ".env.example" and rename the copied file to ".env".
+Nếu dùng Windows và không chạy được lệnh "cp", có thể copy thủ công file ".env.example" rồi đổi tên thành ".env".
 
-Step 4: Configure the .env file.
+Bước 4: Cấu hình file .env.
 
-Recommended local configuration:
+Cấu hình local khuyến nghị:
 
 APP_NAME="My Notes"
 APP_ENV=local
@@ -111,14 +113,14 @@ SESSION_DRIVER=file
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
 
-Step 5: Configure Mailtrap in .env.
+Bước 5: Cấu hình Mailtrap trong file .env.
 
-The application uses Mailtrap for:
-- Email verification
-- Password reset email
-- Shared note notification email
+Ứng dụng sử dụng Mailtrap cho:
+- Email xác minh tài khoản
+- Email đặt lại mật khẩu
+- Email thông báo khi ghi chú được chia sẻ
 
-Example:
+Ví dụ cấu hình:
 
 MAIL_MAILER=smtp
 MAIL_HOST=sandbox.smtp.mailtrap.io
@@ -129,13 +131,13 @@ MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=no-reply@mynotes.test
 MAIL_FROM_NAME="My Notes"
 
-Please replace YOUR_MAILTRAP_USERNAME and YOUR_MAILTRAP_PASSWORD with valid SMTP credentials from Mailtrap.
+Thay YOUR_MAILTRAP_USERNAME và YOUR_MAILTRAP_PASSWORD bằng thông tin SMTP lấy từ tài khoản Mailtrap.
 
-Step 6: Configure Pusher in .env.
+Bước 6: Cấu hình Pusher trong file .env.
 
-The application uses Pusher WebSocket for realtime features.
+Ứng dụng sử dụng Pusher WebSocket cho các chức năng realtime.
 
-Example:
+Ví dụ cấu hình:
 
 BROADCAST_DRIVER=pusher
 BROADCAST_CONNECTION=pusher
@@ -153,267 +155,270 @@ VITE_PUSHER_HOST="${PUSHER_HOST}"
 VITE_PUSHER_PORT="${PUSHER_PORT}"
 VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 
-Step 7: Build and start Docker containers:
+Bước 7: Build và chạy container:
 
 docker compose up -d --build
 
-Step 8: Install PHP dependencies:
+Bước 8: Cài dependency PHP:
 
 docker compose exec app composer install
 
-Step 9: Install frontend dependencies:
+Bước 9: Cài dependency frontend:
 
 docker compose exec app npm install
 
-Step 10: Generate Laravel application key:
+Bước 10: Tạo Laravel application key:
 
 docker compose exec app php artisan key:generate
 
-Step 11: Run migrations and seed sample data:
+Bước 11: Chạy migration và seed dữ liệu mẫu:
 
 docker compose exec app php artisan migrate --seed
 
-If you want to reset the database completely:
+Nếu muốn reset database hoàn toàn:
 
 docker compose exec app php artisan migrate:fresh --seed
 
-Step 12: Create storage symbolic link:
+Bước 12: Tạo symbolic link cho storage:
 
 docker compose exec app php artisan storage:link
 
-Step 13: Build frontend assets:
+Bước 13: Build frontend assets:
 
 docker compose exec app npm run build
 
-Step 14: Open the application:
+Bước 14: Mở trình duyệt và truy cập:
 
 http://localhost:8080
 
-If port 8080 is already in use, please change the port mapping in docker-compose.yml and run Docker Compose again.
+Nếu cổng 8080 bị trùng, vui lòng sửa port mapping trong file docker-compose.yml rồi chạy lại Docker Compose.
 
 ============================================================
-5. HOW TO STOP THE PROJECT
+5. CÁCH DỪNG DỰ ÁN
 ============================================================
 
-Stop containers:
+Dừng container:
 
 docker compose down
 
-Stop containers and remove database volume:
+Dừng container và xóa database volume:
 
 docker compose down -v
 
-Warning:
-Running "docker compose down -v" will delete the database volume. You will need to run migrations and seeders again.
+Lưu ý:
+Lệnh "docker compose down -v" sẽ xóa dữ liệu database. Sau đó cần chạy lại migration và seeder.
 
 ============================================================
-6. TEST ACCOUNTS
+6. TÀI KHOẢN TEST
 ============================================================
 
-If the database seeders are executed successfully, the following accounts can be used for testing.
+Nếu chạy seeder thành công, có thể sử dụng các tài khoản sau để kiểm tra.
 
-Owner account:
+Tài khoản owner:
 Email: hoaibao2284@gmail.com
 Password: conmeo123
 
-Shared user account 1:
+Tài khoản nhận chia sẻ 1:
 Email: hoaibao2009@gmail.com
 Password: concho123
 
-Shared user account 2:
+Tài khoản nhận chia sẻ 2:
 Email: letrungbao207@gmail.com
 Password: conga123
 
-Default test account:
+Tài khoản test mặc định:
 Email: test@example.com
 Password: password
 
-Notes:
-- These accounts should be created by the database seeder.
-- If the accounts do not exist, please run:
+Ghi chú:
+- Các tài khoản trên nên được tạo bằng DatabaseSeeder.
+- Nếu tài khoản chưa tồn tại, vui lòng chạy:
 
 docker compose exec app php artisan migrate:fresh --seed
 
-- New accounts can also be created directly from the Register page.
+- Người dùng cũng có thể tạo tài khoản mới trực tiếp bằng chức năng Register trên website.
 
 ============================================================
-7. MAIN FEATURES
+7. CÁC CHỨC NĂNG CHÍNH ĐÃ TRIỂN KHAI
 ============================================================
 
-7.1 Account Management
+7.1 Quản lý tài khoản
 
-Implemented features:
-- User registration
-- Login and logout
-- Password hashing using Laravel authentication
-- Email verification through Mailtrap
-- Forgot password
-- Reset password through Mailtrap
-- Edit profile information
-- Upload and update avatar
-- User settings:
-  + Font size customization
-  + Note color customization
-  + Light/Dark theme customization
+Ứng dụng đã triển khai:
+- Đăng ký tài khoản
+- Đăng nhập
+- Đăng xuất
+- Hash mật khẩu bằng Laravel Authentication
+- Xác minh email thông qua Mailtrap
+- Quên mật khẩu
+- Đặt lại mật khẩu thông qua email Mailtrap
+- Xem và cập nhật thông tin cá nhân
+- Upload và cập nhật ảnh đại diện
+- Tùy chỉnh người dùng:
+  + Cỡ chữ ghi chú
+  + Màu ghi chú
+  + Giao diện sáng/tối
 
-7.2 Basic Note Management
+7.2 Quản lý ghi chú cơ bản
 
-Implemented features:
-- Display personal notes
-- Grid view and list view
-- Create new note
-- Edit note
-- Delete note with confirmation
-- Auto-save note title and content
-- Search notes directly by title and content
-- Pin notes to the top
-- Upload one or multiple images to a note
-- Display uploaded images
-- Sort notes by latest update
-- Manage labels
-- Attach multiple labels to one note
-- Filter notes by label
+Ứng dụng đã triển khai:
+- Hiển thị danh sách ghi chú cá nhân
+- Chế độ xem dạng lưới
+- Chế độ xem dạng danh sách
+- Tạo ghi chú mới
+- Chỉnh sửa ghi chú
+- Xóa ghi chú với hộp thoại xác nhận
+- Tự động lưu tiêu đề và nội dung ghi chú
+- Tìm kiếm trực tiếp theo tiêu đề và nội dung
+- Ghim ghi chú lên đầu danh sách
+- Upload một hoặc nhiều hình ảnh cho ghi chú
+- Hiển thị hình ảnh đã upload
+- Sắp xếp ghi chú theo thời gian cập nhật mới nhất
+- Quản lý nhãn
+- Gắn nhiều nhãn cho một ghi chú
+- Lọc ghi chú theo nhãn
 
-7.3 Advanced Note Features
+7.3 Chức năng ghi chú nâng cao
 
-Implemented features:
-- Lock notes with password
-- Require password before opening locked notes
-- Remove note password
-- Share notes with registered users by email
-- Share notes with multiple users
-- Set sharing permission:
-  + Read only
-  + Can edit
-- Owner can manage shared access
-- Shared users have a "Shared with me" page
-- Shared notes display owner information and permission type
-- Realtime notification when a note is shared
-- Realtime refresh on the Shared with me page
-- Realtime collaborative editing for notes shared with edit permission
+Ứng dụng đã triển khai:
+- Khóa ghi chú bằng mật khẩu
+- Yêu cầu nhập mật khẩu trước khi mở ghi chú bị khóa
+- Gỡ mật khẩu khỏi ghi chú
+- Chia sẻ ghi chú cho người dùng đã đăng ký bằng email
+- Chia sẻ ghi chú cho nhiều người dùng
+- Phân quyền chia sẻ:
+  + Chỉ xem
+  + Được chỉnh sửa
+- Chủ sở hữu có thể quản lý quyền truy cập ghi chú
+- Người nhận có trang "Shared with me" để xem ghi chú được chia sẻ
+- Hiển thị thông tin người chia sẻ và quyền truy cập
+- Thông báo realtime khi có ghi chú được chia sẻ
+- Trang Shared with me tự cập nhật realtime
+- Cộng tác chỉnh sửa ghi chú realtime với quyền edit
 
-7.4 PWA and Offline Features
+7.4 PWA và Offline
 
-Implemented features:
-- Installable PWA
-- Service Worker support
-- Offline page
-- Offline note creation
-- Offline note editing
-- Save offline notes to IndexedDB
-- Sync offline notes when the browser goes online again
-- Prevent offline logic from breaking normal online note editing
+Ứng dụng đã triển khai:
+- Có thể cài đặt như PWA
+- Hỗ trợ Service Worker
+- Có trang offline
+- Tạo ghi chú khi offline
+- Chỉnh sửa ghi chú khi offline
+- Lưu dữ liệu offline bằng IndexedDB
+- Đồng bộ ghi chú offline khi có mạng trở lại
+- Offline logic không làm ảnh hưởng chức năng online
 
-7.5 Realtime WebSocket Features
+7.5 Realtime WebSocket
 
-Implemented features:
-- Laravel Echo and Pusher integration
-- Private user channel for shared note notification
-- Public note channel for collaborative editing
-- Realtime update of note title and content
-- Realtime collaborator status with avatar/name
-- Realtime refresh for shared note cards
+Ứng dụng đã triển khai:
+- Tích hợp Laravel Echo và Pusher
+- Private user channel cho thông báo chia sẻ ghi chú
+- Note channel cho cộng tác chỉnh sửa realtime
+- Cập nhật realtime tiêu đề và nội dung ghi chú
+- Hiển thị người đang cập nhật bằng avatar/tên tài khoản
+- Cập nhật realtime card ghi chú trong Shared with me
 
-7.6 UI/UX and Responsive Design
+7.6 UI/UX và Responsive
 
-Implemented features:
-- Modern dashboard UI
-- Responsive layout for desktop, tablet, and mobile
-- Sidebar navigation
-- Collapsible sidebar
-- Modern login/register pages
-- Login-like light background
-- ChatGPT-like dark theme
-- Polished editor modal
-- Clean profile page
-- Clear visual states for locked, pinned, shared, and labeled notes
+Ứng dụng đã triển khai:
+- Giao diện hiện đại, dễ sử dụng
+- Responsive trên desktop, tablet và mobile
+- Sidebar điều hướng
+- Sidebar có thể thu gọn/mở rộng
+- Giao diện login/register hiện đại
+- Light theme giống nền login
+- Dark theme kiểu ChatGPT
+- Modal editor bo góc đẹp
+- Trang profile rõ ràng, đồng bộ giao diện
+- Trạng thái ghi chú được thể hiện bằng icon: ghim, khóa, chia sẻ, nhãn
 
 ============================================================
-8. REALTIME / WEBSOCKET TESTING
+8. KIỂM TRA REALTIME / WEBSOCKET
 ============================================================
 
-The project uses Laravel Echo and Pusher for realtime communication.
+Ứng dụng sử dụng Laravel Echo và Pusher để xử lý realtime.
 
-To test realtime shared notification:
+Kiểm tra thông báo realtime khi chia sẻ ghi chú:
 
-1. Open browser A and login as the owner account.
-2. Open browser B or incognito window and login as another account.
-3. In browser B, open "Shared with me".
-4. In browser A, share a note with browser B's email.
-5. Browser B should receive the notification and shared note without manually reloading the page.
+1. Mở trình duyệt A và đăng nhập tài khoản owner.
+2. Mở trình duyệt B hoặc tab ẩn danh và đăng nhập tài khoản khác.
+3. Ở trình duyệt B, mở trang "Shared with me".
+4. Ở trình duyệt A, chia sẻ ghi chú cho email của tài khoản ở trình duyệt B.
+5. Trình duyệt B sẽ nhận thông báo và ghi chú được chia sẻ mà không cần reload thủ công.
 
-To test realtime collaboration:
+Kiểm tra cộng tác chỉnh sửa realtime:
 
-1. Login as owner in browser A.
-2. Login as shared user in browser B.
-3. Owner shares a note with "Can edit" permission.
-4. Both users open the same note.
-5. Browser A edits the note.
-6. Browser B should see the updated title/content in realtime.
-7. Browser B edits the note.
-8. Browser A should see the update in realtime.
+1. Đăng nhập owner ở trình duyệt A.
+2. Đăng nhập user nhận chia sẻ ở trình duyệt B.
+3. Owner chia sẻ ghi chú với quyền "Can edit".
+4. Cả hai tài khoản cùng mở một ghi chú.
+5. Tài khoản A chỉnh sửa ghi chú.
+6. Tài khoản B sẽ thấy tiêu đề/nội dung được cập nhật realtime.
+7. Tài khoản B chỉnh sửa lại.
+8. Tài khoản A cũng sẽ thấy thay đổi realtime.
 
-If realtime does not work:
-- Check Pusher credentials in .env.
-- Make sure BROADCAST_CONNECTION=pusher.
-- Run:
+Nếu realtime không hoạt động:
+- Kiểm tra Pusher credentials trong file .env.
+- Đảm bảo BROADCAST_CONNECTION=pusher.
+- Chạy lệnh:
 
 docker compose exec app php artisan optimize:clear
 
-- Rebuild frontend assets if VITE variables were changed:
+- Nếu thay đổi biến VITE_PUSHER trong .env, chạy lại:
 
 docker compose exec app npm run build
 
 ============================================================
-9. EMAIL / MAILTRAP TESTING
+9. KIỂM TRA EMAIL / MAILTRAP
 ============================================================
 
-Mailtrap is used for email testing. The application sends the following emails:
+Ứng dụng sử dụng Mailtrap để kiểm tra email.
 
-- Email verification
-- Password reset email
-- Shared note notification email
+Các email được gửi qua Mailtrap:
+- Email xác minh tài khoản
+- Email đặt lại mật khẩu
+- Email thông báo chia sẻ ghi chú
 
-How to test email:
-1. Configure valid Mailtrap SMTP credentials in .env.
-2. Register a new account or use forgot password.
-3. Open the Mailtrap inbox.
-4. Check the received email.
+Cách kiểm tra:
+1. Cấu hình SMTP Mailtrap hợp lệ trong file .env.
+2. Đăng ký tài khoản mới hoặc dùng chức năng quên mật khẩu.
+3. Mở Mailtrap Inbox.
+4. Kiểm tra email được gửi đến.
 
-Important:
-- Mailtrap does not send emails to real inboxes.
-- Emails appear only in the Mailtrap testing inbox.
-- If Mailtrap quota is exceeded or credentials are wrong, email-related features may return errors.
-
-============================================================
-10. PWA / OFFLINE TESTING
-============================================================
-
-To test PWA and offline mode:
-
-1. Open the application in Chrome.
-2. Open DevTools.
-3. Go to Application > Service Workers.
-4. Confirm that the service worker is registered.
-5. Turn off the network connection or select "Offline" in DevTools.
-6. Create or edit a note.
-7. The note should be saved offline.
-8. Turn the network back on.
-9. The offline data should be synced back to the online database.
-
-If old files are cached:
-1. Open DevTools.
-2. Go to Application > Service Workers.
-3. Click Unregister.
-4. Go to Application > Storage.
-5. Click Clear site data.
-6. Reload the application.
+Lưu ý:
+- Mailtrap không gửi email đến hộp thư thật.
+- Email chỉ xuất hiện trong Mailtrap Testing Inbox.
+- Nếu Mailtrap hết quota hoặc sai credentials, các chức năng email có thể báo lỗi.
 
 ============================================================
-11. DATABASE INFORMATION
+10. KIỂM TRA PWA / OFFLINE
 ============================================================
 
-Default local database configuration:
+Cách kiểm tra PWA và offline:
+
+1. Mở ứng dụng bằng Chrome.
+2. Mở DevTools.
+3. Vào Application > Service Workers.
+4. Kiểm tra Service Worker đã được đăng ký.
+5. Tắt mạng hoặc chọn chế độ Offline trong DevTools.
+6. Tạo hoặc chỉnh sửa ghi chú.
+7. Ghi chú sẽ được lưu offline.
+8. Bật mạng lại.
+9. Dữ liệu offline sẽ được đồng bộ về database online.
+
+Nếu trình duyệt bị cache file cũ:
+1. Mở DevTools.
+2. Vào Application > Service Workers.
+3. Chọn Unregister.
+4. Vào Application > Storage.
+5. Chọn Clear site data.
+6. Reload lại ứng dụng.
+
+============================================================
+11. THÔNG TIN DATABASE
+============================================================
+
+Cấu hình database mặc định:
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
@@ -422,59 +427,59 @@ DB_DATABASE=myproject
 DB_USERNAME=root
 DB_PASSWORD=root
 
-Run migrations:
+Chạy migration:
 
 docker compose exec app php artisan migrate
 
-Reset database and seed sample data:
+Reset database và seed lại dữ liệu mẫu:
 
 docker compose exec app php artisan migrate:fresh --seed
 
-Access MySQL container:
+Truy cập MySQL container:
 
 docker compose exec mysql mysql -u root -p
 
-Then enter the password:
+Sau đó nhập password:
 
 root
 
 ============================================================
-12. STORAGE AND IMAGE UPLOAD
+12. STORAGE VÀ UPLOAD HÌNH ẢNH
 ============================================================
 
-The project uses Laravel storage for uploaded images and avatars.
+Ứng dụng sử dụng Laravel storage để lưu hình ảnh ghi chú và avatar.
 
-After setting up the project, run:
+Sau khi cài đặt dự án, cần chạy:
 
 docker compose exec app php artisan storage:link
 
-If uploaded images do not appear, please check:
-- APP_URL is set to http://localhost:8080
-- storage:link has been executed
-- The storage folder has write permission
-- The public disk is correctly configured
+Nếu hình ảnh upload không hiển thị, vui lòng kiểm tra:
+- APP_URL có đúng là http://localhost:8080 hay không
+- Đã chạy php artisan storage:link chưa
+- Thư mục storage có quyền ghi hay không
+- Cấu hình public disk có đúng không
 
 ============================================================
-13. USEFUL COMMANDS
+13. CÁC LỆNH HỮU ÍCH
 ============================================================
 
-Start containers:
+Khởi động container:
 
 docker compose up -d --build
 
-Stop containers:
+Dừng container:
 
 docker compose down
 
-View logs:
+Xem log container:
 
 docker compose logs -f
 
-Install PHP dependencies:
+Cài dependency PHP:
 
 docker compose exec app composer install
 
-Install frontend dependencies:
+Cài dependency frontend:
 
 docker compose exec app npm install
 
@@ -482,31 +487,31 @@ Build frontend:
 
 docker compose exec app npm run build
 
-Run development frontend server:
+Chạy frontend development server:
 
 docker compose exec app npm run dev
 
-Generate app key:
+Tạo app key:
 
 docker compose exec app php artisan key:generate
 
-Run migrations:
+Chạy migration:
 
 docker compose exec app php artisan migrate
 
-Reset and seed database:
+Reset database và seed lại:
 
 docker compose exec app php artisan migrate:fresh --seed
 
-Create storage link:
+Tạo storage link:
 
 docker compose exec app php artisan storage:link
 
-Clear Laravel cache:
+Clear cache Laravel:
 
 docker compose exec app php artisan optimize:clear
 
-Clear views:
+Clear view:
 
 docker compose exec app php artisan view:clear
 
@@ -515,72 +520,72 @@ Clear config:
 docker compose exec app php artisan config:clear
 
 ============================================================
-14. NOTES FOR EVALUATION
+14. LƯU Ý KHI CHẤM BÀI
 ============================================================
 
-- The application should be run from the root URL, for example:
+- Ứng dụng nên được chạy tại URL gốc, ví dụ:
   http://localhost:8080
 
-- The project does not require XAMPP.
+- Dự án không cần XAMPP.
 
-- Email features require valid Mailtrap SMTP credentials.
+- Các chức năng email cần cấu hình Mailtrap hợp lệ.
 
-- Realtime features require valid Pusher credentials.
+- Các chức năng realtime cần cấu hình Pusher hợp lệ.
 
-- If PWA cache causes old files to appear, clear site data in the browser.
+- Nếu PWA cache làm giao diện hoặc file JS/CSS không cập nhật, hãy clear site data trong trình duyệt.
 
-- If database tables are missing, run:
+- Nếu thiếu bảng database, chạy:
   docker compose exec app php artisan migrate:fresh --seed
 
-- If uploaded images are missing, run:
+- Nếu ảnh upload không hiển thị, chạy:
   docker compose exec app php artisan storage:link
 
-- If .env is changed, run:
+- Nếu thay đổi file .env, chạy:
   docker compose exec app php artisan optimize:clear
 
-- If VITE_PUSHER variables are changed, run:
+- Nếu thay đổi các biến VITE_PUSHER, chạy:
   docker compose exec app npm run build
 
 ============================================================
-15. OPTIONAL / BONUS FEATURES
+15. CÁC TÍNH NĂNG NÂNG CAO / ĐIỂM CỘNG
 ============================================================
 
-The project includes the following advanced/optional features:
+Dự án có triển khai các chức năng nâng cao sau:
 
-- PWA support
-- Offline note creation and editing
-- Offline-to-online synchronization
-- Realtime shared note notification
-- Realtime collaborative editing
-- Mailtrap email integration
-- Light/Dark theme customization
-- Note color customization
-- Font size customization
-- Password-protected notes
-- Avatar upload
-- Responsive UI
-- Docker Compose deployment
+- PWA
+- Tạo và chỉnh sửa ghi chú offline
+- Đồng bộ dữ liệu offline khi online lại
+- Thông báo realtime khi chia sẻ ghi chú
+- Cộng tác chỉnh sửa ghi chú realtime
+- Tích hợp Mailtrap
+- Tùy chỉnh giao diện sáng/tối
+- Tùy chỉnh màu ghi chú
+- Tùy chỉnh cỡ chữ
+- Khóa ghi chú bằng mật khẩu
+- Upload avatar
+- Giao diện responsive
+- Triển khai bằng Docker Compose
 
 ============================================================
-16. TEAM MEMBERS
+16. THÀNH VIÊN NHÓM
 ============================================================
 
-1. Full name: Trương Huỳnh Hoài Bảo
-   Student ID: 52400170
+1. Họ tên: Trương Huỳnh Hoài Bảo
+   MSSV: 52400170
    Email: 52400170@student.tdtu.edu.vn
 
-2. Full name: Lê Trung Bảo
-   Student ID: 52400042
+2. Họ tên: Lê Trung Bảo
+   MSSV: 52400042
    Email: 52400042@student.tdtu.edu.vn
 
-3. Full name: Dương Quốc Thắng
-   Student ID: 52400237
+3. Họ tên: Dương Quốc Thắng
+   MSSV: 52400237
    Email: 52400237@student.tdtu.edu.vn
 
 ============================================================
-17. CONCLUSION
+17. KẾT LUẬN
 ============================================================
 
-This project has been packaged to run with Docker Compose. The evaluator can extract the submission, open the source folder, configure the .env file, install dependencies, run migrations and seeders, and start the application using the commands provided above.
+Dự án đã được đóng gói để chạy bằng Docker Compose. Giảng viên có thể giải nén bài nộp, mở thư mục source, cấu hình file .env, cài đặt dependencies, chạy migration và seeder, sau đó khởi động ứng dụng theo các lệnh được cung cấp trong tài liệu này.
 
-The application implements the main requirements of a note management system, including authentication, email verification, password reset, note CRUD, auto-save, search, labels, pinned notes, password-protected notes, image upload, note sharing, permission control, realtime notification, realtime collaborative editing, PWA support, and offline synchronization.
+Ứng dụng đã triển khai các chức năng chính của hệ thống quản lý ghi chú, bao gồm xác thực người dùng, xác minh email, đặt lại mật khẩu, CRUD ghi chú, tự động lưu, tìm kiếm, nhãn, ghim ghi chú, bảo vệ ghi chú bằng mật khẩu, upload hình ảnh, chia sẻ ghi chú, phân quyền, thông báo realtime, cộng tác chỉnh sửa realtime, PWA và đồng bộ ghi chú offline.
